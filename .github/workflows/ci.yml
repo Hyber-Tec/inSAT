@@ -1,0 +1,62 @@
+# What a pull request must pass before it reaches main (CLAUDE.md): the web
+# app builds, and the API's checks pass, the generation test against the
+# Firestore and Storage emulators. The browser checks need the whole app and
+# its question pool, so they run on a workstation (README).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Web build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  functions:
+    name: API checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm install --global firebase-tools
+      - run: npm run check:templates
+      - run: npm run check:similarity
+      - run: npm run check:scoring
+      - run: npm run check:practice
+      - run: npm run check:verification
+      - run: npm run check:variation
+      - run: npm run check:text-repair
+      - run: npm run check:generation
