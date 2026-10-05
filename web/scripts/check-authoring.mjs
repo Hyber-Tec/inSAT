@@ -24,11 +24,11 @@ import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { query, pool } from '../../server/lib/db.js';
-import { hashPassword } from '../../server/lib/auth.js';
-import { GLOBAL_POOL_SLUG, POOL_SLUG } from '../../server/lib/pool.js';
+import { query, pool } from '../../functions/lib/db.js';
+import { hashPassword } from '../../functions/lib/auth.js';
+import { GLOBAL_POOL_SLUG, POOL_SLUG } from '../../functions/lib/pool.js';
 
-const { PDFDocument, StandardFonts } = createRequire(path.resolve('../server/package.json'))('pdf-lib');
+const { PDFDocument, StandardFonts } = createRequire(path.resolve('../functions/package.json'))('pdf-lib');
 
 const API_PORT = 3012;
 const CLIENT_PORT = 5184;

@@ -32,14 +32,14 @@ Multiple institutions of either mode live side by side, as they already can.
   routes (users, groups, blueprints, exams incl. generate/upload/manual,
   exam folders, assignments, results, analytics, results.csv) and all student
   assignment routes (`GET /assignments`, `POST /assignments/:id/start`,
-  sessions) exist in `server/routes/admin.js` and `server/routes/student.js`,
+  sessions) exist in `functions/routes/admin.js` and `functions/routes/student.js`,
   plus insat's own (`/profile`, `/practice`). The database schema is a
   superset too (insat adds `accepted`, `hidden_at`, `practice`, `realism`,
   `timing_mode`, `title`, `variant_of`); nothing exists only in primeTesting.
 - What insat dropped when it was cloned is the **admin client** for managed
-  work. primeTesting has `client/src/admin/{Assignments,Bank,BankActions,
+  work. primeTesting has `web/src/admin/{Assignments,Bank,BankActions,
   Exams,Groups,QuestionEditor}.jsx` and a student dashboard of assigned exams
-  (`client/src/student/StudentApp.jsx`: group filter, locked exams with a
+  (`web/src/student/StudentApp.jsx`: group filter, locked exams with a
   scheduled release, an exam hidden within a group). insat's admin has only
   Students, Progress (results) and Settings.
 - primeTesting has no commits since the clone; its working tree is clean. Its
@@ -52,10 +52,10 @@ Multiple institutions of either mode live side by side, as they already can.
   `pa_sessions(kind 'exam'|'practice', practice JSONB, assignment_id, title,
   timing_mode, hidden_at, ...)`. Migrations live in `db/migrate.sql`
   (idempotent: `ADD COLUMN IF NOT EXISTS`) and are applied on every API boot.
-- Practice logic is in `server/lib/practice.js`: `skillProfile(userId,
+- Practice logic is in `functions/lib/practice.js`: `skillProfile(userId,
   { institutionId, creds })`, `skillsSpec(skillNames, profile, { perSkill,
   difficulty })`, `practiceTitle(...)`, `PRACTICE_MODES`. Unique forms come
-  from `server/lib/assembly.js`, drawing on the shared pool (the institution's
+  from `functions/lib/assembly.js`, drawing on the shared pool (the institution's
   bank, the global pool, math templates, verified variants).
 
 ## Decisions (made; keep them unless the user says otherwise)
@@ -94,7 +94,7 @@ Each phase ends working and verified (see "Verification").
 
 - Migration for `pa_institutions.mode`; return it from `GET /api/auth/me`
   (`institutionMode`) and from the super routes.
-- Super console (`client/src/super/SuperAdminApp.jsx`): the New institution
+- Super console (`web/src/super/SuperAdminApp.jsx`): the New institution
   dialog gets a choice of two cards, "Self-guided" (students practise on their
   own: diagnostic, skill map, practice sets) and "Institution-managed" (admins
   assign tests and practice topics and follow each student's results). Each
@@ -105,7 +105,7 @@ Each phase ends working and verified (see "Verification").
 
 ### Phase 2 - managed admin console
 
-- `client/src/admin/AdminApp.jsx` picks its sections by mode. Self-guided:
+- `web/src/admin/AdminApp.jsx` picks its sections by mode. Self-guided:
   Students, Progress, Settings (unchanged). Managed: Students, Groups, Exams,
   Assignments, Progress, Settings.
 - **Groups**: port primeTesting's `Groups.jsx` (create, rename, delete,
@@ -140,7 +140,7 @@ Each phase ends working and verified (see "Verification").
 
 ### Phase 4 - managed student app
 
-- `client/src/student/StudentApp.jsx` picks the home by mode. Self-guided:
+- `web/src/student/StudentApp.jsx` picks the home by mode. Self-guided:
   today's `Practice.jsx`. Managed: an **Assigned to you** home: assigned
   tests and practice topics with their status (to do, in progress, done),
   due dates, locked tests with their release time, and primeTesting's group
@@ -161,7 +161,7 @@ Each phase ends working and verified (see "Verification").
 
 ### Phase 6 - primeTesting's academies (only if the user confirms)
 
-- A dry-run-first, idempotent script `server/scripts/import-primetesting.js`
+- A dry-run-first, idempotent script `functions/scripts/import-primetesting.js`
   that reads primeTesting's database and brings its institutions (as
   `managed`), users (password hashes as they are), groups, exams,
   assignments and sessions into insat, mapping ids and skipping blueprints
@@ -172,16 +172,16 @@ Each phase ends working and verified (see "Verification").
 ## Interface (the user's standing instructions - follow them exactly)
 
 - shadcn/ui (radix-vega style) on Tailwind CSS v4, the **Mist** palette with
-  **mist-700** as the primary color (`client/src/index.css`), icons only from
+  **mist-700** as the primary color (`web/src/index.css`), icons only from
   `react-icons/lu` (never lucide-react). Add a shadcn component with
-  `npx shadcn@latest add <name>` in `client/`, then switch its lucide imports
+  `npx shadcn@latest add <name>` in `web/`, then switch its lucide imports
   to the same icon from `react-icons/lu`.
-- Reuse what exists: `client/src/ui.jsx` (Wordmark, SectionHeading,
+- Reuse what exists: `web/src/ui.jsx` (Wordmark, SectionHeading,
   StatusBadge, Meter, TONE, EmptyState, ConfirmDialog, HomeLink),
-  `client/src/account.jsx` (the account menu), `client/src/admin/shared.jsx`,
+  `web/src/account.jsx` (the account menu), `web/src/admin/shared.jsx`,
   and the patterns in `admin/Students.jsx` (row lists, FormDialog, the trash
   icon with a tooltip) and `student/Practice.jsx` (the skill map).
-- The insat logo kit (`client/brand/`) keeps its own purple and orange; the
+- The insat logo kit (`web/brand/`) keeps its own purple and orange; the
   interface stays Mist. The logo leads home everywhere.
 - Clean, modern, consistent; check desktop and phone. Tailwind gotchas met
   before: `duration-*` also sets a transition (use `animation-duration-*` on
@@ -205,17 +205,17 @@ Each phase ends working and verified (see "Verification").
 
 - `./start.sh` brings up Postgres (`:5434`), the API (`:3002`) and the client
   (`:5174`). The API does not hot-reload: restart it to apply migrations and
-  server changes. Do not edit files under `client/` while a Playwright check
+  server changes. Do not edit files under `web/` while a Playwright check
   is running (Vite reloads the page and the run fails); after dependency
   changes, restart Vite with `rm -rf node_modules/.vite`.
 - Every phase must pass, with the output read, not assumed:
-  - server: every `npm run check:*` in `server/`;
+  - server: every `npm run check:*` in `functions/`;
   - client: `npx vite build` with no warnings; `npm run check:screens`
     (extend it with the new screens, desktop and phone, and look at every
     screenshot); `npm run check:rendering -- --fixtures` and `--audit`;
     `npm run check:self-guided -- ../exports/verified-practice-2026-09-30`;
     `npm run check:variants -- ../exports/variants-2026-09-30`.
-- Add an end-to-end check, `client/scripts/check-managed.mjs`, in the style
+- Add an end-to-end check, `web/scripts/check-managed.mjs`, in the style
   of `check-screens.mjs` (temporary accounts, removed after): the superadmin
   creates a managed institution and its admin; the admin creates a group and
   a full-SAT exam and assigns it to two students and the group; a student

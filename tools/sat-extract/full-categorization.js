@@ -8,7 +8,7 @@
 */
 
 import fs from 'fs';
-import * as taxonomy from '../../server/lib/taxonomy.js';
+import * as taxonomy from '../../functions/lib/taxonomy.js';
 
 // ClassMarker Category ID patterns → College Board official skill names
 const CATEGORY_ID_TO_CB_SKILL = {

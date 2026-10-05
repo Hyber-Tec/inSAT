@@ -3,7 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { domainForSkill } from '../server/lib/taxonomy.js';
+import { domainForSkill } from '../functions/lib/taxonomy.js';
 
 const detectDomain = (question) => {
   const catStr = String(question.category || '0');

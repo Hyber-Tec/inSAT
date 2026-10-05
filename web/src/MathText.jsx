@@ -5,7 +5,7 @@
 // sqrt(..) written out, and plain-text math flush against any of those. KaTeX
 // renders each math span; prose stays plain text. KaTeX output is
 // non-executable, so dangerouslySetInnerHTML is safe here.
-// client/scripts/check-rendering.mjs holds the shapes this must keep rendering.
+// web/scripts/check-rendering.mjs holds the shapes this must keep rendering.
 
 import React from 'react';
 import katex from 'katex';

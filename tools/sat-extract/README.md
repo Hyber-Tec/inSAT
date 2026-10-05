@@ -2,7 +2,7 @@
 
 Turns the College Board question bank PDFs and the full-length practice tests
 (`DSAT/`) into one JSON record per question, with math in LaTeX, underlines,
-tables and figures, ready for `server/scripts/import-dataset.js`.
+tables and figures, ready for `functions/scripts/import-dataset.js`.
 
 Everything this tooling reads and writes lives in the project's `private-data/`
 folder, which git ignores, next to the sources (`SAT_SRC`, default
@@ -11,7 +11,7 @@ material is College Board and third-party content, so none of it, and nothing
 derived from it, is committed.
 
 Requirements: Python 3 with PyMuPDF (`pip install pymupdf`), Tesseract (DSAT
-OCR only), Node (the KaTeX check uses `client/node_modules`).
+OCR only), Node (the KaTeX check uses `web/node_modules`).
 
 ## Why two paths
 
@@ -47,7 +47,7 @@ independently re-solved.
 | Validate against the text layer, KaTeX and the rules | `validate.py`, `katex_check.mjs` | `reports/` |
 | Build the dataset: labels, normalized answers, figure crops | `build.py` | `dataset/*.jsonl`, `dataset/figures/` |
 | Cut original-question jobs (questions students will see), and the blind checks of their output | `jobs_originals.py`, `jobs_verify_originals.py` | `jobs/originals-*.json`, `jobs/verify-originals-*.json` |
-| Decode an academy's ClassMarker export (markup to the bank's conventions; flags for images, College Board text, CrackSAT and repeats) and, with `--fetch-images`, download the images it names; `server/scripts/import-classmarker.js` transcribes, checks and imports it | `classmarker.py` | `classmarker/questions.jsonl`, `classmarker/images/` |
+| Decode an academy's ClassMarker export (markup to the bank's conventions; flags for images, College Board text, CrackSAT and repeats) and, with `--fetch-images`, download the images it names; `functions/scripts/import-classmarker.js` transcribes, checks and imports it | `classmarker.py` | `classmarker/questions.jsonl`, `classmarker/images/` |
 | Write and verify originals (a writer, a blind solver on a different model, an editor who applies its notes and promotes `.blind-NN` to `.verify-NN`) | sub-agents, `SPEC.md` | `out/original/<name>.jsonl`, `out/original/<name>.verify-NN.jsonl` |
 
 `dsat_sources.py` is the one table that decides which files make up each test.

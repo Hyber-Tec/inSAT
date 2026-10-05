@@ -116,7 +116,7 @@ export function hamming(a, b) {
 
 /**
  * Cut-offs in differing bits, per section. Both come from measurement, not
- * taste (see server/scripts/check-similarity.js):
+ * taste (see functions/scripts/check-similarity.js):
  *
  *   rw   - passages are fingerprinted, so a reused passage lands at 0 bits and
  *          a lightly reworded one at ~13, while a genuinely different passage

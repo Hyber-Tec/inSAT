@@ -1,5 +1,5 @@
 // Checks that every math span in the transcribed records renders in KaTeX,
-// the same renderer the exam UI uses (client/src/MathText.jsx), and that no
+// the same renderer the exam UI uses (web/src/MathText.jsx), and that no
 // LaTeX leaks outside a delimiter, where the UI would print it raw.
 //
 // Usage: node katex_check.mjs <record.json | dir> ...   -> one JSON line per problem
@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 
-const require = createRequire(new URL('../../client/package.json', import.meta.url));
+const require = createRequire(new URL('../../web/package.json', import.meta.url));
 const katex = require('katex');
 
 const DELIM = /(\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|\$\$[\s\S]*?\$\$)/g;

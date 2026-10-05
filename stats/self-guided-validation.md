@@ -79,13 +79,13 @@ are saved in `.logs/self-guided-e2e/`.
 
 ## Repeat
 
-Start the API and client, then from `client/`:
+Start the API and client, then from `web/`:
 
 ```bash
 npm run check:self-guided -- ../exports/verified-practice-2026-09-30
 ```
 
-From `server/`, prepare another independently checked math batch or update the
+From `functions/`, prepare another independently checked math batch or update the
 inventory report:
 
 ```bash

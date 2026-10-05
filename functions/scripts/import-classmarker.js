@@ -35,7 +35,7 @@
 // saved beside the input (stage0/1/2.jsonl), so a rerun continues where the
 // last one stopped and never pays twice for a question.
 //
-// Run from server/:
+// Run from functions/:
 //   node --env-file=.env scripts/import-classmarker.js <questions.jsonl> --institution satify --dry-run
 //   node --env-file=.env scripts/import-classmarker.js <questions.jsonl> --institution satify --limit 200
 //   node --env-file=.env scripts/import-classmarker.js <questions.jsonl> --institution satify
@@ -691,7 +691,7 @@ async function main() {
   let creds = null;
   const ensureKey = async () => {
     creds ??= await getInstitutionCredentials(inst[0].id);
-    if (!batchSupported(creds)) throw new Error('No Anthropic API key: add one in admin Settings (or ANTHROPIC_API_KEY in server/.env).');
+    if (!batchSupported(creds)) throw new Error('No Anthropic API key: add one in admin Settings (or ANTHROPIC_API_KEY in functions/.env).');
     return creds;
   };
   const pending = (name) => fs.existsSync(path.join(dir, `${name}.pending.json`));

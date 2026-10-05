@@ -19,8 +19,8 @@ import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { query, pool } from '../../server/lib/db.js';
-import { hashPassword } from '../../server/lib/auth.js';
+import { query, pool } from '../../functions/lib/db.js';
+import { hashPassword } from '../../functions/lib/auth.js';
 
 const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5174';
 const apiOrigin = process.env.E2E_API_URL || 'http://localhost:3002';

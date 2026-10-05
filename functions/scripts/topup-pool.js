@@ -11,8 +11,8 @@
 // it are never served; fill it from the templates alone (--rw 0).
 //
 // Run:
-//   node --env-file=.env server/scripts/topup-pool.js --math 40 --rw 25
-//   node --env-file=.env server/scripts/topup-pool.js --rw 25 --dry-run
+//   node --env-file=.env functions/scripts/topup-pool.js --math 40 --rw 25
+//   node --env-file=.env functions/scripts/topup-pool.js --rw 25 --dry-run
 //
 // Flags:
 //   --math N        target items per math domain x difficulty   (default 30)

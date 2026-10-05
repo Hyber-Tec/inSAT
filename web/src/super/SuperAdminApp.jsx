@@ -451,7 +451,7 @@ function ResetPasswordModal({ admin, onClose, onSubmit }) {
   );
 }
 
-// How an institution runs (server/lib/modes.js).
+// How an institution runs (functions/lib/modes.js).
 const MODES = {
   self_guided: {
     title: 'Self-guided',

@@ -3,7 +3,7 @@
 // demo has questions out of the box. Optional: every institution can also just
 // generate from an empty bank (generation is zero-shot when the bank is empty).
 //
-//   npm run seed:bank        (from server/)
+//   npm run seed:bank        (from functions/)
 
 import { query } from '../lib/db.js';
 import { contentHash, importRows } from '../lib/items.js';

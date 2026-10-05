@@ -5,11 +5,11 @@
 #
 # Starts three things:
 #   1. Postgres (docker compose) on :5434  — the application database
-#   2. API      (server/)        on :3002  - insat backend (Node/Express)
-#   3. Client   (client/)        on :5174  — the React app (Vite)
+#   2. API      (functions/)        on :3002  - insat backend (Node/Express)
+#   3. Client   (web/)        on :5174  — the React app (Vite)
 #
 # Question generation + upload extraction run inside the API. Set ANTHROPIC_API_KEY
-# in server/.env for a platform fallback, or have each institution add their own
+# in functions/.env for a platform fallback, or have each institution add their own
 # key in admin Settings. The API auto-applies the schema and seeds on boot.
 set -euo pipefail
 
@@ -49,17 +49,17 @@ echo "==> Bringing up Postgres (${DC[*]})"
 "${DC[@]}" up -d --wait postgres
 
 # 2. API --------------------------------------------------------------------
-[[ -f server/.env ]] || cp server/.env.example server/.env
-[[ -d server/node_modules ]] || ( echo "==> Installing API deps"; cd server && npm install )
+[[ -f functions/.env ]] || cp functions/.env.example functions/.env
+[[ -d functions/node_modules ]] || ( echo "==> Installing API deps"; cd functions && npm install )
 echo "==> Starting API on :3002"
-( cd server && npm run start ) >"$LOG_DIR/server.log" 2>&1 &
+( cd functions && npm run start ) >"$LOG_DIR/server.log" 2>&1 &
 PIDS+=($!)
 wait_for_port 3002 "API"
 
 # 3. Client -----------------------------------------------------------------
-[[ -d client/node_modules ]] || ( echo "==> Installing client deps"; cd client && npm install )
+[[ -d web/node_modules ]] || ( echo "==> Installing client deps"; cd web && npm install )
 echo "==> Starting client on :5174"
-( cd client && npm run dev ) >"$LOG_DIR/client.log" 2>&1 &
+( cd web && npm run dev ) >"$LOG_DIR/client.log" 2>&1 &
 PIDS+=($!)
 wait_for_port 5174 "Client"
 
@@ -72,10 +72,10 @@ cat <<EOF
   Adminer  → http://localhost:8081        (db browser, if enabled)
 
   Admin login → ${ADMIN_EMAIL:-admin@satify.test} / ${ADMIN_PASSWORD:-satify-admin}
-  Generation needs an Anthropic key: set ANTHROPIC_API_KEY in server/.env, or add
+  Generation needs an Anthropic key: set ANTHROPIC_API_KEY in functions/.env, or add
   one per institution in admin Settings.
   First run? Seed the demo question bank so exams can be assembled:
-      cd server && npm run seed:bank      (or use the admin "Question Bank" tab)
+      cd functions && npm run seed:bank      (or use the admin "Question Bank" tab)
 
   Logs: $LOG_DIR/{server,client}.log
   Ctrl+C stops the API and client. Postgres keeps running.

@@ -17,9 +17,9 @@ import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { query, pool } from '../../server/lib/db.js';
-import { hashPassword } from '../../server/lib/auth.js';
-import { signInvite } from '../../server/lib/invite.js';
+import { query, pool } from '../../functions/lib/db.js';
+import { hashPassword } from '../../functions/lib/auth.js';
+import { signInvite } from '../../functions/lib/invite.js';
 
 const arg = (name, fallback = null) => {
   const i = process.argv.indexOf(`--${name}`);

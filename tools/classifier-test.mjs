@@ -4,7 +4,7 @@ import path from 'path';
 
 // Import the existing working parser and module
 const { loadJsonlFile } = await import('./exact-jsonl-parser.js');
-import { domainForSkill, SKILLS } from '../server/lib/taxonomy.js';
+import { domainForSkill, SKILLS } from '../functions/lib/taxonomy.js';
 
 // Simple content keywords for classification
 const KEYWORDS = { 

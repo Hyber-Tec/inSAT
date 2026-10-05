@@ -15,7 +15,7 @@ services:
   - type: web
     name: satify-api
     runtime: docker
-    dockerfilePath: ./server/Dockerfile
+    dockerfilePath: ./functions/Dockerfile
     dockerContext: .
     plan: starter
     healthCheckPath: /api/health
@@ -55,8 +55,8 @@ services:
   - type: web
     name: satify-client
     runtime: static
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: client/dist
+    buildCommand: cd web && npm install && npm run build
+    staticPublishPath: web/dist
     # SPA: serve index.html for any path so client-side routing works.
     routes:
       - type: rewrite

@@ -3,7 +3,7 @@ const fs = require('fs'), path = require('path');
 
 console.log('SAT Topic Enhancement Script\n\n');
 
-import('./server/lib/taxonomy.js').then(tax => {
+import('./functions/lib/taxonomy.js').then(tax => {
   const domains = [
     '/Users/br0k3r/workspace/vantedge/satify/exports/classified-all/algebra.jsonl',
     '/Users/br0k3r/workspace/vantedge/satify/exports/classified-all/geometry-trig.jsonl',

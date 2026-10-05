@@ -4,7 +4,7 @@ Run locally on 2026-09-30 against the Satify bank and the running app.
 
 ## What it is
 
-`server/lib/variation/` makes new math questions from the institution's own
+`functions/lib/variation/` makes new math questions from the institution's own
 questions, without a model. It reads a question, solves it, and writes the
 same question with new numbers, new wrong answers built from named mistakes,
 and a worked explanation. A question is used only when the engine's own

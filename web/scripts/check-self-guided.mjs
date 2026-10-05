@@ -5,9 +5,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
-import { query, pool } from '../../server/lib/db.js';
-import { hashPassword } from '../../server/lib/auth.js';
-import { importTemplateRows } from '../../server/lib/templateItems.js';
+import { query, pool } from '../../functions/lib/db.js';
+import { hashPassword } from '../../functions/lib/auth.js';
+import { importTemplateRows } from '../../functions/lib/templateItems.js';
 
 const batchDirectory = path.resolve(process.argv[2] || '../exports/verified-practice-2026-09-30');
 const output = path.resolve(process.env.E2E_OUTPUT || '../.logs/self-guided-e2e');
@@ -141,7 +141,7 @@ try {
   // be served, answered correctly after shuffling, scored, and reviewed.
   const records = fs.readFileSync(path.join(batchDirectory, 'questions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse);
   // Its institution draws on its own bank, which holds the batch alone, not on
-  // insat's pool (server/lib/pool.js).
+  // insat's pool (functions/lib/pool.js).
   const { rows: fixture } = await query("INSERT INTO pa_institutions(name,slug) VALUES('Temporary practice check',$1) RETURNING id", [`qa-${crypto.randomUUID()}`]);
   const fixtureId = fixture[0].id; institutions.push(fixtureId);
   await query('UPDATE pa_institutions SET pool_institution_id = id WHERE id = $1', [fixtureId]);

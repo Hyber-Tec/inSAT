@@ -1,12 +1,12 @@
 # insat API. Build from the repo ROOT so the bootstrap can read the
 # SQL it applies on boot (db/schema.sql, db/migrate.sql):
-#   docker build -f server/Dockerfile -t satify-api .
+#   docker build -f functions/Dockerfile -t satify-api .
 FROM node:20-slim
 WORKDIR /app
 
 # Install API dependencies first (layer-cached unless package files change).
-COPY server/package.json server/package-lock.json* server/
-RUN cd server && npm install --omit=dev && npm cache clean --force
+COPY functions/package.json functions/package-lock.json* functions/
+RUN cd functions && npm install --omit=dev && npm cache clean --force
 
 # App code + the SQL the API applies on boot.
 COPY server ./server
