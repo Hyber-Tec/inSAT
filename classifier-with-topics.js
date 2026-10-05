@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Load College Board skill taxonomy
-import('./server/lib/taxonomy.js').then(tax => {
+import('./functions/lib/taxonomy.js').then(tax => {
   return classifyAll(tax);
 }).catch(err => {
   console.error('Failed to load taxonomy:', err);

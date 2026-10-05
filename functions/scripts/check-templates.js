@@ -12,7 +12,7 @@
 // conclusion) judges every choice instead, and the key must be the only one
 // it accepts.
 //
-// Run: node server/scripts/check-templates.js [seedsPerTemplate]
+// Run: node functions/scripts/check-templates.js [seedsPerTemplate]
 
 import { MATH_TEMPLATES, buildItem } from '../lib/templates/math.js';
 import { DOMAINS, SKILLS } from '../lib/taxonomy.js';

@@ -148,7 +148,7 @@ CREATE INDEX IF NOT EXISTS idx_pa_sessions_practice ON pa_sessions(user_id, star
 ALTER TABLE pa_items ADD COLUMN IF NOT EXISTS realism SMALLINT CHECK (realism BETWEEN 1 AND 5);
 
 -- A question the variation engine made from another question in this bank
--- (server/lib/variation): the source's wording and structure with new
+-- (functions/lib/variation): the source's wording and structure with new
 -- numbers, solved exactly and checked again independently. Assembly never
 -- serves a question and one of its variants in the same form, and prefers
 -- questions whose source a student has not met yet.
@@ -190,7 +190,7 @@ ALTER TABLE pa_assignments ADD CONSTRAINT pa_assignments_kind_check CHECK (
 
 -- The institution whose bank an institution's tests and practice draw on.
 -- NULL, as it is for every real institution, is insat's question pool (the
--- bank of slug 'satify', server/lib/pool.js); nothing in the app sets it. A
+-- bank of slug 'satify', functions/lib/pool.js); nothing in the app sets it. A
 -- check that needs a bank of known questions points its throwaway institution
 -- at itself.
 ALTER TABLE pa_institutions ADD COLUMN IF NOT EXISTS pool_institution_id UUID REFERENCES pa_institutions(id) ON DELETE SET NULL;

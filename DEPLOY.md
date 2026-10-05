@@ -16,7 +16,7 @@ brings up **both** the API (`satify-api`, Node) and the client
 image/PDF extraction run **inside the API** — there is no separate service.
 
 ## Prerequisites
-- One Git repo Render can read containing `server/`, `client/`, `db/`, `render.yaml`
+- One Git repo Render can read containing `functions/`, `web/`, `db/`, `render.yaml`
   (already pushed to `VantEdge-Corp/satify`).
 - A **Neon** account and a **Render** account.
 - An **Anthropic API key** for the platform fallback (optional if every
@@ -38,7 +38,7 @@ run the existing import scripts with `DATABASE_URL` set to Neon and the source
 dataset path kept private. For the ClassMarker bank, for example:
 
 ```bash
-cd server
+cd functions
 node --env-file=.env scripts/import-classmarker.js "/private/path/classmarker/questions.jsonl" --institution satify --dry-run
 node --env-file=.env scripts/import-classmarker.js "/private/path/classmarker/questions.jsonl" --institution satify
 ```
@@ -82,7 +82,7 @@ Both services now exist, so connect them (each needed the other's URL):
 4. **Students** sign in at the same client URL and take assigned exams.
 
 > Optional: to pre-fill the **demo** institution's bank with sample R&W items,
-> run `cd server && npm run seed:bank` locally with `DATABASE_URL` pointed at
+> run `cd functions && npm run seed:bank` locally with `DATABASE_URL` pointed at
 > production. New institutions don't need this — generation works from an empty
 > bank (zero-shot) and improves as the bank grows.
 
@@ -95,8 +95,8 @@ and `CLIENT_ORIGIN` to match and redeploy.
 
 ## Scaling later
 If you ever want a dedicated CDN/edge for the frontend, move just the **client** to
-Cloudflare Pages or Vercel (same build: `cd client && npm install && npm run build`,
-output `client/dist`, env `VITE_API_URL`) and point `CLIENT_ORIGIN` at the new URL.
+Cloudflare Pages or Vercel (same build: `cd web && npm install && npm run build`,
+output `web/dist`, env `VITE_API_URL`) and point `CLIENT_ORIGIN` at the new URL.
 The API and DB don't change.
 
 ## Notes & hardening

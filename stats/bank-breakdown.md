@@ -40,6 +40,6 @@ node /Users/br0k3r/workspace/vantedge/satify/stats/bank-breakdown.js
 node list-classified-stats.js
 
 # Generate exam now with available bank
-node server/api/bank.js --mode=assembly
+node functions/api/bank.js --mode=assembly
 
 # Test generation quality on sample domain

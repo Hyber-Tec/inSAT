@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
-   Use server/lib/batch.js to classify remaining 25,000+ math problems.
+   Use functions/lib/batch.js to classify remaining 25,000+ math problems.
    Falls back to synchronous calls if no key available.
 */
-import { submitBatch, awaitBatch, fetchBatchResults } from '/Users/br0k3r/workspace/vantedge/satify/server/lib/batch.js';
-import { config } from '/Users/br0k3r/workspace/vantedge/satify/server/lib/config.js';
+import { submitBatch, awaitBatch, fetchBatchResults } from '../functions/lib/batch.js';
+import { config } from '../functions/lib/config.js';
 
 // System prompt that tells the AI how to classify each question
 const SYSTEM_PROMPT = `

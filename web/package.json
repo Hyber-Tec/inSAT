@@ -10,12 +10,12 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check:self-guided": "node --env-file=../server/.env scripts/check-self-guided.mjs",
-    "check:variants": "node --env-file=../server/.env scripts/check-variants.mjs",
-    "check:rendering": "node --env-file=../server/.env scripts/check-rendering.mjs",
-    "check:screens": "node --env-file=../server/.env scripts/check-screens.mjs",
-    "check:managed": "node --env-file=../server/.env scripts/check-managed.mjs",
-    "check:authoring": "node --env-file=../server/.env scripts/check-authoring.mjs",
+    "check:self-guided": "node --env-file=../functions/.env scripts/check-self-guided.mjs",
+    "check:variants": "node --env-file=../functions/.env scripts/check-variants.mjs",
+    "check:rendering": "node --env-file=../functions/.env scripts/check-rendering.mjs",
+    "check:screens": "node --env-file=../functions/.env scripts/check-screens.mjs",
+    "check:managed": "node --env-file=../functions/.env scripts/check-managed.mjs",
+    "check:authoring": "node --env-file=../functions/.env scripts/check-authoring.mjs",
     "brand:icons": "node scripts/brand-icons.mjs"
   },
   "dependencies": {

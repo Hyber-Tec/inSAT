@@ -6,7 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { loadJsonlFile } from './exact-jsonl-parser.js';
-import { domainForSkill, SKILLS } from '../server/lib/taxonomy.js';
+import { domainForSkill, SKILLS } from '../functions/lib/taxonomy.js';
 
 // Domain detection heuristics combining category ID and content analysis
 const DETECT_DOMAIN = (category) => {

@@ -20,7 +20,7 @@ key; those stay private to it.
 ## Architecture
 
 ```
-client/   React + Vite SPA, Tailwind CSS + shadcn/ui (see "The interface")
+web/   React + Vite SPA, Tailwind CSS + shadcn/ui (see "The interface")
   src/components/ui/  shadcn/ui components; src/ui.jsx  the app's shared pieces
   src/super/    superadmin console - provision institutions + their first admin
   src/admin/    institution admin - student accounts, progress, settings; when managed,
@@ -28,7 +28,7 @@ client/   React + Vite SPA, Tailwind CSS + shadcn/ui (see "The interface")
                 and a page per student
   src/student/  student - diagnostic, skill profile, practice sets (self-guided) or assigned
                 work (managed), the adaptive test runner, results
-server/   Node + Express API (ESM), Postgres via `pg`, JWT auth (bcrypt)
+functions/   Node + Express API (ESM), Postgres via `pg`, JWT auth (bcrypt)
   lib/      db, auth, crypto, taxonomy, scoring, blueprints, assembly (unique forms),
             items (import/normalize), session (scoring), provision,
             practice (skill profile + practice specs), modes (self-guided / managed),
@@ -50,12 +50,12 @@ db/       schema.sql (base) + migrate.sql (multi-tenant, idempotent)
 every query by the caller's institution, so an academy only ever sees its own
 data. Blueprints (the CB test structure) are global templates shared by all,
 and every institution's tests and practice draw on insat's question pool
-(`server/lib/pool.js`).
+(`functions/lib/pool.js`).
 
 ## Run it
 
 Prereqs: Docker (for local Postgres) and Node 22.12 or newer (or 20.19+). An
-`ANTHROPIC_API_KEY` in `server/.env` is optional: the platform fallback for a
+`ANTHROPIC_API_KEY` in `functions/.env` is optional: the platform fallback for a
 managed academy's uploads and AI-written questions when it has no key of its
 own.
 
@@ -79,7 +79,7 @@ math cell that runs short is built from the templates on the spot. The pool
 can also be topped up offline:
 
 ```bash
-cd server
+cd functions
 npm run pool:topup -- --math 40 --rw 25 --dry-run   # show the deficit, spend nothing
 npm run pool:topup -- --math 40 --rw 25             # fill it
 ```
@@ -118,7 +118,7 @@ To prepare a small math batch without a model key, independently solve each
 rendered question, and export its classification and verification record:
 
 ```bash
-cd server
+cd functions
 npm run pool:prepare -- --institution satify
 # Add --import to also insert the verified batch into that institution's pool.
 npm run pool:coverage -- satify
@@ -134,7 +134,7 @@ With the API and client running, exercise a real diagnostic, adaptive routing,
 answer review, targeted follow-up, and a prepared batch in the browser:
 
 ```bash
-cd client
+cd web
 npx playwright install chromium
 npm run check:self-guided -- ../exports/verified-practice-2026-09-30
 ```
@@ -154,7 +154,7 @@ wording, structure and difficulty, gets wrong answers built from named
 mistakes and a worked explanation, and is checked again before it is kept.
 
 ```bash
-cd server
+cd functions
 npm run pool:vary -- --institution satify                     # write the batch for review
 npm run pool:vary -- --institution satify --import            # and add it to the pool
 npm run pool:vary -- --institution satify --import --replace  # regenerate every set and sync
@@ -194,7 +194,7 @@ same question with new numbers beats a formulaic template). Sources rated
 below `--min-realism` (3) are not varied.
 
 With the API and client running, `npm run check:variants -- ../exports/variants-<date>`
-(from `client/`) serves a batch to a temporary student, in an institution
+(from `web/`) serves a batch to a temporary student, in an institution
 pointed at its own bank of those questions, through the real UI: two practice
 sets, answered through shuffled choices, no lineage twice in a set, fresh
 lineages first, explanations rendered, screenshots in `.logs/variants-e2e/`.
@@ -206,7 +206,7 @@ the letter pointed at the wrong choice. Report first, `--apply` to rewrite
 
 ### How questions render
 
-`client/src/MathText.jsx` renders every question, choice and explanation:
+`web/src/MathText.jsx` renders every question, choice and explanation:
 LaTeX in `\( \)`, and the bank's other notations as math too: ClassMarker's
 fractions (`^{a}/_{b}` and its variants), bare powers (`x^2`, `10^-8`,
 `(1.60)^{t/2}`), `sqrt(...)` written out, and plain-text math flush against
@@ -214,7 +214,7 @@ them. A line that is nothing but math is set as math whole; parentheses
 around a fraction grow to its height, as the SAT prints them; units keep the
 text face (`cm³`); wide tables scroll inside their card on a phone.
 
-With the API and client running (from `client/`):
+With the API and client running (from `web/`):
 
 ```bash
 npm run check:rendering -- --fixtures                    # the known shapes, each to its exact TeX
@@ -249,7 +249,7 @@ with math in LaTeX and figures as images, kept outside the repository next to
 the sources. Import it with:
 
 ```bash
-cd server
+cd functions
 node --env-file=.env scripts/import-dataset.js "/path/to/SAT/extracted/dataset" cb --dry-run
 node --env-file=.env scripts/import-dataset.js "/path/to/SAT/extracted/dataset" cb --replace
 node --env-file=.env scripts/import-dataset.js "/path/to/SAT/extracted/dataset" dsat --replace
@@ -289,7 +289,7 @@ written without naming letters, because choices are shuffled per student.
 ### The academy's own questions (ClassMarker)
 
 A ClassMarker export is decoded by `tools/sat-extract/classmarker.py` and
-imported by `server/scripts/import-classmarker.js`, on the institution's API
+imported by `functions/scripts/import-classmarker.js`, on the institution's API
 key at batch prices. Only text-only questions that are not College Board or
 CrackSAT text qualify. A model solves each one blind and it is kept only when
 its answer matches the academy's key and it reads like the SAT. It is sorted
@@ -321,7 +321,7 @@ invites their own students (credentials are shown once so they can be shared).
 Each institution sets its **own Anthropic API key** in the admin **Settings**
 tab, so generation/upload bills to them - not the platform. Keys are encrypted
 at rest and never returned to the browser. If an institution has no key, the
-platform fallback (`ANTHROPIC_API_KEY` in `server/.env`) is used unless
+platform fallback (`ANTHROPIC_API_KEY` in `functions/.env`) is used unless
 `REQUIRE_INSTITUTION_KEY=true`, which forces each institution to bring its own.
 
 ## How a practice test works
@@ -381,7 +381,7 @@ one was cloned from) did, on this question pool and interface:
   (a whole practice test works, its answer key included), or writes them for a
   chosen domain or skill, each one solved again and kept only when that check
   agrees; they can also be written by hand. Each test has a page to review,
-  edit, remove and move its questions (`client/src/admin/TestEditor.jsx`).
+  edit, remove and move its questions (`web/src/admin/TestEditor.jsx`).
   A timed one gives each module the time its length would have on the SAT,
   and its result is the number correct (it is not built like the SAT, so it
   has no scaled score). Uploads and AI run on the academy's own LLM API key
@@ -396,7 +396,7 @@ one was cloned from) did, on this question pool and interface:
 - Students see what is assigned to them (by group, if they are in several)
   and their own skill map, read-only. They cannot start practice themselves.
 
-The API enforces the mode (`server/lib/modes.js`, read fresh on every request):
+The API enforces the mode (`functions/lib/modes.js`, read fresh on every request):
 groups, tests, folders and assignments answer 403 for a self-guided academy,
 and self-started practice answers 403 for a managed one. Making tests from
 uploads or with AI is for managed academies only: a self-guided institution
@@ -405,11 +405,11 @@ too.
 
 What a managed academy uploads or has AI write stays in its own bank: it is
 served only in its own custom tests and never enters insat's pool or the
-generation pool (`server/lib/pool.js`). The institution that holds insat's
+generation pool (`functions/lib/pool.js`). The institution that holds insat's
 pool cannot be deleted from the platform console, and the pool's questions
 cannot be edited or retired through the bank routes.
 
-With the API and client running, `npm run check:managed` (from `client/`)
+With the API and client running, `npm run check:managed` (from `web/`)
 walks the whole managed flow in a browser: the platform owner creates a
 managed academy; its admin adds students, a group and a Full SAT test, locks
 and unlocks it, and assigns it; a student takes it; the admin assigns practice
@@ -418,7 +418,7 @@ the owner makes the academy self-guided again. It also asks the guards
 directly, and puts screenshots in `.logs/screens/managed/`.
 
 `npm run check:authoring` walks custom tests the same way. It starts its own
-API (`:3012`) with the AI provider mocked (`client/scripts/mock-llm.mjs`), so
+API (`:3012`) with the AI provider mocked (`web/scripts/mock-llm.mjs`), so
 it needs no key and spends nothing, and its own build of the client (`:5184`)
 against it: the admin adds an AI key, has AI write a test, edits and removes
 questions, adds more from an uploaded PDF and by hand, moves one between
@@ -432,7 +432,7 @@ Screenshots go to `.logs/screens/authoring/`.
 The client is React 19 with Tailwind CSS v4 and [shadcn/ui](https://ui.shadcn.com)
 components (Radix primitives, the Mist palette with mist-700 as the primary color); icons come from
 [react-icons](https://react-icons.github.io/react-icons/), its Lucide set
-(`react-icons/lu`). The colors are CSS variables in `client/src/index.css`;
+(`react-icons/lu`). The colors are CSS variables in `web/src/index.css`;
 the type is Geist, with Source Serif 4 for passages and question stems, both
 self-hosted.
 
@@ -443,7 +443,7 @@ self-hosted.
 - `src/ui.jsx` holds the app's own pieces built on them: the wordmark, section
   headings, status badges and meters (one tone map for success, warning and
   danger), empty states and the confirm dialog.
-- The brand is the insat logo kit, kept as delivered in `client/brand/`: an
+- The brand is the insat logo kit, kept as delivered in `web/brand/`: an
   infinity loop (the endless loop of practice) landing on an orange point,
   and the two-tone wordmark. The app serves `public/insat-logo.svg` (mark and
   wordmark, framed to what they paint) and `public/insat-app-icon.svg`;
@@ -459,7 +459,7 @@ self-hosted.
   (`src/account.jsx`): the avatar opens who is signed in, account settings
   (change password, which also clears an admin's "must reset") and sign out.
 
-With the API and client running, `npm run check:screens` (from `client/`)
+With the API and client running, `npm run check:screens` (from `web/`)
 photographs every screen as a student, an admin and the platform owner see it,
 on a desktop and on a phone, into `.logs/screens/<label>/` (`-- --label
 <name>`, default `latest`). It flags page errors, failed API calls and content
@@ -473,11 +473,11 @@ The DB layer is addressed by `DATABASE_URL`, so the same code runs locally
 swap. Recommended: client → Cloudflare Pages/Vercel; API → Railway/Render;
 Postgres → **Neon**.
 
-## Config (`server/.env`)
+## Config (`functions/.env`)
 
 `DATABASE_URL`, `JWT_SECRET`, `ENCRYPTION_KEY` (for institution API keys),
 `SATGEN_URL`, `PORT`, `CLIENT_ORIGIN`, `SUPERADMIN_*`, `ADMIN_*`,
-`REQUIRE_INSTITUTION_KEY`. See `server/.env.example`.
+`REQUIRE_INSTITUTION_KEY`. See `functions/.env.example`.
 
 ## License
 

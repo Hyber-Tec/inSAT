@@ -20,7 +20,7 @@ DSAT_ROOT = SRC / 'DSAT'
 OUT = Path(os.environ.get('SAT_OUT', str(SRC / 'extracted')))
 CACHE = OUT / 'cache'
 
-# Folder names in the College Board bank -> taxonomy ids in server/lib/taxonomy.js.
+# Folder names in the College Board bank -> taxonomy ids in functions/lib/taxonomy.js.
 DOMAIN_ID = {
     'Information and Ideas': 'info-ideas',
     'Craft and Structure': 'craft-structure',

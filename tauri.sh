@@ -21,16 +21,16 @@ install_deps() {
   fi
 }
 
-install_deps client
+install_deps web
 
-if ! (cd client && npx --no-install tauri --version) >/dev/null 2>&1; then
-  echo "==> Installing @tauri-apps/cli in client/"
-  (cd client && npm install --save-dev @tauri-apps/cli@latest @tauri-apps/api@latest)
+if ! (cd web && npx --no-install tauri --version) >/dev/null 2>&1; then
+  echo "==> Installing @tauri-apps/cli in web/"
+  (cd web && npm install --save-dev @tauri-apps/cli@latest @tauri-apps/api@latest)
 fi
 
-if [[ ! -d client/src-tauri ]]; then
-  echo "==> Initializing Tauri scaffolding in client/src-tauri (first run — may take a minute)"
-  (cd client && npx tauri init \
+if [[ ! -d web/src-tauri ]]; then
+  echo "==> Initializing Tauri scaffolding in web/src-tauri (first run — may take a minute)"
+  (cd web && npx tauri init \
     --ci \
     --app-name "insat Exam" \
     --window-title "insat Exam" \
@@ -41,7 +41,7 @@ if [[ ! -d client/src-tauri ]]; then
 fi
 
 echo "==> Starting Vite dev server on :5174"
-(cd client && npm run dev) >"$LOG_DIR/client.log" 2>&1 &
+(cd web && npm run dev) >"$LOG_DIR/client.log" 2>&1 &
 CLIENT_PID=$!
 
 cleanup() {
@@ -82,4 +82,4 @@ cat <<EOF
 
 EOF
 
-(cd client && npx tauri dev) 2>&1 | tee "$LOG_DIR/tauri.log"
+(cd web && npx tauri dev) 2>&1 | tee "$LOG_DIR/tauri.log"

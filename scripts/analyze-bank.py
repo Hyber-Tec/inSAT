@@ -4,7 +4,7 @@
 import json, glob as globs, sys, math
 from pathlib import Path
 
-# SAT Domains and Skills (mirror of server/lib/taxonomy.js)
+# SAT Domains and Skills (mirror of functions/lib/taxonomy.js)
 DOMAINS = {
     'rw': ['info-ideas', 'craft-structure', 'expression', 'conventions'],
     'math': ['algebra', 'advanced-math', 'problem-solving', 'geometry-trig']

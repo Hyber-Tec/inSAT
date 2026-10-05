@@ -2,13 +2,13 @@
 // throwaway API process (node --import), it answers that process's calls to
 // Anthropic's Messages API the way a model would, so making tests from uploads
 // and with AI runs end to end without a key or a bill. It tells the three jobs
-// apart by their prompts (server/lib/ingest.js, server/lib/generate.js):
+// apart by their prompts (functions/lib/ingest.js, functions/lib/generate.js):
 // reading questions out of a file, writing questions, and solving them again
 // to check each answer. Every third question it writes is solved to a
 // different answer, so a draft that fails the check is seen to be left out.
 // Any other request goes out as usual.
 
-import { DOMAIN_LABEL, SKILLS } from '../../server/lib/taxonomy.js';
+import { DOMAIN_LABEL, SKILLS } from '../../functions/lib/taxonomy.js';
 
 const MESSAGES_API = 'https://api.anthropic.com/v1/messages';
 const LETTERS = ['A', 'B', 'C', 'D'];

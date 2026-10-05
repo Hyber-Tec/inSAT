@@ -15,9 +15,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
-import { query, pool } from '../../server/lib/db.js';
-import { hashPassword } from '../../server/lib/auth.js';
-import { importRows } from '../../server/lib/items.js';
+import { query, pool } from '../../functions/lib/db.js';
+import { hashPassword } from '../../functions/lib/auth.js';
+import { importRows } from '../../functions/lib/items.js';
 
 const batchDirectory = path.resolve(process.argv[2] || '../exports/variants');
 const skill = process.env.E2E_SKILL || 'Linear equations in one variable';
@@ -121,7 +121,7 @@ try {
   assert.ok(picked.length >= 11, `need at least 11 varied ${skill} sources, have ${picked.length}`);
 
   // The fixture institution draws on its own bank, not on insat's pool
-  // (server/lib/pool.js), so the check knows every question it can be served.
+  // (functions/lib/pool.js), so the check knows every question it can be served.
   const { rows: fixture } = await query("INSERT INTO pa_institutions(name,slug) VALUES('Temporary variant check',$1) RETURNING id", [`qa-${crypto.randomUUID()}`]);
   const inst = fixture[0].id;
   institutions.push(inst);

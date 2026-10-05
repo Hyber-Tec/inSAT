@@ -28,7 +28,7 @@ from datetime import datetime
 from typing import Dict, Optional
 import sys
 
-# --- Exact copy from server/lib/taxonomy.js for skill detection ---
+# --- Exact copy from functions/lib/taxonomy.js for skill detection ---
 
 
 class SATQuestionAnalyzer:

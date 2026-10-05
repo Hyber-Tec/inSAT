@@ -1,5 +1,5 @@
 // Measures the near-duplicate detector so the thresholds in similarity.js are
-// backed by numbers. Run: node server/scripts/check-similarity.js
+// backed by numbers. Run: node functions/scripts/check-similarity.js
 
 import { simhash, hamming, NEAR_DUPLICATE_BITS } from '../lib/similarity.js';
 import { MATH_TEMPLATES, buildItem } from '../lib/templates/math.js';

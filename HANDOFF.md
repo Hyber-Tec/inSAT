@@ -12,9 +12,9 @@ localStorage token key were moved so they do not collide.
 
 ## The practice loop
 
-An academy's admin creates student accounts (`client/src/admin/Students.jsx`:
+An academy's admin creates student accounts (`web/src/admin/Students.jsx`:
 a starting password or an invite link) and that is the admin's whole job.
-A student signs in to a practice dashboard (`client/src/student/Practice.jsx`)
+A student signs in to a practice dashboard (`web/src/student/Practice.jsx`)
 that leads with a diagnostic (a full test or one section) until the student
 has answered something, then with the weakest skills:
 
@@ -32,7 +32,7 @@ Every results screen says what to practice next (the skills missed, one click
 away), and every question in the review carries its explanation. After a skill
 set the review also shows where each skill now stands overall.
 
-Server side (`server/routes/student.js`, `server/lib/practice.js`):
+Server side (`functions/routes/student.js`, `functions/lib/practice.js`):
 
 - `GET /api/student/profile`: per-skill accuracy over every completed session,
   what can be served in each skill (`ready` unseen items, `more` if templates or
@@ -53,7 +53,7 @@ Server side (`server/routes/student.js`, `server/lib/practice.js`):
   in the browser; there is no assigned-exam flow any more.
 - The admin's Progress tab lists every session with its scores and review.
 
-## How a form is assembled (`server/lib/assembly.js`)
+## How a form is assembled (`functions/lib/assembly.js`)
 
 - **A question is never served to the same person twice.** `seen` (from
   `loadSeenItemIds`) is a hard exclusion and a short form is reported, never
@@ -170,17 +170,17 @@ transcribed by `tools/sat-extract/` (see its README) and imported with
 ## Institution modes (2026-10-02)
 
 Built from `prompts/institution-modes.md` (phases 1 to 4). The mode is
-`pa_institutions.mode`; `server/lib/modes.js` guards the routes. Managed tests
+`pa_institutions.mode`; `functions/lib/modes.js` guards the routes. Managed tests
 are `pa_exams.kind = 'sat'` plus `scope`, assembled per attempt with
 `sectionSpec(scope)`; practice topics are `pa_assignments.kind = 'practice'`,
 built at start by the same `assemblePractice` as self-started practice
-(`server/routes/student.js`). The admin's student page is
+(`functions/routes/student.js`). The admin's student page is
 `GET /api/admin/users/:id/overview`. Client: `admin/{Groups,Tests,Assignments,
 StudentPage,assign}.jsx`, `student/Assigned.jsx`, and the skill map shared by
 both modes in `src/skills.jsx`. Proof: `npm run check:managed`.
 
 **One question pool (2026-10-02).** Every institution's tests and practice
-draw on insat's pool, the bank of slug `satify` (`server/lib/pool.js`; only
+draw on insat's pool, the bank of slug `satify` (`functions/lib/pool.js`; only
 `original`, `variant` and `template` items are the pool). Before this, assembly
 read only the student's own institution's bank, so a new managed academy's
 Reading and Writing or Full SAT tests could not start and its Math tests were
@@ -201,7 +201,7 @@ pool there now, and the old dual writes are gone). A timed custom test gives
 each module the SAT's pace for its length (`timedAtSatPace`); its result is the
 number correct, with no scaled score. The institution holding the pool cannot
 be deleted from the platform console. Proof: `npm run check:authoring`, which
-runs its own API with the AI provider mocked (`client/scripts/mock-llm.mjs`).
+runs its own API with the AI provider mocked (`web/scripts/mock-llm.mjs`).
 
 Not built: the private bank editor screen (its API is managed-only), and
 importing primeTesting's academies.
@@ -283,11 +283,11 @@ importing primeTesting's academies.
    UI reaches them since the admin panels and the student's "Assigned to you"
    section were removed. `ExamRunner.jsx` keeps its proctoring path
    (fullscreen, tab-switch count), inert because every session is practice.
-   A cleanup pass can drop all of it; `client/taxonomy.js` is still used.
+   A cleanup pass can drop all of it; `web/taxonomy.js` is still used.
 
 ## Tooling
 
-- `server/lib/templates/`: 29 deterministic math generators covering all 19
+- `functions/lib/templates/`: 29 deterministic math generators covering all 19
   math skills. Every wrong choice carries an explanation of the mistake that
   produces it.
   `npm run check:templates` builds thousands, re-derives the answers and holds
@@ -295,16 +295,16 @@ importing primeTesting's academies.
 - `npm run pool:rebuild-templates`: re-derives every banked template item from
   its template and seed, so a template fix reaches items already in the bank
   (retiring any whose seed no longer builds). Idempotent.
-- `server/lib/templateItems.js`: template rows for the bank, used by assembly
+- `functions/lib/templateItems.js`: template rows for the bank, used by assembly
   and by `scripts/topup-pool.js` (`--institution <slug>` fills one bank).
-- `server/lib/similarity.js`: SimHash near-duplicate detection; thresholds in
+- `functions/lib/similarity.js`: SimHash near-duplicate detection; thresholds in
   `npm run check:similarity`.
-- `server/lib/batch.js`: Anthropic Message Batches, half price, for anything
+- `functions/lib/batch.js`: Anthropic Message Batches, half price, for anything
   nobody is waiting on.
 - `npm run check:scoring`: grid-in scoring against the accepted-answer lists.
 - `npm run check:practice`: mastery levels, practice difficulty, set sizes and
   the practice specs, without a database.
-- `server/scripts/normalize-skills.js`: relabels bank items to the canonical
+- `functions/scripts/normalize-skills.js`: relabels bank items to the canonical
   College Board skill names (idempotent).
 - **Original questions** (`tools/sat-extract`, see its README and SPEC.md;
   `workflows/originals.js` runs the whole loop, `plan_originals.py` finds

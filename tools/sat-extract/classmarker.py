@@ -19,7 +19,7 @@ Each record is flagged so an import can leave out what it must not serve:
 
 Usage: python3 classmarker.py <export.txt> [--out DIR] [--fetch-images]
   -> DIR/questions.jsonl (default OUT/classmarker); ids are cm:<record number>,
-     stable for one export. server/scripts/import-classmarker.js imports it.
+     stable for one export. functions/scripts/import-classmarker.js imports it.
   --fetch-images downloads the images of every record an import could use into
      DIR/images/. The export names them ([image 0/<file>]) but does not carry
      them; ClassMarker serves each at https://0cm.classmarker.com/<file>.

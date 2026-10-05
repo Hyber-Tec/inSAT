@@ -1,4 +1,4 @@
-import * as taxonomy from './server/lib/taxonomy.js';
+import * as taxonomy from './functions/lib/taxonomy.js';
 
 /**
  * Map ClassMarker numeric category ID to SAT domain/skill.
