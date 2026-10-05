@@ -1,0 +1,233 @@
+{
+  "generatedAt": "2026-09-30T14:09:29.098Z",
+  "institution": "satify",
+  "generation": "deterministic-math-templates",
+  "independentVerification": "Answers re-derived from the exact rendered stems; classification checked against the canonical template taxonomy.",
+  "questions": 48,
+  "skills": [
+    {
+      "domain": "algebra",
+      "skill": "Linear equations in one variable",
+      "difficulty": "easy",
+      "count": 12
+    },
+    {
+      "domain": "advanced-math",
+      "skill": "Equivalent expressions",
+      "difficulty": "medium",
+      "count": 12
+    },
+    {
+      "domain": "problem-solving",
+      "skill": "One-variable data: Distributions and measures of center and spread",
+      "difficulty": "medium",
+      "count": 12
+    },
+    {
+      "domain": "geometry-trig",
+      "skill": "Area and volume",
+      "difficulty": "medium",
+      "count": 12
+    }
+  ],
+  "imported": {
+    "added": 48,
+    "duplicates": 0,
+    "nearDuplicates": 0,
+    "skipped": 0
+  },
+  "bankIds": [
+    {
+      "id": "286bdf04-4292-45f2-ac01-97f98fa5cd2b",
+      "content_hash": "038342d0508512786a55808d"
+    },
+    {
+      "id": "dd3b6297-c02a-4ea5-83fa-1ded9ccabb8e",
+      "content_hash": "056e9645a80020843317936b"
+    },
+    {
+      "id": "08ba125d-d46c-46e6-b28f-9d95a72f6d55",
+      "content_hash": "0b584c886a226a2c8d2055f6"
+    },
+    {
+      "id": "2e3cd4bb-c33a-4396-8ad2-4d80e59941d0",
+      "content_hash": "0c3d8791c810312391dea461"
+    },
+    {
+      "id": "ab535a9b-8fe3-4645-8bfd-bcfdc65c3be4",
+      "content_hash": "16e722b7ea154ef9d24de3ce"
+    },
+    {
+      "id": "d581974d-36c2-4261-b381-71ee7637d508",
+      "content_hash": "17d01602729a4bb4565f18fe"
+    },
+    {
+      "id": "635e1d34-7bd9-4ab3-b7a0-d320cd2b8d96",
+      "content_hash": "17efe174659c6d5d336528de"
+    },
+    {
+      "id": "13f282a9-8173-4cfb-8865-25e076a08cdc",
+      "content_hash": "2955e359277aa9d33d3011f3"
+    },
+    {
+      "id": "fb51e390-aba6-4443-a832-dde0027df5ab",
+      "content_hash": "2e829d806f19272de9f34ea2"
+    },
+    {
+      "id": "d52f947b-d973-415a-8a29-1ce229b3bebc",
+      "content_hash": "2f9452d770f96414368825ee"
+    },
+    {
+      "id": "76202fd9-ec54-450a-aace-f6ef6ee9ad30",
+      "content_hash": "31d2cd3c5700993bf2e38076"
+    },
+    {
+      "id": "d01a1431-fb7b-47f3-8958-29bbf72e45eb",
+      "content_hash": "3cd02c31e1f620a58b98864e"
+    },
+    {
+      "id": "aec526d7-baa9-4913-a80c-d86a8f3e3827",
+      "content_hash": "4151242de122a753adbb492f"
+    },
+    {
+      "id": "a0a3ae77-9a66-45de-822f-722cf5c0cdb4",
+      "content_hash": "4384e2a441a646f07821b550"
+    },
+    {
+      "id": "f4a3a6a6-0db4-4978-ab72-fce63686a24e",
+      "content_hash": "4650fd3ba370c06ee35bb7e3"
+    },
+    {
+      "id": "b700ac41-1d08-4a2e-9798-5b2a7166a1d6",
+      "content_hash": "489c12420cff9cb7dc8469d6"
+    },
+    {
+      "id": "99c828f9-0de3-4ed2-8904-54ce3f315f18",
+      "content_hash": "492500a715377a53379fd466"
+    },
+    {
+      "id": "98b32551-be2a-44ca-a742-57f8847fb9a0",
+      "content_hash": "4aae3ba87779dae927ee5116"
+    },
+    {
+      "id": "014bc6c0-8016-4c54-9247-86c69f2078dc",
+      "content_hash": "4b3f48474fd804dfc9a7b76c"
+    },
+    {
+      "id": "43e0900c-70a7-4d7c-b40b-683d6063e42d",
+      "content_hash": "5c4a43fb471ce9122ba5cdbd"
+    },
+    {
+      "id": "0a614453-8f7e-4fe2-a3f3-3e10fd035fa7",
+      "content_hash": "69f76843ad3b90995ea7a898"
+    },
+    {
+      "id": "7d38c03d-084b-459c-b2e9-37b1bd855daa",
+      "content_hash": "6a0f3c6958f92f18f324114a"
+    },
+    {
+      "id": "df5344d2-bee5-471d-b31e-58595087847f",
+      "content_hash": "6d84742765a68f1945f8735c"
+    },
+    {
+      "id": "0206c505-d1de-4185-96a1-57b8069a417b",
+      "content_hash": "7299ebf4d8978d2789e2b002"
+    },
+    {
+      "id": "c966d041-7f37-43c5-aa64-01f6ca161e31",
+      "content_hash": "7a7dd3e05ce771d71f687e8b"
+    },
+    {
+      "id": "db6b2583-af5e-4738-83a6-e8af5b17db8e",
+      "content_hash": "7aaa5c8f8b8ccb08a8d4ec26"
+    },
+    {
+      "id": "0babd5f5-62a6-484d-ab17-a2d303e2ddb5",
+      "content_hash": "7b63245f6fc3aee897c31560"
+    },
+    {
+      "id": "f37e9fe3-27d1-49d0-a79a-d973194329e7",
+      "content_hash": "7b9523cd0482165faa13f7bc"
+    },
+    {
+      "id": "396662f4-a5f9-476f-9a74-b68a4e537d14",
+      "content_hash": "8366ba879e9fa071827ff59a"
+    },
+    {
+      "id": "0cbfdf41-dc9f-4367-b4bc-c585b41b73ce",
+      "content_hash": "844c5a10fa832de7e9cc01db"
+    },
+    {
+      "id": "e3e0fea4-2ae0-42e6-a892-5feb4a1e338a",
+      "content_hash": "857cf9e30d44d16cc16b5e0e"
+    },
+    {
+      "id": "f3194a57-8abd-46c2-9fc8-292ab41b7e40",
+      "content_hash": "8732a659ce57552eaa24e6c8"
+    },
+    {
+      "id": "7999aeea-6758-49d8-8fc8-b1e49d1b8570",
+      "content_hash": "8af8261ec2a062de23c6d6b2"
+    },
+    {
+      "id": "b0e98aef-3799-4867-828d-b94a8732a4d9",
+      "content_hash": "8aff34fa295f2f0e9b74fa6e"
+    },
+    {
+      "id": "e76340e5-4380-421f-9c7c-70981c29d2d5",
+      "content_hash": "8e5994b36ec42f7e29c085a9"
+    },
+    {
+      "id": "37f69152-02d6-497a-b16c-0a0fd50ab5b4",
+      "content_hash": "ac2543a1ffe91c679b81c9a7"
+    },
+    {
+      "id": "426a98b4-8cb8-4850-9654-8e2cd20ae675",
+      "content_hash": "b00eb7fe8ac7136c8620682f"
+    },
+    {
+      "id": "2d8492e3-adf3-41de-af7b-2c92844c777c",
+      "content_hash": "b0215bff3921eab6e7958d4a"
+    },
+    {
+      "id": "734ebef7-87dd-457e-8a0e-e7b9f20418a8",
+      "content_hash": "bfe200347efae67512fef97a"
+    },
+    {
+      "id": "61698aa2-8146-4536-bc47-f1ee3d2d569e",
+      "content_hash": "cd7f604b16e8ca9d8dbcd749"
+    },
+    {
+      "id": "ca5546c6-a053-455a-bd74-58630590dbb7",
+      "content_hash": "d38291df777670c0361a5411"
+    },
+    {
+      "id": "ee4d92b9-9830-440c-b155-56d3973e8207",
+      "content_hash": "da52eff75b29c23c29b96dc5"
+    },
+    {
+      "id": "203a7d04-36fe-47cd-8caa-a919c290c594",
+      "content_hash": "e60fd1dce56e1d3679d03d88"
+    },
+    {
+      "id": "1b0f64ac-3405-43b8-acb8-cec7b2a01fa4",
+      "content_hash": "f55c40611cd10996bbbaf539"
+    },
+    {
+      "id": "304b32a5-2a43-4e31-94d8-dc02e99e791e",
+      "content_hash": "f8de886d0d80f36a9f00f452"
+    },
+    {
+      "id": "64ff2d5e-e757-43e2-b94b-af5ed8e187a4",
+      "content_hash": "fc74f4f680eb53a08b40f4cf"
+    },
+    {
+      "id": "e6fde3d9-1443-4bb7-87d2-1dd6fd79cb9c",
+      "content_hash": "fd42d489e4db010fe23aa86f"
+    },
+    {
+      "id": "2b950d8d-752b-4bba-90ee-e67e7a8208be",
+      "content_hash": "fe4fdd9ae9bffd9ef05ca170"
+    }
+  ]
+}

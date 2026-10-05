@@ -1,0 +1,63 @@
+# Local development stack for insat.
+#
+#   docker compose up -d      # start Postgres + Redis
+#   docker compose down       # stop, keep volumes
+#   docker compose down -v    # nuke volumes too
+#
+# Then in your shell:
+#   export DATABASE_URL=postgresql://satify:satify@localhost:5434/satify
+#   export REDIS_URL=redis://localhost:6380
+#   psql "$DATABASE_URL" -f db/schema.sql
+#
+# Server starts with:   cd server && npm run dev
+# Client starts with:   cd client && npm run dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: satify
+      POSTGRES_PASSWORD: satify
+      POSTGRES_DB: satify
+    ports:
+      - "5434:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      # Auto-apply schema on first start
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U satify"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Adminer for poking at the database in a browser at http://localhost:8081
+  adminer:
+    image: adminer:4
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pg_data:
+  redis_data:

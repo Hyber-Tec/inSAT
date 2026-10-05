@@ -1,0 +1,3928 @@
+[
+  {
+    "id": "c13bebc7-8f7d-411b-9295-433d132ce6fb",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Substitute (3,-1): -1=6-b, so b=7.",
+      "classmarker": {
+        "id": "cm:6096",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "f54c2225-a989-4ecb-a679-8861d6117676",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The table gives h(3)=2 and g(2)=-3.",
+      "classmarker": {
+        "id": "cm:6269",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "572275ac-aa69-411e-80ea-c20c2e6ea5da",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "700 millimeters/minute is 70 centimeters/minute; multiplying by 60 gives 4,200 centimeters/hour.",
+      "classmarker": {
+        "id": "cm:6098",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "13c00e84-9cfd-4eaf-9c64-f7fbdbc92fe4",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Subtracting the polynomials cancels 2ab² and combines the remaining terms to 8a²-14a²b.",
+      "classmarker": {
+        "id": "cm:6100",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "cb90c2c6-c5ce-4162-8221-4abd260da603",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The score is 3s+2(15-s)=s+30.",
+      "classmarker": {
+        "id": "cm:6270",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "d0b967d0-9632-40f8-82ff-57cd3334575e",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "There are 90 drinks, so $76.50/90=$0.85 each.",
+      "classmarker": {
+        "id": "cm:7835",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "cfe5dd84-75da-42c0-9038-89fceddf2293",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "If the smaller number is x, then x+(x+6)=80, so x=37.",
+      "classmarker": {
+        "id": "cm:7836",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "a4811a77-fff6-49af-86a4-af6f458bee35",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "98/270≈0.363, or 36%.",
+      "classmarker": {
+        "id": "cm:6101",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "270ce215-3c99-4718-9db8-91d0aa4bbd34",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "540 hours is 32,400 minutes; 32,400/1,080=30 cars.",
+      "classmarker": {
+        "id": "cm:6102",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "919fcf6b-06e3-486d-a426-ac9b9c4822f7",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "f(2)=2²+15=19.",
+      "classmarker": {
+        "id": "cm:6184",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "a80929f2-b45c-48d3-b1f3-40d030bcdbd0",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "√w=6, so w=36.",
+      "classmarker": {
+        "id": "cm:6185",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "50069a59-3e3e-48a7-a141-df67b86bf23a",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Substitute x+3 into h: 2(x+3)²-7(x+3)-3=2x²+5x-6.",
+      "classmarker": {
+        "id": "cm:6197",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2d7afd62-6c4d-426b-b86b-8f5dc7071bbf",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "Substitute y=x/4 into 10x-62=9y to get x=8 and y=2.",
+      "classmarker": {
+        "id": "cm:6198",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "03ffcbed-20d8-4163-b374-ea8db902cec5",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The x terms are 35x and 3x, so the coefficient is 38.",
+      "classmarker": {
+        "id": "cm:6238",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "573e2568-f768-4157-a900-732d5337b914",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "g(5)=7 and f(5)=-3g(5)=-21.",
+      "classmarker": {
+        "id": "cm:6265",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "5b2b2a34-eabb-4910-bf5c-0c7de5482ddd",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The table gives h(3)=2 and g(2)=-3.",
+      "classmarker": {
+        "id": "cm:6269",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "8559b888-cc1a-4a90-afc7-fa0872b02f7b",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The score is 3s+2(15-s)=s+30.",
+      "classmarker": {
+        "id": "cm:6270",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "35d5170f-b554-487c-8199-6cecbd79ffa7",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The graphed line has positive slope and negative y-intercept; in ax+by=28 this means a>0 and b<0.",
+      "classmarker": {
+        "id": "cm:25744",
+        "figure": "12189505_88ZAE4L1.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "b315c34f-1015-45ac-b9c7-4920b21cbf6c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "57.5/5=11.5 miles per day; 43 days is about 494.5 miles, closest to 480.",
+      "classmarker": {
+        "id": "cm:7806",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "392f48f2-79b1-46eb-a870-3ab2685716c2",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The data decrease toward 5, matching (1.56)^(-x)+5.",
+      "classmarker": {
+        "id": "cm:25769",
+        "figure": "12189505_4I0IEVT5.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "9f833dde-6928-42ee-a858-2b99d8f0aed4",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The angle bisector gives AD=BD; the equal angles in triangle ADC also give AD=AC.",
+      "classmarker": {
+        "id": "cm:25772",
+        "figure": "12189505_2WCRC1B9.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "ac307d8b-bc90-4712-b6f3-4b97c13964ce",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "A quarter-circle area is πr²/4=37π, so r=√148.",
+      "classmarker": {
+        "id": "cm:25812",
+        "figure": "12189505_CW8PLR6Y.png",
+        "category": "0\n(Grade style): 0"
+      }
+    }
+  },
+  {
+    "id": "4362335c-a5b8-4270-9d87-774b49a535c5",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "The triangle’s coordinate area is half the absolute determinant: |4(-10)-2(9)|/2=29.",
+      "classmarker": {
+        "id": "cm:25826",
+        "figure": "12189505_Q6OY7QMS.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "5e9bc578-8ece-40b2-b461-fb529fa57c4a",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The region is above the solid line y=36, so y≥36.",
+      "classmarker": {
+        "id": "cm:26054",
+        "figure": "12189505_PG7NIHIM.png",
+        "category": "398"
+      }
+    }
+  },
+  {
+    "id": "0795bad5-0d6d-4acd-95b0-537499fde1e4",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "x²=196 gives x=±14.",
+      "classmarker": {
+        "id": "cm:7803",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "9c68e519-9529-4de6-8c87-f93f6c1345d1",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Distributing 8 gives 8x²+48.",
+      "classmarker": {
+        "id": "cm:8313",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "21986911-4b6b-46a9-bd09-4322285a09be",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Expected gains are $3,000, $3,150, $3,200, and $3,150; $3,200 is greatest.",
+      "classmarker": {
+        "id": "cm:7805",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2bda2909-d192-45e2-b295-be3aea30949e",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "57.5/5=11.5 miles per day; 43 days is about 494.5 miles, closest to 480.",
+      "classmarker": {
+        "id": "cm:7806",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "7cff0aff-6005-45bd-84e0-8fc5ce1bd50a",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "(5×10^-8)/(6×10^-9)=8.33, closest to 8.",
+      "classmarker": {
+        "id": "cm:7811",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "028ac5e7-a6d8-4f26-afff-df6ee86ccb3a",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "$4.25(22)=$93.50.",
+      "classmarker": {
+        "id": "cm:7829",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "e1ff9eaf-3118-4986-9cb4-4608a0ee0c29",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "r=72/(2π)≈11.5 centimeters.",
+      "classmarker": {
+        "id": "cm:7830",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "b91ec987-7a3e-4bbc-99ab-b17825f5221c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The weighted mean is (3·35+4·24+5·19+6·11+7·11)/100=4.39.",
+      "classmarker": {
+        "id": "cm:7833",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "7091268d-cf50-427d-876c-ebe020c5b2e7",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Slope 1/3 and y-intercept 7 give f(x)=x/3+7.",
+      "classmarker": {
+        "id": "cm:8317",
+        "category": "331"
+      }
+    }
+  },
+  {
+    "id": "0cf556a0-b18d-4be4-a628-f34d7dde5030",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "A fixed percent increase is multiplicative, so the relationship is exponential and later months have greater membership.",
+      "classmarker": {
+        "id": "cm:6081",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2aad9bf1-c67d-41a1-9b56-ae61b49bee34",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Factor out (3-y): (3-y)((3-y)-1)=(3-y)(2-y).",
+      "classmarker": {
+        "id": "cm:6082",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "69b13eb5-f3d0-4d8b-a9ce-af1a6066342c",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The profit per pencil is 0.75/12 dollars; for 20 pencils it is $1.25.",
+      "classmarker": {
+        "id": "cm:6094",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "f442fdf8-96b8-4c6b-a18a-60ff5b0e9baa",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "At w=0, the balance is $870, the initial loan amount.",
+      "classmarker": {
+        "id": "cm:6095",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "d42cebf3-c8e2-42fc-8a10-db3beba7ce54",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Substitute (3,-1): -1=6-b, so b=7.",
+      "classmarker": {
+        "id": "cm:6096",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "9a42ea25-6927-4fa5-b66c-625285131568",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "The month-to-month balances have ratios near 0.96, indicating an approximately 4% exponential decrease.",
+      "classmarker": {
+        "id": "cm:6097",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "e5b5217c-96a6-4636-bcd9-b72ef049475f",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "Small tanks hold s fish and large tanks hold 2b fish, for a total s+2b=37.",
+      "classmarker": {
+        "id": "cm:6186",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "6486cfcc-1530-4062-a8a6-0835dd747fae",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "A constant 16% increase each hour is exponential growth.",
+      "classmarker": {
+        "id": "cm:6187",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "70848b0e-428c-45f6-9d69-5be203d768d4",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The point total is 2f+5s and must be at least 100.",
+      "classmarker": {
+        "id": "cm:6188",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "588dc4eb-8327-477e-96cd-3e1c3af1c5ed",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "A circle with center (-3,5) and radius 4 has equation (x+3)²+(y-5)²=16.",
+      "classmarker": {
+        "id": "cm:6190",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "1575a06c-c086-449e-9e74-445aa7afb40d",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "The rate is $100 per hour, so an additional dollar corresponds to 1/100 hour.",
+      "classmarker": {
+        "id": "cm:6191",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "c67d039c-2fe0-4597-95a2-027e7d2ac9fc",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The roots are symmetric around the vertex x-coordinate 5; (k+3)/2=5, so k=7.",
+      "classmarker": {
+        "id": "cm:6193",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "ce8fca62-47e4-4bd9-aabc-191077dd3a33",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Surface area scales with the square of radius, so tripling radius multiplies it by 9.",
+      "classmarker": {
+        "id": "cm:6195",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "54da1c86-1023-4c27-bf91-da7881f1ba02",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The velocity slope is (50-20)/10=3, so V=20+3t.",
+      "classmarker": {
+        "id": "cm:6196",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "dbc768d8-6ab6-4db7-a865-4bc17435b54b",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Halving by the same factor after each equal time interval is exponential decay.",
+      "classmarker": {
+        "id": "cm:6199",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "cb6bca91-fc08-4efb-a276-0136a23df480",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The inequalities y≥x+1 and y≤x-1 cannot both hold.",
+      "classmarker": {
+        "id": "cm:6203",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "44842eed-6330-43d7-bc1b-32a2e6847fc0",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Setting the expressions equal gives 2x²+7x+3=0=(2x+1)(x+3), so x=-1/2 and -3.",
+      "classmarker": {
+        "id": "cm:6204",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "64960495-fc73-4c07-b074-c461ce6312bc",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "At break-even, (9.50-4.85)q=11,625, so q=2,500.",
+      "classmarker": {
+        "id": "cm:6211",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "b21d23e6-6b7a-4587-9e1a-6b307904e3bd",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Since f(x)=x+1, g(2) must be -2; g(x)=x-4 gives that value.",
+      "classmarker": {
+        "id": "cm:6213",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "87bbd18b-7a3d-475c-86f1-ef2ef8559e5c",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The factorization (x-2)(x-40) displays the zeros as 2 and 40.",
+      "classmarker": {
+        "id": "cm:6220",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "9d2ec8db-e7b1-4387-b4e8-ba5c4ea0b74b",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Adding the equations gives 2x=8, so x=4.",
+      "classmarker": {
+        "id": "cm:6222",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "e66df5d1-3743-4d87-9f75-3116263c6156",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Given vanilla, the probability of sprinkles is 20/(20+30)=0.40.",
+      "classmarker": {
+        "id": "cm:6224",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "54e30c35-5e84-4e00-a4b8-0dd8694b584c",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "At r=26, the x terms cancel and leave 3=25, so there is no solution.",
+      "classmarker": {
+        "id": "cm:6225",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "4416920e-68b1-4fe4-8334-d8cb9c3b4586",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The center moves from (-6a,38a) to (6a,38a); the radius stays 6a.",
+      "classmarker": {
+        "id": "cm:6227",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "2acd96ba-8dd0-4ae6-9653-83c0db4b8e43",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "A downward translation by 6 subtracts 6 from the output: y=3^x-6.",
+      "classmarker": {
+        "id": "cm:6229",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "37460ea3-8ba7-468b-892a-38a8c89a0c49",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The slope through the points is -5 and the y-intercept is 2, giving y=-5x+2.",
+      "classmarker": {
+        "id": "cm:6230",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "9b74a5fa-e11c-4d7c-89e1-acca994302f7",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "f(4)=7 and g(4)=12, so 7f(4)-g(4)=49-12=37.",
+      "classmarker": {
+        "id": "cm:6231",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "62c7b0de-10f7-435d-849c-71ead72b5c58",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "E=1/2(2×10³)(3×10³)²=9×10⁹ joules.",
+      "classmarker": {
+        "id": "cm:6234",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "9642b275-95d3-4e80-a0bf-2cfe96cf3f1f",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "A 3% annual decrease leaves 97% each year, so the model is 1,800(0.97)^t.",
+      "classmarker": {
+        "id": "cm:6236",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "8f626861-b933-4a8c-b805-a0de3f069107",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "After the first quarter-mile fee, each additional eighth costs $0.25, giving total 3+0.25(8m-2)=2.5+2m≤20.",
+      "classmarker": {
+        "id": "cm:6243",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "4ee74336-c02c-4072-855f-77b56e5db2a7",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "The vertex is at t=2 and h(2)=-16(2²)+64(2)+8=72.",
+      "classmarker": {
+        "id": "cm:6244",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "de1373b6-7148-4506-89a2-7d6bec514fc0",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "Distribute the subtraction and combine terms to get t⁴+3t³-13t²+4t.",
+      "classmarker": {
+        "id": "cm:6247",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "db7a439b-6003-421a-a6e2-9cd169b80427",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Equating the expressions gives x=-6.5, and then y=3.",
+      "classmarker": {
+        "id": "cm:6251",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "38fb66d1-290d-411d-b86c-6067e4ac15b7",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "168 is 1.3125 times the May 1 count; 168/1.3125=128.",
+      "classmarker": {
+        "id": "cm:6252",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "650e9e10-67f5-424d-a1ce-483df6230121",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The circle radius is 57, so the rectangle diagonal is 114. The short side is 57 and the long side is 57√3; area=3,249√3.",
+      "classmarker": {
+        "id": "cm:6254",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "51121122-5986-4555-9129-e1e876820390",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The charge is 9+6(n-1)=6n+3.",
+      "classmarker": {
+        "id": "cm:6257",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "7c289831-4e05-400d-842d-ef0dac4180f3",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "To gain the same factor over a 1/4 increase in x, the exponent must increase by 1; use 4x.",
+      "classmarker": {
+        "id": "cm:6258",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "edeccefc-6294-40a0-a2da-6bd34b23a152",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "There are 105,000 gallons; 8 machines pump 300 gallons/minute, so filling takes 350 minutes, or 5 hours 50 minutes.",
+      "classmarker": {
+        "id": "cm:6271",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "9ee23828-54a1-434e-a302-a850a8745e6a",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Company A reaches 1,066 in December. Company B doubles from 120 in April to 30,720 in December, a difference of 29,654.",
+      "classmarker": {
+        "id": "cm:6272",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "12c8c9a8-888b-4bcb-9088-7b61dff56a22",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "Slope 1/4 and y-intercept 5 give f(x)=x/4+5.",
+      "classmarker": {
+        "id": "cm:7570",
+        "category": "331"
+      }
+    }
+  },
+  {
+    "id": "4fed0e6f-6a03-493c-9832-4f4c4445ee34",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Angle C=180-47-90=43°, so k/2=43 and k=86.",
+      "classmarker": {
+        "id": "cm:7576",
+        "category": "338"
+      }
+    }
+  },
+  {
+    "id": "65ee2649-1012-4d06-8a19-b4fd200eceee",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The requested sum is f(1). The three points give a=-1/4, b=0, c=2, so f(1)=1.75.",
+      "classmarker": {
+        "id": "cm:7581",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "5d7c0fa0-04a9-4553-aa9e-cb38a0ff89bd",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Using regular=10 gives mini=25 and jumbo=8; the ratio is 25:8.",
+      "classmarker": {
+        "id": "cm:7583",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "28e0c71e-b450-4dd9-95c3-1e80bdbf713d",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "If the diameter is 3h, then r=1.5h. The volume equation gives h=8 and diameter 24.",
+      "classmarker": {
+        "id": "cm:7587",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "86aa8657-9c65-4159-aac4-e2376b9e2020",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The coefficient 3.29 is the price per square foot.",
+      "classmarker": {
+        "id": "cm:7588",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "10835226-88d0-4b28-8c8b-fd2421f64164",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "This list uses six lots, all multiples of 1,000 in range, with each size at least 30% larger than the previous.",
+      "classmarker": {
+        "id": "cm:7598",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "24dfac11-5dac-45a6-9246-03a1204905bd",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "A fixed percent decrease per year is multiplicative, so an exponential model is appropriate.",
+      "classmarker": {
+        "id": "cm:7600",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "e06c3839-a06d-4661-b2df-4c13a462335d",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The quadratic maximum is 55²/8; adding 1 gives 1+2(55/4)².",
+      "classmarker": {
+        "id": "cm:7601",
+        "category": "322"
+      }
+    }
+  },
+  {
+    "id": "398f4a85-0a0c-4c82-a42c-a6bee13d8c04",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Both lines pass through (0,0), so their intersection has x=0.",
+      "classmarker": {
+        "id": "cm:25655",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "99607eef-b49c-4ba3-8cff-447b61db0a0d",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "25+12.50x>33+10.50x reduces to x>4.",
+      "classmarker": {
+        "id": "cm:25657",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "df7b9a43-2819-462c-af89-39f15fc2424c",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Given vanilla, the conditional probability is 30/(30+10)=0.75.",
+      "classmarker": {
+        "id": "cm:25790",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "fe19ff5a-68a6-40a7-bf55-9155d384d716",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "For angle A, adjacent side is 22 and hypotenuse is 41, so cos A=22/41.",
+      "classmarker": {
+        "id": "cm:25563",
+        "figure": "12189505_034MLXJ5.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "f95d2b50-b859-408c-a57b-2d6f56358d79",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Twelve months after December 2013, the graph is near 92 sunspots; 91 is the closest estimate.",
+      "classmarker": {
+        "id": "cm:25576",
+        "figure": "12189505_KK2ZAY69.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "43b2f36f-0c48-4c36-9bef-f4106ecebe45",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The dashed boundary is y=3x and the shading is below it, so y<3x.",
+      "classmarker": {
+        "id": "cm:25578",
+        "figure": "12189505_N0OQUBMN.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "c7c71007-baeb-435a-bb68-719a68e026a5",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Angles A and C are complementary, so sin C=cos A=0.65.",
+      "classmarker": {
+        "id": "cm:25580",
+        "figure": "12189505_EJSFZCIS.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "d6119027-29ee-4d1c-bbde-ec2a80915adf",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "At 12 hours the graph is at about 10 ounces.",
+      "classmarker": {
+        "id": "cm:25671",
+        "figure": "12189505_ZGMG75KU.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "bb8760c0-6704-480c-a314-d6ed1fb57fa1",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The 396-403-565 right triangle gives sin X=403/565.",
+      "classmarker": {
+        "id": "cm:25706",
+        "figure": "12189505_8L6WFAWE.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "2b346ecb-440f-4c87-b617-68e6fa1566f0",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The point’s x-coordinate is molecular weight and y-coordinate is estimated boiling point.",
+      "classmarker": {
+        "id": "cm:25732",
+        "figure": "12189505_T7U4J4O4.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "2fe324e9-aac5-4c6a-9622-f41e497ed7a5",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "There are 80 men and 20 women; 45 male Republicans plus 4 female Republicans gives 49.",
+      "classmarker": {
+        "id": "cm:7604",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "53cfed0b-45ac-4dd3-90f9-d0fd6541d2a2",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The 2004-to-2012 growth factor is 29,400/18,750; applying it again gives about $46,100.",
+      "classmarker": {
+        "id": "cm:7605",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "d832b864-7382-4576-8d4a-ad60951dc09d",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "The score is 7(10-b)+3b=70-4b.",
+      "classmarker": {
+        "id": "cm:7606",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "b819d4f2-7cff-49fc-ad07-a3849b071b6a",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "Taking square roots gives x+3=±4, so x=-7 or x=1.",
+      "classmarker": {
+        "id": "cm:7611",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "1ffbb940-dd72-45e3-beb7-bd60d0722bd4",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The model scale is 26/3,666; a 54-inch nose scales to 54(26/3,666)=18/47 inches.",
+      "classmarker": {
+        "id": "cm:7785",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "cd775b82-0f42-4b37-88eb-66a770dd1088",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "f(6)-f(2)=23-11=12.",
+      "classmarker": {
+        "id": "cm:7786",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "deee134b-021b-4913-88ab-fd4c8062f481",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Substitution shows both x=-4 and x=2 satisfy y=2x-4 and y=(x+2)²-16.",
+      "classmarker": {
+        "id": "cm:7788",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "9131ce76-d3e0-408d-a48e-990e4183cab6",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The slope is (117-90)/(20-8)=2.25; the intercept is 72.",
+      "classmarker": {
+        "id": "cm:7790",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "fcb7c04a-d958-442c-8e16-2422a7311183",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The ordered pair means that after 21 payments, $560 remains.",
+      "classmarker": {
+        "id": "cm:7791",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "068c3fd4-88be-4fd9-92e5-7ae7e29a23a3",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The input 5 shifts to x=2; the output becomes -1-2=-3.",
+      "classmarker": {
+        "id": "cm:7793",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "efb05e03-dc53-48cb-b3a5-91c8be40b742",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "After the initial 25% reduction, two 10% markdowns give 1,500(0.75)(0.9)²=$911.25.",
+      "classmarker": {
+        "id": "cm:7794",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "a32aee8c-3329-4f28-9be7-cf00d1f38791",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "The vertical component is 170sin30°=85 feet.",
+      "classmarker": {
+        "id": "cm:7795",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "492399d6-fb43-4489-8ceb-a16bf1d1b570",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "2x²-70=2 gives x²=36, so x=±6.",
+      "classmarker": {
+        "id": "cm:7796",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "7f99958f-fb4b-43b2-8a9e-b45aa4ea90c8",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The corner (-10,10) is 30 feet vertically from (-10,-20).",
+      "classmarker": {
+        "id": "cm:7798",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "03f26e78-4f94-4f20-a113-56a3617d2862",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Multiplying gives 6x²y²-7xy+2.",
+      "classmarker": {
+        "id": "cm:7799",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "25fc1c53-1959-45cb-b0b2-1a282ba9658a",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "48 inches is 4 feet, or 4/3 yards.",
+      "classmarker": {
+        "id": "cm:7800",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "c6ca7570-bc48-4045-a912-373bc8b5ed2b",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The estimated total is 25(6)+12(27)+3(148)=918, closest to 900.",
+      "classmarker": {
+        "id": "cm:7801",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "340c4bc4-21ff-4a6d-8521-4f5cff40590e",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Adding 105 raises the mean; the median rises from 85 to 85.5.",
+      "classmarker": {
+        "id": "cm:7812",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "b70b4115-e918-452f-899b-9ed6c197f495",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "261($0.95)=$247.95.",
+      "classmarker": {
+        "id": "cm:7814",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "a1a18a66-5f4f-47da-90f9-fb378a70bd27",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "18/(3/10)=60 oil changes.",
+      "classmarker": {
+        "id": "cm:7817",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "fa8f67d5-00bb-4604-bfba-504633903279",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "r=√(240/3.14)≈8.7 centimeters.",
+      "classmarker": {
+        "id": "cm:7818",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "2ff31947-379e-43bb-94d1-8da37c81b3b6",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "With circumference 14π, r=7 and volume is π(7²)(12)=588π.",
+      "classmarker": {
+        "id": "cm:7819",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "9d80567d-2ddc-4e51-a0cd-2f5158b29d8b",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "40 miles in 25 minutes requires 40/(25/60)=96 miles per hour.",
+      "classmarker": {
+        "id": "cm:7820",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "c392bdec-c4f9-472e-b0b2-5008c2f314f3",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "$49/$2.45 per minute=20 minutes.",
+      "classmarker": {
+        "id": "cm:7821",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "efc3331a-ea52-4fdc-b30b-75001d00a818",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "125/175≈71.4%, about 71%.",
+      "classmarker": {
+        "id": "cm:7825",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "faef44c6-5729-4f93-b71a-e58d83b5508d",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "The increase is (10.25-9.50)/9.50≈7.9%.",
+      "classmarker": {
+        "id": "cm:7828",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "a6f86366-1449-4c99-a21e-78cd918cc504",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Six ratings total 57; the first five sum to 47.5, leaving 9.5.",
+      "classmarker": {
+        "id": "cm:7837",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "486f0f0c-3457-48b9-8c92-4676c8665fc2",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Three 5.4-gallon cans emptied three times use 48.6 gallons.",
+      "classmarker": {
+        "id": "cm:7838",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "4857403a-41e8-4241-9254-b258c107da4e",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "99=3²·11.",
+      "classmarker": {
+        "id": "cm:7839",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "d394f0f1-1541-403e-ba72-67576b297df2",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The two listed corners are each 175 units from (-50,-50), forming a square.",
+      "classmarker": {
+        "id": "cm:7840",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "5df853b1-11d8-4793-a8f0-06015fcf945f",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "600(45/30)=900 steps.",
+      "classmarker": {
+        "id": "cm:7841",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "25765671-e2ce-4dd3-99ca-20a2d03ebcbb",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "60/75=0.8; 140(0.8)=112 correct answers.",
+      "classmarker": {
+        "id": "cm:7844",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "9e541070-c3a7-45e0-a62e-61a5150e9605",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "(30-15)/(3.6-3.2)=37.5 feet per second.",
+      "classmarker": {
+        "id": "cm:7845",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "481d98e7-6bb7-4bfa-b891-5502617e7b75",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Slope -8 and y-intercept 60 give y=-8x+60.",
+      "classmarker": {
+        "id": "cm:8022",
+        "category": "331"
+      }
+    }
+  },
+  {
+    "id": "f0ef5ca6-e1da-4aad-bc1f-a9f45d8d41b2",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "19(x²-8)=19x²-152.",
+      "classmarker": {
+        "id": "cm:8023",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "8df35c6b-1481-4cf9-8510-c3a591b710a9",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "“At least 40” and “no more than 65” give 40≤x≤65.",
+      "classmarker": {
+        "id": "cm:8025",
+        "category": "335"
+      }
+    }
+  },
+  {
+    "id": "e0fc0350-7c9b-4336-b141-a9b0ea495f7a",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Rewriting gives y=8x+16/3, with slope 8.",
+      "classmarker": {
+        "id": "cm:8031",
+        "category": "331"
+      }
+    }
+  },
+  {
+    "id": "e6e40852-e7cd-412b-b396-44470a80a9db",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The product is zero at v=8, 2, or -9; 8 is listed.",
+      "classmarker": {
+        "id": "cm:8032",
+        "category": "313"
+      }
+    }
+  },
+  {
+    "id": "8e678ea7-fd5b-4633-a88b-ef6aa2b4d5f0",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Given a Flames shirt, the conditional probability is 22/44=0.50.",
+      "classmarker": {
+        "id": "cm:8038",
+        "category": "330"
+      }
+    }
+  },
+  {
+    "id": "83ce1f80-b4d5-4159-8184-f3e2c40d19e4",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "For x²+bx, the minimum is -b²/4=-(27/4)².",
+      "classmarker": {
+        "id": "cm:8040",
+        "category": "326"
+      }
+    }
+  },
+  {
+    "id": "05fe17bb-07db-47f7-b46d-bbab846664c5",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Surface area scales as edge length squared: (3/64)²=9/4,096.",
+      "classmarker": {
+        "id": "cm:8043",
+        "category": "339"
+      }
+    }
+  },
+  {
+    "id": "390b7a77-dbcd-4f73-9985-ef637a059994",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "1,500+300x≤8,000 gives x≤21.66..., so the greatest integer is 21.",
+      "classmarker": {
+        "id": "cm:8223",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "43037a24-f5ee-421e-8e23-f754879dcd79",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "Eight more than twice x is 2x+8.",
+      "classmarker": {
+        "id": "cm:8224",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "32d5dca6-13a6-4f3b-ab0b-963e53cd88e7",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The coefficient 200 is the amount of each monthly payment.",
+      "classmarker": {
+        "id": "cm:8227",
+        "category": "329"
+      }
+    }
+  },
+  {
+    "id": "0265252d-0238-44ff-abef-1cd48a8bd2b6",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "If Keith ran k miles, Mick ran k-18; 2k-18=76 gives k=47.",
+      "classmarker": {
+        "id": "cm:8228",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "b1b4da31-ccea-4539-94d3-8ad0a45ac642",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "A parallel line keeps slope 3; through (0,1) it is y=3x+1.",
+      "classmarker": {
+        "id": "cm:8229",
+        "category": "321"
+      }
+    }
+  },
+  {
+    "id": "a53d0c91-b3fc-4d03-8a5e-93896b26c073",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "$25+4x=$53 gives x=$7.",
+      "classmarker": {
+        "id": "cm:8235",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "badecf90-63ea-482b-8c2e-908c5cda8c3c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "Tax applies to the daily rental only; add the untaxed $10 fee afterward.",
+      "classmarker": {
+        "id": "cm:8238",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "6a7f77b1-809a-4385-9f2e-044a88a85e63",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Revenue is $435+$150=$585; 585/15=39 umbrellas.",
+      "classmarker": {
+        "id": "cm:8239",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "e493a94e-8b21-4ebf-9baa-de8ab4622f4a",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Adding and subtracting the equations gives y=1/2 and x=0; 3x+8y=4.",
+      "classmarker": {
+        "id": "cm:8249",
+        "category": "321"
+      }
+    }
+  },
+  {
+    "id": "5e5dc687-5dc9-49c1-9fb0-08d8d190e5e0",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "0.02 is the 2% rate applied to the car’s value.",
+      "classmarker": {
+        "id": "cm:8252",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "dd4b8712-9a33-41a5-989e-448ddbfd57d2",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The plan costs 50+8(g-2)+0.1t because the first 2 GB are free.",
+      "classmarker": {
+        "id": "cm:8253",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "3cd1cde0-8318-4000-9694-22eaa77f4c8e",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "130+4r=250 gives r=30.",
+      "classmarker": {
+        "id": "cm:8254",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2e9ab4a6-f482-479a-9369-469fded8bedd",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The discounted watermelon costs 0.48p and four potatoes cost $3.16.",
+      "classmarker": {
+        "id": "cm:8255",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "18cb14ed-68c9-43cd-b905-98d376365487",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The total is 8a+4(12-a)=4a+48.",
+      "classmarker": {
+        "id": "cm:8256",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "884c0522-ccb4-4a9e-8443-877a587dd6bc",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Base pay plus commission is y=70+14x.",
+      "classmarker": {
+        "id": "cm:8264",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "12441f2e-1ccb-477f-b44c-444740fe9ca4",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "At x=0 the model gives $27,000, the original price.",
+      "classmarker": {
+        "id": "cm:8266",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "b7c7e986-c19b-45bb-a1f0-a0d7c7ed8a0b",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "A two-unit increase must multiply output by 4,096; this form displays 4,096 as the base.",
+      "classmarker": {
+        "id": "cm:8328",
+        "category": "327"
+      }
+    }
+  },
+  {
+    "id": "1502eb0d-8940-4dd7-a9ee-e71d4384a0ac",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "48=18+2(x-9) gives 2(x-9)=30.",
+      "classmarker": {
+        "id": "cm:8337",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "0e3074a2-fbaf-4dbb-8480-4ab5a8fb286c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The point (9,12) lies on y=f(x), so f(9)=12.",
+      "classmarker": {
+        "id": "cm:8339",
+        "category": "322"
+      }
+    }
+  },
+  {
+    "id": "482f1def-f677-46db-8d74-e3113db13351",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "This distribution is concentrated closest to its mean, so it has the smallest standard deviation.",
+      "classmarker": {
+        "id": "cm:8341",
+        "category": "336"
+      }
+    }
+  },
+  {
+    "id": "041c6b38-7d0b-4900-85b3-b34951bae554",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Angle C=180-53-90=37°, so k/2=37 and k=74.",
+      "classmarker": {
+        "id": "cm:8344",
+        "category": "338"
+      }
+    }
+  },
+  {
+    "id": "7d4e40ed-72f1-4936-a455-4abca5460adf",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Equation I is the same line; equation II is a nonparallel line that intersects the given line. Both systems have a solution.",
+      "classmarker": {
+        "id": "cm:8349",
+        "category": "321"
+      }
+    }
+  },
+  {
+    "id": "19db293c-6ca6-4f26-b618-f15e35a0aa3a",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "700 millimeters/minute is 70 centimeters/minute; multiplying by 60 gives 4,200 centimeters/hour.",
+      "classmarker": {
+        "id": "cm:6098",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "ee3cdab0-a39c-4283-b8cc-f2632ce1e9a1",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Subtracting the polynomials cancels 2ab² and combines the remaining terms to 8a²-14a²b.",
+      "classmarker": {
+        "id": "cm:6100",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2d2e8c58-4c40-4c47-83f5-030d625054f7",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "There are 90 drinks, so $76.50/90=$0.85 each.",
+      "classmarker": {
+        "id": "cm:7835",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "7cefe417-6ad2-4dab-8949-6b3724845425",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "If the smaller number is x, then x+(x+6)=80, so x=37.",
+      "classmarker": {
+        "id": "cm:7836",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "c1372db4-d4ac-4325-aedd-7ed84087952a",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "98/270≈0.363, or 36%.",
+      "classmarker": {
+        "id": "cm:6101",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "9365a31c-2d18-48a7-87a1-684cc39e934c",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "540 hours is 32,400 minutes; 32,400/1,080=30 cars.",
+      "classmarker": {
+        "id": "cm:6102",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "a9ffbdfc-7139-49ea-a392-d4333e782c95",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "f(2)=2²+15=19.",
+      "classmarker": {
+        "id": "cm:6184",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "487ba70e-f4d1-4168-b8bf-7c75822e7717",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "√w=6, so w=36.",
+      "classmarker": {
+        "id": "cm:6185",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "2efb50bc-1128-4cc1-9208-f6941219e4b6",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Substitute x+3 into h: 2(x+3)²-7(x+3)-3=2x²+5x-6.",
+      "classmarker": {
+        "id": "cm:6197",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "4ddc8f3b-611c-4ccd-bd15-72835adaf5b3",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "Substitute y=x/4 into 10x-62=9y to get x=8 and y=2.",
+      "classmarker": {
+        "id": "cm:6198",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "71c44b67-53a8-494e-84ca-440cea2201ea",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The x terms are 35x and 3x, so the coefficient is 38.",
+      "classmarker": {
+        "id": "cm:6238",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "7acec213-c3f2-47b7-8c1f-aeb0bc1bfd24",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "g(5)=7 and f(5)=-3g(5)=-21.",
+      "classmarker": {
+        "id": "cm:6265",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "4efd4863-bd3e-46e1-b04a-2dda8571e74a",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The graphed line has positive slope and negative y-intercept; in ax+by=28 this means a>0 and b<0.",
+      "classmarker": {
+        "id": "cm:25744",
+        "figure": "12189505_88ZAE4L1.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "04b7ba2e-41f5-447f-9a8b-0cd8ee762dd4",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The data decrease toward 5, matching (1.56)^(-x)+5.",
+      "classmarker": {
+        "id": "cm:25769",
+        "figure": "12189505_4I0IEVT5.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "8da865f1-3a1d-4b32-a8e0-4d267a33f20c",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The angle bisector gives AD=BD; the equal angles in triangle ADC also give AD=AC.",
+      "classmarker": {
+        "id": "cm:25772",
+        "figure": "12189505_2WCRC1B9.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "4ac000db-506d-4c62-b671-32d6a9f0d314",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "A quarter-circle area is πr²/4=37π, so r=√148.",
+      "classmarker": {
+        "id": "cm:25812",
+        "figure": "12189505_CW8PLR6Y.png",
+        "category": "0\n(Grade style): 0"
+      }
+    }
+  },
+  {
+    "id": "aff79e3d-cb01-4c4c-ba45-fc7578b37b18",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "The triangle’s coordinate area is half the absolute determinant: |4(-10)-2(9)|/2=29.",
+      "classmarker": {
+        "id": "cm:25826",
+        "figure": "12189505_Q6OY7QMS.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "09183e9a-b529-4ebe-8288-99f6d947a445",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The region is above the solid line y=36, so y≥36.",
+      "classmarker": {
+        "id": "cm:26054",
+        "figure": "12189505_PG7NIHIM.png",
+        "category": "398"
+      }
+    }
+  },
+  {
+    "id": "957ae3dc-9753-4399-a2a9-409f92d5be5c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "x²=196 gives x=±14.",
+      "classmarker": {
+        "id": "cm:7803",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "1a6fb504-3bc3-405f-bf67-b1c77ac156e0",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Distributing 8 gives 8x²+48.",
+      "classmarker": {
+        "id": "cm:8313",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "9d17f1f0-d7f3-45f3-8f67-6fe58078efd6",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Expected gains are $3,000, $3,150, $3,200, and $3,150; $3,200 is greatest.",
+      "classmarker": {
+        "id": "cm:7805",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "e8f579b3-f3ea-41a6-8370-cb137923c1e8",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "(5×10^-8)/(6×10^-9)=8.33, closest to 8.",
+      "classmarker": {
+        "id": "cm:7811",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2f3aec6a-0448-43d9-bd27-a392f9dc5149",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "$4.25(22)=$93.50.",
+      "classmarker": {
+        "id": "cm:7829",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "8a436db4-4f1e-4234-af6e-11446cac33d7",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "r=72/(2π)≈11.5 centimeters.",
+      "classmarker": {
+        "id": "cm:7830",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "9f5fbdc0-47d4-4d5b-b2a0-f59df275c518",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The weighted mean is (3·35+4·24+5·19+6·11+7·11)/100=4.39.",
+      "classmarker": {
+        "id": "cm:7833",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "bba9ae90-cebe-4eef-9c8c-2337353d885a",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Slope 1/3 and y-intercept 7 give f(x)=x/3+7.",
+      "classmarker": {
+        "id": "cm:8317",
+        "category": "331"
+      }
+    }
+  },
+  {
+    "id": "75186600-ba56-4b65-a530-18d289362123",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "A fixed percent increase is multiplicative, so the relationship is exponential and later months have greater membership.",
+      "classmarker": {
+        "id": "cm:6081",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "b0f69e68-a131-481c-93e9-2a3e3f0ef605",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Factor out (3-y): (3-y)((3-y)-1)=(3-y)(2-y).",
+      "classmarker": {
+        "id": "cm:6082",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "338766d5-2243-4f45-b45d-acb65c96c194",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The profit per pencil is 0.75/12 dollars; for 20 pencils it is $1.25.",
+      "classmarker": {
+        "id": "cm:6094",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2f5737ba-8ca1-4780-9f4b-2816a288a010",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "At w=0, the balance is $870, the initial loan amount.",
+      "classmarker": {
+        "id": "cm:6095",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "da67c56c-84b3-4a3d-9cc0-19ec9912b53b",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "The month-to-month balances have ratios near 0.96, indicating an approximately 4% exponential decrease.",
+      "classmarker": {
+        "id": "cm:6097",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2dd0f962-db37-49b8-8729-c50e092f9ae9",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "Small tanks hold s fish and large tanks hold 2b fish, for a total s+2b=37.",
+      "classmarker": {
+        "id": "cm:6186",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "224f817a-05bd-4b42-a5bf-ffc5c35622ba",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "A constant 16% increase each hour is exponential growth.",
+      "classmarker": {
+        "id": "cm:6187",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "fd2bb30e-f4da-4a08-8811-c435b92e0df9",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The point total is 2f+5s and must be at least 100.",
+      "classmarker": {
+        "id": "cm:6188",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "9840b8e5-ad79-465c-abc9-9a19a17789af",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "A circle with center (-3,5) and radius 4 has equation (x+3)²+(y-5)²=16.",
+      "classmarker": {
+        "id": "cm:6190",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "0ece2ffa-4612-448c-b59c-88376e14378e",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "The rate is $100 per hour, so an additional dollar corresponds to 1/100 hour.",
+      "classmarker": {
+        "id": "cm:6191",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "ab365d28-9e45-4f8c-8601-aa1f58fb4c23",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The roots are symmetric around the vertex x-coordinate 5; (k+3)/2=5, so k=7.",
+      "classmarker": {
+        "id": "cm:6193",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "83741e3a-1823-4a28-83b8-c1cf2d45846c",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Surface area scales with the square of radius, so tripling radius multiplies it by 9.",
+      "classmarker": {
+        "id": "cm:6195",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "9b275047-75cc-4671-afcf-3f94357dff9b",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The velocity slope is (50-20)/10=3, so V=20+3t.",
+      "classmarker": {
+        "id": "cm:6196",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "8bb0a9f8-f0be-4a4e-8353-c1c05e37703d",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Halving by the same factor after each equal time interval is exponential decay.",
+      "classmarker": {
+        "id": "cm:6199",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "52ae0caa-fa48-4901-ae99-06cd65a1df3e",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The inequalities y≥x+1 and y≤x-1 cannot both hold.",
+      "classmarker": {
+        "id": "cm:6203",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2ca54374-579e-40e4-8ca6-54af1d4b19e0",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Setting the expressions equal gives 2x²+7x+3=0=(2x+1)(x+3), so x=-1/2 and -3.",
+      "classmarker": {
+        "id": "cm:6204",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "56f05e96-045f-4b41-84a9-17f4fdffd9fb",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "At break-even, (9.50-4.85)q=11,625, so q=2,500.",
+      "classmarker": {
+        "id": "cm:6211",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "6f27b007-3090-46df-82e7-87eb0093a287",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Since f(x)=x+1, g(2) must be -2; g(x)=x-4 gives that value.",
+      "classmarker": {
+        "id": "cm:6213",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "0107c334-21ea-405e-803d-576650be3569",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The charge is 9+6(n-1)=6n+3.",
+      "classmarker": {
+        "id": "cm:6257",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "d067483b-e3e5-4f7d-bd30-709a1616ff1e",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The factorization (x-2)(x-40) displays the zeros as 2 and 40.",
+      "classmarker": {
+        "id": "cm:6220",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "4e789c79-5937-4897-8b94-4a6cb48dd766",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Adding the equations gives 2x=8, so x=4.",
+      "classmarker": {
+        "id": "cm:6222",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "cb2a210b-f481-4a9d-8bb2-69dc38f2b8d0",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Given vanilla, the probability of sprinkles is 20/(20+30)=0.40.",
+      "classmarker": {
+        "id": "cm:6224",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "cbaafb3a-ae12-4ef7-ad76-9a3446534e13",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "At r=26, the x terms cancel and leave 3=25, so there is no solution.",
+      "classmarker": {
+        "id": "cm:6225",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "ef5e9746-b7eb-41ac-8f70-bcffbbfe2b2f",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The center moves from (-6a,38a) to (6a,38a); the radius stays 6a.",
+      "classmarker": {
+        "id": "cm:6227",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "384d73f9-8b26-494d-b994-d57128431b09",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "A downward translation by 6 subtracts 6 from the output: y=3^x-6.",
+      "classmarker": {
+        "id": "cm:6229",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "8311c4e6-564d-47a8-abd6-f978abd6f7b5",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The slope through the points is -5 and the y-intercept is 2, giving y=-5x+2.",
+      "classmarker": {
+        "id": "cm:6230",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "cc9cf061-cb74-4ece-9457-133c9c366b0f",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "f(4)=7 and g(4)=12, so 7f(4)-g(4)=49-12=37.",
+      "classmarker": {
+        "id": "cm:6231",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "477f3e37-3f24-451c-8eb3-186cc2e53672",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "If the diameter is 3h, then r=1.5h. The volume equation gives h=8 and diameter 24.",
+      "classmarker": {
+        "id": "cm:7587",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "3c2e254f-9c2f-49c3-a2fa-3db6099bf542",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "E=1/2(2×10³)(3×10³)²=9×10⁹ joules.",
+      "classmarker": {
+        "id": "cm:6234",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "4c78c69c-3c87-4942-a1e8-ad2d931d7194",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "A 3% annual decrease leaves 97% each year, so the model is 1,800(0.97)^t.",
+      "classmarker": {
+        "id": "cm:6236",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "bc1126ab-c7ae-46c6-b2c6-95f5a24ff9ee",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "After the first quarter-mile fee, each additional eighth costs $0.25, giving total 3+0.25(8m-2)=2.5+2m≤20.",
+      "classmarker": {
+        "id": "cm:6243",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "78928fdf-e0bc-4bf3-abb8-4612fe4fe8f5",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "The vertex is at t=2 and h(2)=-16(2²)+64(2)+8=72.",
+      "classmarker": {
+        "id": "cm:6244",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2ced47a1-e2e7-4c53-a86b-4e9abaeb52aa",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "Distribute the subtraction and combine terms to get t⁴+3t³-13t²+4t.",
+      "classmarker": {
+        "id": "cm:6247",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "66ef9e80-6001-4023-a255-fc2aa3662b03",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Equating the expressions gives x=-6.5, and then y=3.",
+      "classmarker": {
+        "id": "cm:6251",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "1ef7cfea-563a-4a11-b8ca-3d3335a59640",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "168 is 1.3125 times the May 1 count; 168/1.3125=128.",
+      "classmarker": {
+        "id": "cm:6252",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "a39d987a-9b10-4c68-985f-4ac345dc11b9",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "The circle radius is 57, so the rectangle diagonal is 114. The short side is 57 and the long side is 57√3; area=3,249√3.",
+      "classmarker": {
+        "id": "cm:6254",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "e85537bd-2919-4a39-9fd9-69ec9eb4f7a1",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "To gain the same factor over a 1/4 increase in x, the exponent must increase by 1; use 4x.",
+      "classmarker": {
+        "id": "cm:6258",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "ac6619bb-9c65-488a-b7bf-639dfcd63a38",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "There are 105,000 gallons; 8 machines pump 300 gallons/minute, so filling takes 350 minutes, or 5 hours 50 minutes.",
+      "classmarker": {
+        "id": "cm:6271",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2850387b-1a4c-4c5c-9568-d4ecbcf900c8",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Company A reaches 1,066 in December. Company B doubles from 120 in April to 30,720 in December, a difference of 29,654.",
+      "classmarker": {
+        "id": "cm:6272",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "53e05fe8-ee95-43d1-946e-13d9d6607f16",
+    "rationale": {
+      "B": "This value is inconsistent with the calculation, which gives A.",
+      "C": "This value is inconsistent with the calculation, which gives A.",
+      "D": "This value is inconsistent with the calculation, which gives A.",
+      "correct": "Slope 1/4 and y-intercept 5 give f(x)=x/4+5.",
+      "classmarker": {
+        "id": "cm:7570",
+        "category": "331"
+      }
+    }
+  },
+  {
+    "id": "ed72a85f-6470-48d2-bf43-96c4bf30fb06",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "Angle C=180-47-90=43°, so k/2=43 and k=86.",
+      "classmarker": {
+        "id": "cm:7576",
+        "category": "338"
+      }
+    }
+  },
+  {
+    "id": "ea9dc269-d46e-47c3-aed1-9b8454bf42eb",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The requested sum is f(1). The three points give a=-1/4, b=0, c=2, so f(1)=1.75.",
+      "classmarker": {
+        "id": "cm:7581",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "cf80b51f-6ea8-4c91-8166-7f190aec0f70",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Using regular=10 gives mini=25 and jumbo=8; the ratio is 25:8.",
+      "classmarker": {
+        "id": "cm:7583",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "d5986e4b-45e4-4754-b652-5c5771f7ea3f",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The coefficient 3.29 is the price per square foot.",
+      "classmarker": {
+        "id": "cm:7588",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "fb791d7d-553c-4690-b644-c1938a52ed40",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "This list uses six lots, all multiples of 1,000 in range, with each size at least 30% larger than the previous.",
+      "classmarker": {
+        "id": "cm:7598",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "7db15770-c258-4a87-a47a-d9335d18fbc7",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "A fixed percent decrease per year is multiplicative, so an exponential model is appropriate.",
+      "classmarker": {
+        "id": "cm:7600",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "a4d9922b-f7f5-42b4-8c14-cbac5bf22850",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The quadratic maximum is 55²/8; adding 1 gives 1+2(55/4)².",
+      "classmarker": {
+        "id": "cm:7601",
+        "category": "322"
+      }
+    }
+  },
+  {
+    "id": "c9ad3ae4-0e98-4570-876a-519672e05a59",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Both lines pass through (0,0), so their intersection has x=0.",
+      "classmarker": {
+        "id": "cm:25655",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "fc65f90f-0799-45d5-9121-c85eb873b0b7",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "25+12.50x>33+10.50x reduces to x>4.",
+      "classmarker": {
+        "id": "cm:25657",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "7850f684-faaa-4839-a429-5efee40d3303",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Given vanilla, the conditional probability is 30/(30+10)=0.75.",
+      "classmarker": {
+        "id": "cm:25790",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "19c036d6-678e-4da3-83fd-80e7ca2f5373",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "For angle A, adjacent side is 22 and hypotenuse is 41, so cos A=22/41.",
+      "classmarker": {
+        "id": "cm:25563",
+        "figure": "12189505_034MLXJ5.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "9027a582-4a95-47a4-8ea4-9f6e30d7b060",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives D.",
+      "B": "This value is inconsistent with the calculation, which gives D.",
+      "C": "This value is inconsistent with the calculation, which gives D.",
+      "correct": "Twelve months after December 2013, the graph is near 92 sunspots; 91 is the closest estimate.",
+      "classmarker": {
+        "id": "cm:25576",
+        "figure": "12189505_KK2ZAY69.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "46804ad5-8423-4fd4-a908-5cf6ca0649fd",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The dashed boundary is y=3x and the shading is below it, so y<3x.",
+      "classmarker": {
+        "id": "cm:25578",
+        "figure": "12189505_N0OQUBMN.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "e56a32fa-5d3a-456f-b2f2-823b7ce7def9",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "Angles A and C are complementary, so sin C=cos A=0.65.",
+      "classmarker": {
+        "id": "cm:25580",
+        "figure": "12189505_EJSFZCIS.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "114cdc44-659b-48f8-ba3e-8e08993a2a63",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "At 12 hours the graph is at about 10 ounces.",
+      "classmarker": {
+        "id": "cm:25671",
+        "figure": "12189505_ZGMG75KU.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "c9aed469-00f3-41d6-98c6-007ef89ec8b8",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives C.",
+      "B": "This value is inconsistent with the calculation, which gives C.",
+      "D": "This value is inconsistent with the calculation, which gives C.",
+      "correct": "The 396-403-565 right triangle gives sin X=403/565.",
+      "classmarker": {
+        "id": "cm:25706",
+        "figure": "12189505_8L6WFAWE.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "ec26495c-ba59-497c-8ca4-be2317c26515",
+    "rationale": {
+      "A": "This value is inconsistent with the calculation, which gives B.",
+      "C": "This value is inconsistent with the calculation, which gives B.",
+      "D": "This value is inconsistent with the calculation, which gives B.",
+      "correct": "The point’s x-coordinate is molecular weight and y-coordinate is estimated boiling point.",
+      "classmarker": {
+        "id": "cm:25732",
+        "figure": "12189505_T7U4J4O4.png",
+        "category": "92"
+      }
+    }
+  },
+  {
+    "id": "94eb9696-de3b-46a1-83be-bf12c43aa04b",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "There are 80 men and 20 women; 45 male Republicans plus 4 female Republicans gives 49.",
+      "classmarker": {
+        "id": "cm:7604",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "7243e7ab-3864-4c86-aadd-45d7f75b1d23",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The 2004-to-2012 growth factor is 29,400/18,750; applying it again gives about $46,100.",
+      "classmarker": {
+        "id": "cm:7605",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "1d1ffec5-d4c2-470b-a71c-371662be1693",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "The score is 7(10-b)+3b=70-4b.",
+      "classmarker": {
+        "id": "cm:7606",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "64fd4f97-c80d-498b-beb0-0762ed133bbd",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "Taking square roots gives x+3=±4, so x=-7 or x=1.",
+      "classmarker": {
+        "id": "cm:7611",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "011f93c3-ceb6-4741-bfe3-0cbf3dfdbc5d",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The model scale is 26/3,666; a 54-inch nose scales to 54(26/3,666)=18/47 inches.",
+      "classmarker": {
+        "id": "cm:7785",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "da9fe82e-f4fa-4419-90d0-b839a0ad7305",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "f(6)-f(2)=23-11=12.",
+      "classmarker": {
+        "id": "cm:7786",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "5106275c-ffa2-4231-a0d8-821d84d04640",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Substitution shows both x=-4 and x=2 satisfy y=2x-4 and y=(x+2)²-16.",
+      "classmarker": {
+        "id": "cm:7788",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "94d8394e-a998-4787-83a3-9070fd7770b2",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The slope is (117-90)/(20-8)=2.25; the intercept is 72.",
+      "classmarker": {
+        "id": "cm:7790",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "cf188816-1920-4b9f-9f71-55a43720534d",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The ordered pair means that after 21 payments, $560 remains.",
+      "classmarker": {
+        "id": "cm:7791",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "f30ca376-50ef-468c-a825-aff171117c7c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The input 5 shifts to x=2; the output becomes -1-2=-3.",
+      "classmarker": {
+        "id": "cm:7793",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "b94248e8-2f53-4ed0-bbc1-a7683d4ae1d8",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "After the initial 25% reduction, two 10% markdowns give 1,500(0.75)(0.9)²=$911.25.",
+      "classmarker": {
+        "id": "cm:7794",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "a9acfa45-e91a-4b63-8b55-137890450310",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "The vertical component is 170sin30°=85 feet.",
+      "classmarker": {
+        "id": "cm:7795",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "9b903554-f475-4b50-acd9-49b9feda8aec",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "2x²-70=2 gives x²=36, so x=±6.",
+      "classmarker": {
+        "id": "cm:7796",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "d6c74e03-8dc7-49f1-b21d-a56a26a2dc7e",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The corner (-10,10) is 30 feet vertically from (-10,-20).",
+      "classmarker": {
+        "id": "cm:7798",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "e994bb76-2f94-4a98-b44f-8f457720a16c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Multiplying gives 6x²y²-7xy+2.",
+      "classmarker": {
+        "id": "cm:7799",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "fcdc1895-a5fa-4dc4-ae67-b6b062bd7916",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "48 inches is 4 feet, or 4/3 yards.",
+      "classmarker": {
+        "id": "cm:7800",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "e1c8808c-18c2-4094-a917-163df7f12a0f",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The estimated total is 25(6)+12(27)+3(148)=918, closest to 900.",
+      "classmarker": {
+        "id": "cm:7801",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "3951a3c1-85c4-4405-b5dc-7db35c430af6",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Adding 105 raises the mean; the median rises from 85 to 85.5.",
+      "classmarker": {
+        "id": "cm:7812",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "287e2f6c-d119-4811-96ab-c83f8f8a2141",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "261($0.95)=$247.95.",
+      "classmarker": {
+        "id": "cm:7814",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "f9091c48-aa56-4e0d-a29f-ddfa82d80808",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "18/(3/10)=60 oil changes.",
+      "classmarker": {
+        "id": "cm:7817",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "55bf0b78-9076-4cbf-bbb4-28b1de37d119",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "r=√(240/3.14)≈8.7 centimeters.",
+      "classmarker": {
+        "id": "cm:7818",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "d5caae25-b6b7-4e68-bbda-64efd4baf94c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "With circumference 14π, r=7 and volume is π(7²)(12)=588π.",
+      "classmarker": {
+        "id": "cm:7819",
+        "category": "167"
+      }
+    }
+  },
+  {
+    "id": "9a508be6-c7bb-4a4c-b2c0-96f440a8bffa",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "40 miles in 25 minutes requires 40/(25/60)=96 miles per hour.",
+      "classmarker": {
+        "id": "cm:7820",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "d5d76e60-cfab-4a43-91d1-a77be6141a01",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "$49/$2.45 per minute=20 minutes.",
+      "classmarker": {
+        "id": "cm:7821",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "19a29919-a934-4d3a-b0ab-40115636ff49",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "125/175≈71.4%, about 71%.",
+      "classmarker": {
+        "id": "cm:7825",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "3c126db6-b7f9-4bf7-bfee-fd7d397fe1d8",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "The increase is (10.25-9.50)/9.50≈7.9%.",
+      "classmarker": {
+        "id": "cm:7828",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "8273774f-63fa-45b6-b8ec-5b835ba5e39c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Six ratings total 57; the first five sum to 47.5, leaving 9.5.",
+      "classmarker": {
+        "id": "cm:7837",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "7b2f68ff-02cc-41b5-9b97-4db8a9c31741",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Three 5.4-gallon cans emptied three times use 48.6 gallons.",
+      "classmarker": {
+        "id": "cm:7838",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "44bd0618-b17b-4b26-84e9-2e670b177a6f",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "99=3²·11.",
+      "classmarker": {
+        "id": "cm:7839",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "776ce6c5-fa29-426c-9d59-3f90c040a29e",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The two listed corners are each 175 units from (-50,-50), forming a square.",
+      "classmarker": {
+        "id": "cm:7840",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "b5bca000-4497-470d-8dfc-93455c340111",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "600(45/30)=900 steps.",
+      "classmarker": {
+        "id": "cm:7841",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2849f160-079a-47a3-bbcd-3f4a40329479",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "60/75=0.8; 140(0.8)=112 correct answers.",
+      "classmarker": {
+        "id": "cm:7844",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "3ece2c91-606a-4153-b16d-214e6ed6c8f3",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "(30-15)/(3.6-3.2)=37.5 feet per second.",
+      "classmarker": {
+        "id": "cm:7845",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "2336644a-1575-4bb5-94a7-adce483aacad",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Slope -8 and y-intercept 60 give y=-8x+60.",
+      "classmarker": {
+        "id": "cm:8022",
+        "category": "331"
+      }
+    }
+  },
+  {
+    "id": "75e1baf3-226c-466e-8359-751d38480a30",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "19(x²-8)=19x²-152.",
+      "classmarker": {
+        "id": "cm:8023",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "868ff221-ea53-4a8e-a6c6-3084eef19bf8",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "“At least 40” and “no more than 65” give 40≤x≤65.",
+      "classmarker": {
+        "id": "cm:8025",
+        "category": "335"
+      }
+    }
+  },
+  {
+    "id": "0e44a553-4acc-42e2-8316-6885ee006323",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Rewriting gives y=8x+16/3, with slope 8.",
+      "classmarker": {
+        "id": "cm:8031",
+        "category": "331"
+      }
+    }
+  },
+  {
+    "id": "b4099ff2-1d8f-48e6-a64e-d3becab1b8d5",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The product is zero at v=8, 2, or -9; 8 is listed.",
+      "classmarker": {
+        "id": "cm:8032",
+        "category": "313"
+      }
+    }
+  },
+  {
+    "id": "e8809f45-ca6c-4fa4-b7f2-93945329ab31",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Given a Flames shirt, the conditional probability is 22/44=0.50.",
+      "classmarker": {
+        "id": "cm:8038",
+        "category": "330"
+      }
+    }
+  },
+  {
+    "id": "27780d14-7e4b-4134-973c-91b13ec5737f",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "For x²+bx, the minimum is -b²/4=-(27/4)².",
+      "classmarker": {
+        "id": "cm:8040",
+        "category": "326"
+      }
+    }
+  },
+  {
+    "id": "d9b2b317-2c10-426f-a276-a9cae819bd93",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "Surface area scales as edge length squared: (3/64)²=9/4,096.",
+      "classmarker": {
+        "id": "cm:8043",
+        "category": "339"
+      }
+    }
+  },
+  {
+    "id": "0edc5b55-8aed-4360-9882-ac91944f87e1",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "1,500+300x≤8,000 gives x≤21.66..., so the greatest integer is 21.",
+      "classmarker": {
+        "id": "cm:8223",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "1ba3537c-82f1-470d-8fe4-e16f948f05d0",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "Eight more than twice x is 2x+8.",
+      "classmarker": {
+        "id": "cm:8224",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "6db4bfae-cc45-4080-af77-63ad13903da6",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The coefficient 200 is the amount of each monthly payment.",
+      "classmarker": {
+        "id": "cm:8227",
+        "category": "329"
+      }
+    }
+  },
+  {
+    "id": "22aeff4d-7f7b-4b4d-8133-c22c20900d82",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "If Keith ran k miles, Mick ran k-18; 2k-18=76 gives k=47.",
+      "classmarker": {
+        "id": "cm:8228",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "bc10476e-f3a6-4b1b-a85b-4b483e663b00",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "A parallel line keeps slope 3; through (0,1) it is y=3x+1.",
+      "classmarker": {
+        "id": "cm:8229",
+        "category": "321"
+      }
+    }
+  },
+  {
+    "id": "b5dab1ae-ba4f-425c-890d-5e653ea8612c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "$25+4x=$53 gives x=$7.",
+      "classmarker": {
+        "id": "cm:8235",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "a4dbe588-0453-472b-9959-43b4cb6dd24d",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "Tax applies to the daily rental only; add the untaxed $10 fee afterward.",
+      "classmarker": {
+        "id": "cm:8238",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "b5c11eb7-6fa1-4f76-996d-d4329639ee2d",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "Revenue is $435+$150=$585; 585/15=39 umbrellas.",
+      "classmarker": {
+        "id": "cm:8239",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "fbb0de65-0467-4780-b21b-6614eb8f414b",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Adding and subtracting the equations gives y=1/2 and x=0; 3x+8y=4.",
+      "classmarker": {
+        "id": "cm:8249",
+        "category": "321"
+      }
+    }
+  },
+  {
+    "id": "8d535019-c329-4738-8a69-717984198d7c",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "0.02 is the 2% rate applied to the car’s value.",
+      "classmarker": {
+        "id": "cm:8252",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "f418611a-e5e4-46c6-8b93-fe1af17cd466",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The plan costs 50+8(g-2)+0.1t because the first 2 GB are free.",
+      "classmarker": {
+        "id": "cm:8253",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "efa29b39-ee9a-4a5a-a512-fbf74de5787e",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "130+4r=250 gives r=30.",
+      "classmarker": {
+        "id": "cm:8254",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "a7bb9edb-3993-449a-8ea9-dabeaac028d7",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The discounted watermelon costs 0.48p and four potatoes cost $3.16.",
+      "classmarker": {
+        "id": "cm:8255",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "75050856-4ff7-4c34-8b5c-4b38a29d31dc",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "The total is 8a+4(12-a)=4a+48.",
+      "classmarker": {
+        "id": "cm:8256",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "c27b3668-bef4-4c94-a252-82e8f6549d6d",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Base pay plus commission is y=70+14x.",
+      "classmarker": {
+        "id": "cm:8264",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "829c68a2-e51a-4dda-a37e-7f1f286bea14",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "At x=0 the model gives $27,000, the original price.",
+      "classmarker": {
+        "id": "cm:8266",
+        "category": "172"
+      }
+    }
+  },
+  {
+    "id": "6a599cd4-efcf-4fac-85f6-8c9dcbd606e8",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives D.",
+      "B": "This value does not agree with the calculation, which gives D.",
+      "C": "This value does not agree with the calculation, which gives D.",
+      "correct": "A two-unit increase must multiply output by 4,096; this form displays 4,096 as the base.",
+      "classmarker": {
+        "id": "cm:8328",
+        "category": "327"
+      }
+    }
+  },
+  {
+    "id": "850eb405-785a-42e2-9984-e4b352a55726",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "48=18+2(x-9) gives 2(x-9)=30.",
+      "classmarker": {
+        "id": "cm:8337",
+        "category": "319"
+      }
+    }
+  },
+  {
+    "id": "cf187b3b-4386-4141-86f9-6c7259af11b6",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives B.",
+      "C": "This value does not agree with the calculation, which gives B.",
+      "D": "This value does not agree with the calculation, which gives B.",
+      "correct": "The point (9,12) lies on y=f(x), so f(9)=12.",
+      "classmarker": {
+        "id": "cm:8339",
+        "category": "322"
+      }
+    }
+  },
+  {
+    "id": "b3428c4a-ecfe-4be3-9cce-9e4e487787ed",
+    "rationale": {
+      "B": "This value does not agree with the calculation, which gives A.",
+      "C": "This value does not agree with the calculation, which gives A.",
+      "D": "This value does not agree with the calculation, which gives A.",
+      "correct": "This distribution is concentrated closest to its mean, so it has the smallest standard deviation.",
+      "classmarker": {
+        "id": "cm:8341",
+        "category": "336"
+      }
+    }
+  },
+  {
+    "id": "cb07ac65-1730-4dff-8ac9-2867601ddad5",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Angle C=180-53-90=37°, so k/2=37 and k=74.",
+      "classmarker": {
+        "id": "cm:8344",
+        "category": "338"
+      }
+    }
+  },
+  {
+    "id": "3e948634-791c-4884-bf6b-3281e25276be",
+    "rationale": {
+      "A": "This value does not agree with the calculation, which gives C.",
+      "B": "This value does not agree with the calculation, which gives C.",
+      "D": "This value does not agree with the calculation, which gives C.",
+      "correct": "Equation I is the same line; equation II is a nonparallel line that intersects the given line. Both systems have a solution.",
+      "classmarker": {
+        "id": "cm:8349",
+        "category": "321"
+      }
+    }
+  }
+]

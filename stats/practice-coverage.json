@@ -1,0 +1,882 @@
+{
+  "generatedAt": "2026-09-30T16:40:11.600Z",
+  "institution": "satify",
+  "targetPerSkillDifficulty": 20,
+  "total": 4977,
+  "coveredSkills": 29,
+  "totalSkills": 29,
+  "cellsBelowTarget": 23,
+  "emptyCells": 6,
+  "cells": [
+    {
+      "section": "rw",
+      "domain": "info-ideas",
+      "skill": "Central Ideas and Details",
+      "difficulty": "easy",
+      "count": 89,
+      "verified": 89,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "info-ideas",
+      "skill": "Central Ideas and Details",
+      "difficulty": "medium",
+      "count": 73,
+      "verified": 73,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "info-ideas",
+      "skill": "Central Ideas and Details",
+      "difficulty": "hard",
+      "count": 70,
+      "verified": 70,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "info-ideas",
+      "skill": "Command of Evidence",
+      "difficulty": "easy",
+      "count": 96,
+      "verified": 96,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "info-ideas",
+      "skill": "Command of Evidence",
+      "difficulty": "medium",
+      "count": 96,
+      "verified": 96,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "info-ideas",
+      "skill": "Command of Evidence",
+      "difficulty": "hard",
+      "count": 79,
+      "verified": 79,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "info-ideas",
+      "skill": "Inferences",
+      "difficulty": "easy",
+      "count": 71,
+      "verified": 71,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "info-ideas",
+      "skill": "Inferences",
+      "difficulty": "medium",
+      "count": 73,
+      "verified": 73,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "info-ideas",
+      "skill": "Inferences",
+      "difficulty": "hard",
+      "count": 60,
+      "verified": 60,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "craft-structure",
+      "skill": "Words in Context",
+      "difficulty": "easy",
+      "count": 110,
+      "verified": 110,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "craft-structure",
+      "skill": "Words in Context",
+      "difficulty": "medium",
+      "count": 111,
+      "verified": 111,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "craft-structure",
+      "skill": "Words in Context",
+      "difficulty": "hard",
+      "count": 90,
+      "verified": 90,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "craft-structure",
+      "skill": "Text Structure and Purpose",
+      "difficulty": "easy",
+      "count": 75,
+      "verified": 75,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "craft-structure",
+      "skill": "Text Structure and Purpose",
+      "difficulty": "medium",
+      "count": 75,
+      "verified": 75,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "craft-structure",
+      "skill": "Text Structure and Purpose",
+      "difficulty": "hard",
+      "count": 70,
+      "verified": 70,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "craft-structure",
+      "skill": "Cross-Text Connections",
+      "difficulty": "easy",
+      "count": 70,
+      "verified": 70,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "craft-structure",
+      "skill": "Cross-Text Connections",
+      "difficulty": "medium",
+      "count": 71,
+      "verified": 71,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "craft-structure",
+      "skill": "Cross-Text Connections",
+      "difficulty": "hard",
+      "count": 60,
+      "verified": 60,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "expression",
+      "skill": "Rhetorical Synthesis",
+      "difficulty": "easy",
+      "count": 81,
+      "verified": 81,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "expression",
+      "skill": "Rhetorical Synthesis",
+      "difficulty": "medium",
+      "count": 82,
+      "verified": 82,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "expression",
+      "skill": "Rhetorical Synthesis",
+      "difficulty": "hard",
+      "count": 80,
+      "verified": 80,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "expression",
+      "skill": "Transitions",
+      "difficulty": "easy",
+      "count": 80,
+      "verified": 80,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "expression",
+      "skill": "Transitions",
+      "difficulty": "medium",
+      "count": 76,
+      "verified": 76,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "expression",
+      "skill": "Transitions",
+      "difficulty": "hard",
+      "count": 70,
+      "verified": 70,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "conventions",
+      "skill": "Boundaries",
+      "difficulty": "easy",
+      "count": 93,
+      "verified": 93,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "conventions",
+      "skill": "Boundaries",
+      "difficulty": "medium",
+      "count": 93,
+      "verified": 93,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "conventions",
+      "skill": "Boundaries",
+      "difficulty": "hard",
+      "count": 80,
+      "verified": 80,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "conventions",
+      "skill": "Form, Structure, and Sense",
+      "difficulty": "easy",
+      "count": 78,
+      "verified": 78,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "conventions",
+      "skill": "Form, Structure, and Sense",
+      "difficulty": "medium",
+      "count": 82,
+      "verified": 82,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "rw",
+      "domain": "conventions",
+      "skill": "Form, Structure, and Sense",
+      "difficulty": "hard",
+      "count": 70,
+      "verified": 70,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear equations in one variable",
+      "difficulty": "easy",
+      "count": 240,
+      "verified": 240,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear equations in one variable",
+      "difficulty": "medium",
+      "count": 79,
+      "verified": 79,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear equations in one variable",
+      "difficulty": "hard",
+      "count": 16,
+      "verified": 16,
+      "deficit": 4,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear functions",
+      "difficulty": "easy",
+      "count": 171,
+      "verified": 171,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear functions",
+      "difficulty": "medium",
+      "count": 45,
+      "verified": 45,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear functions",
+      "difficulty": "hard",
+      "count": 5,
+      "verified": 5,
+      "deficit": 15,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear equations in two variables",
+      "difficulty": "easy",
+      "count": 29,
+      "verified": 29,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear equations in two variables",
+      "difficulty": "medium",
+      "count": 16,
+      "verified": 16,
+      "deficit": 4,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear equations in two variables",
+      "difficulty": "hard",
+      "count": 0,
+      "verified": 0,
+      "deficit": 20,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Systems of two linear equations in two variables",
+      "difficulty": "easy",
+      "count": 47,
+      "verified": 47,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Systems of two linear equations in two variables",
+      "difficulty": "medium",
+      "count": 148,
+      "verified": 148,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Systems of two linear equations in two variables",
+      "difficulty": "hard",
+      "count": 26,
+      "verified": 26,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear inequalities in one or two variables",
+      "difficulty": "easy",
+      "count": 24,
+      "verified": 24,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear inequalities in one or two variables",
+      "difficulty": "medium",
+      "count": 37,
+      "verified": 37,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "algebra",
+      "skill": "Linear inequalities in one or two variables",
+      "difficulty": "hard",
+      "count": 0,
+      "verified": 0,
+      "deficit": 20,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "advanced-math",
+      "skill": "Nonlinear functions",
+      "difficulty": "easy",
+      "count": 140,
+      "verified": 140,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "advanced-math",
+      "skill": "Nonlinear functions",
+      "difficulty": "medium",
+      "count": 94,
+      "verified": 94,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "advanced-math",
+      "skill": "Nonlinear functions",
+      "difficulty": "hard",
+      "count": 9,
+      "verified": 9,
+      "deficit": 11,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "advanced-math",
+      "skill": "Nonlinear equations in one variable and systems of equations in two variables",
+      "difficulty": "easy",
+      "count": 71,
+      "verified": 71,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "advanced-math",
+      "skill": "Nonlinear equations in one variable and systems of equations in two variables",
+      "difficulty": "medium",
+      "count": 87,
+      "verified": 87,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "advanced-math",
+      "skill": "Nonlinear equations in one variable and systems of equations in two variables",
+      "difficulty": "hard",
+      "count": 37,
+      "verified": 37,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "advanced-math",
+      "skill": "Equivalent expressions",
+      "difficulty": "easy",
+      "count": 124,
+      "verified": 124,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "advanced-math",
+      "skill": "Equivalent expressions",
+      "difficulty": "medium",
+      "count": 79,
+      "verified": 79,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "advanced-math",
+      "skill": "Equivalent expressions",
+      "difficulty": "hard",
+      "count": 7,
+      "verified": 7,
+      "deficit": 13,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Ratios, rates, proportional relationships, and units",
+      "difficulty": "easy",
+      "count": 115,
+      "verified": 115,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Ratios, rates, proportional relationships, and units",
+      "difficulty": "medium",
+      "count": 70,
+      "verified": 70,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Ratios, rates, proportional relationships, and units",
+      "difficulty": "hard",
+      "count": 7,
+      "verified": 7,
+      "deficit": 13,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Percentages",
+      "difficulty": "easy",
+      "count": 74,
+      "verified": 74,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Percentages",
+      "difficulty": "medium",
+      "count": 65,
+      "verified": 65,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Percentages",
+      "difficulty": "hard",
+      "count": 16,
+      "verified": 16,
+      "deficit": 4,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "One-variable data: Distributions and measures of center and spread",
+      "difficulty": "easy",
+      "count": 40,
+      "verified": 40,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "One-variable data: Distributions and measures of center and spread",
+      "difficulty": "medium",
+      "count": 42,
+      "verified": 42,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "One-variable data: Distributions and measures of center and spread",
+      "difficulty": "hard",
+      "count": 19,
+      "verified": 19,
+      "deficit": 1,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Two-variable data: Models and scatterplots",
+      "difficulty": "easy",
+      "count": 17,
+      "verified": 17,
+      "deficit": 3,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Two-variable data: Models and scatterplots",
+      "difficulty": "medium",
+      "count": 20,
+      "verified": 20,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Two-variable data: Models and scatterplots",
+      "difficulty": "hard",
+      "count": 1,
+      "verified": 1,
+      "deficit": 19,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Probability and conditional probability",
+      "difficulty": "easy",
+      "count": 32,
+      "verified": 32,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Probability and conditional probability",
+      "difficulty": "medium",
+      "count": 7,
+      "verified": 7,
+      "deficit": 13,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Probability and conditional probability",
+      "difficulty": "hard",
+      "count": 0,
+      "verified": 0,
+      "deficit": 20,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Inference from sample statistics and margin of error",
+      "difficulty": "easy",
+      "count": 4,
+      "verified": 4,
+      "deficit": 16,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Inference from sample statistics and margin of error",
+      "difficulty": "medium",
+      "count": 10,
+      "verified": 10,
+      "deficit": 10,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Inference from sample statistics and margin of error",
+      "difficulty": "hard",
+      "count": 0,
+      "verified": 0,
+      "deficit": 20,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Evaluating statistical claims: Observational studies and experiments",
+      "difficulty": "easy",
+      "count": 0,
+      "verified": 0,
+      "deficit": 20,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Evaluating statistical claims: Observational studies and experiments",
+      "difficulty": "medium",
+      "count": 12,
+      "verified": 12,
+      "deficit": 8,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "problem-solving",
+      "skill": "Evaluating statistical claims: Observational studies and experiments",
+      "difficulty": "hard",
+      "count": 0,
+      "verified": 0,
+      "deficit": 20,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Area and volume",
+      "difficulty": "easy",
+      "count": 34,
+      "verified": 34,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Area and volume",
+      "difficulty": "medium",
+      "count": 85,
+      "verified": 85,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Area and volume",
+      "difficulty": "hard",
+      "count": 11,
+      "verified": 11,
+      "deficit": 9,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Lines, angles, and triangles",
+      "difficulty": "easy",
+      "count": 31,
+      "verified": 31,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Lines, angles, and triangles",
+      "difficulty": "medium",
+      "count": 108,
+      "verified": 108,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Lines, angles, and triangles",
+      "difficulty": "hard",
+      "count": 27,
+      "verified": 27,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Right triangles and trigonometry",
+      "difficulty": "easy",
+      "count": 64,
+      "verified": 64,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Right triangles and trigonometry",
+      "difficulty": "medium",
+      "count": 40,
+      "verified": 40,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Right triangles and trigonometry",
+      "difficulty": "hard",
+      "count": 2,
+      "verified": 2,
+      "deficit": 18,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Circles",
+      "difficulty": "easy",
+      "count": 52,
+      "verified": 52,
+      "deficit": 0,
+      "canGenerateFromTemplate": true
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Circles",
+      "difficulty": "medium",
+      "count": 20,
+      "verified": 20,
+      "deficit": 0,
+      "canGenerateFromTemplate": false
+    },
+    {
+      "section": "math",
+      "domain": "geometry-trig",
+      "skill": "Circles",
+      "difficulty": "hard",
+      "count": 17,
+      "verified": 17,
+      "deficit": 3,
+      "canGenerateFromTemplate": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+node_modules/
+.logs/
+.env
+.env.local
+.env.*.local
+client/src-tauri/target/
+client/dist/
+
+# Local/tool artifacts
+.playwright-mcp/
+.logs-merge.txt
+
+# Private question-bank exports, backups, and source datasets
+private-data/
+
+# Python tooling (tools/sat-extract)
+__pycache__/

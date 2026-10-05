@@ -1,0 +1,715 @@
+{
+  "items": [
+    {
+      "id": "0ced821a-9a0c-465f-aba8-383e90a57460",
+      "content_hash": "3d911ced2613598cbcf249be",
+      "question": "The solution to the system of equations below is the ordered pair (x, y):\n\n\\(\\frac{x}{5}+4(y-10)=26\\)\\n\\(\\frac{x}{3}-4(y-10)=38\\)\n\n\nWhat is the value of 10x?",
+      "passage": null,
+      "choices": [],
+      "rationale": {
+        "correct": "Let u=y−10. Adding the equations gives 8x/15=64, so x=120; therefore 10x=1200.",
+        "classmarker": {
+          "id": "cm:19093",
+          "category": "92"
+        }
+      }
+    },
+    {
+      "id": "34028a9c-a13f-4af0-9313-38c9f5ae2dba",
+      "content_hash": "56d40a6ccae20978556f9993",
+      "question": "In right triangle KLM, the sum of the measures of angle K and angle L is 90 degrees. The value of cos(K) is \\(\\frac{\\sqrt{2}}{2}\\). What is the value of sin(L)?",
+      "passage": null,
+      "choices": [
+        "1",
+        "^{1}/_{2}",
+        "√2/_{2}",
+        "√2"
+      ],
+      "rationale": {
+        "A": "A sine value of 1 would require a 90-degree angle, but L is acute.",
+        "B": "The value \\(\frac{1}{2}\\) does not equal the given cosine.",
+        "D": "A sine value cannot be greater than 1.",
+        "correct": "Since K and L are complementary, \\(\\sin(L)=\\cos(K)=\frac{\\sqrt{2}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23210",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "4a8319c1-3155-4f76-b894-c7c5bdbc4e43",
+      "content_hash": "026745563598843aa4e77d13",
+      "question": "In right triangle XYZ, angle X and angle Y are complementary. If cos(X) = \\(\\frac{3}{5}\\), what is the value of sin(Y)?",
+      "passage": null,
+      "choices": [
+        "^{4}/_{5}",
+        "^{3}/_{5}",
+        "^{5}/_{3}",
+        "^{3}/_{4}"
+      ],
+      "rationale": {
+        "A": "This uses the other leg-to-hypotenuse ratio and does not equal the given cosine.",
+        "C": "A trigonometric ratio for an acute angle in a right triangle cannot exceed 1.",
+        "D": "This does not follow from the complementary-angle identity.",
+        "correct": "Because X and Y are complementary, \\(\\sin(Y)=\\cos(X)=\frac{3}{5}\\).",
+        "classmarker": {
+          "id": "cm:23209",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "66ef5726-9a12-4cc5-9ed7-b7011bc3066c",
+      "content_hash": "56d40a6ccae20978556f9993",
+      "question": "In right triangle KLM, the sum of the measures of angle K and angle L is 90 degrees. The value of cos(K) is \\(\\frac{\\sqrt{2}}{2}\\). What is the value of sin(L)?",
+      "passage": null,
+      "choices": [
+        "1",
+        "^{1}/_{2}",
+        "√2/_{2}",
+        "√2"
+      ],
+      "rationale": {
+        "A": "A sine value of 1 would require a 90-degree angle, but L is acute.",
+        "B": "The value \\(\frac{1}{2}\\) does not equal the given cosine.",
+        "D": "A sine value cannot be greater than 1.",
+        "correct": "Since K and L are complementary, \\(\\sin(L)=\\cos(K)=\frac{\\sqrt{2}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23210",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "d26e8a7f-c3a6-4354-a261-45b28ca06f73",
+      "content_hash": "4388e707e2e65c49d0b82af7",
+      "question": "In right triangle DEF, angle D and angle E are acute angles such that \\(D + E = 90^\\circ\\). If sin(D) = \\(\\frac{7}{25}\\), what is the value of cos(E)?",
+      "passage": null,
+      "choices": [
+        "^{24}/_{25}",
+        "^{7}/_{24}",
+        "^{25}/_{7}",
+        "^{7}/_{25}"
+      ],
+      "rationale": {
+        "A": "This is not the sine of D; it results from using the wrong side ratio.",
+        "B": "This is not the complement identity and does not match the given sine.",
+        "C": "This is greater than 1, which is impossible for a cosine of an acute angle.",
+        "correct": "D and E are complementary, so \\(\\cos(E)=\\sin(D)=\frac{7}{25}\\).",
+        "classmarker": {
+          "id": "cm:23211",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "e3e32201-db35-4f47-9682-9fd0104e0512",
+      "content_hash": "b219ce65ab14f20f7baa08f8",
+      "question": "The graph above shows the average cost of back surgery followed by a hospital stay in the United States. The hospital charges for the surgery itself plus all the costs associated with recovery care for each night the patient remains in the hospital. Based on the graph, what is the average cost per night spent in the hospital?",
+      "passage": null,
+      "choices": [
+        "$2,600",
+        "$4,000",
+        "$6,600",
+        "$8,000"
+      ],
+      "rationale": {
+        "A": "The slope is about \\(($66,000-$26,000)/10=$4,000\\) per night, not $2,600.",
+        "C": "The initial surgery cost is about $26,000, but the nightly cost is the slope, about $4,000.",
+        "D": "The total increase of $40,000 occurs over 10 nights, yielding $4,000 per night, not $8,000.",
+        "correct": "The graph rises from about $26,000 at 0 nights to about $66,000 at 10 nights. The increase per night is \\(($66,000-$26,000)/10=$4,000\\).",
+        "classmarker": {
+          "id": "cm:6266",
+          "figure": "12189505_SYTVNIHA.png",
+          "category": "172"
+        }
+      }
+    },
+    {
+      "id": "762745e9-fd74-4818-85c7-f5baf2318a25",
+      "content_hash": "7309adbf30c75a5be882231e",
+      "question": "The measure of angle C is \\(5\\pi/6\\) radians. What is the value of cos(C)?",
+      "passage": null,
+      "choices": [
+        "-√3 /_{2}",
+        "-^{1}/_{2}",
+        "^{1}/_{2}",
+        "√3 /_{2}"
+      ],
+      "rationale": {
+        "B": "This is the sine magnitude for the reference angle, not the cosine magnitude.",
+        "C": "Cosine is negative in quadrant II.",
+        "D": "Cosine is negative in quadrant II, and this also has the wrong reference-angle value.",
+        "correct": "The reference angle for \\(5\\pi/6\\) is \\(\\pi/6\\), and cosine is negative in quadrant II, so \\(\\cos(C)=-\frac{\\sqrt{3}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23214",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "0388862e-c119-47d0-846b-28ffbbdc9e56",
+      "content_hash": "38ac86d3ab3dbb5f53c9ec12",
+      "question": "The measure of angle C is \\(2\\pi/3\\) radians. What is the value of sin(C)?",
+      "passage": null,
+      "choices": [
+        "- ^{1}/_{2}",
+        "^{1}/_{2}",
+        "√3 /_{2}",
+        "-√3 /_{2}"
+      ],
+      "rationale": {
+        "A": "This has the wrong reference-angle value and sign.",
+        "B": "This is the cosine magnitude for the reference angle, not the sine.",
+        "D": "Sine is positive in quadrant II.",
+        "correct": "The reference angle for \\(2\\pi/3\\) is \\(\\pi/3\\). Sine is positive in quadrant II, so \\(\\sin(C)=\frac{\\sqrt{3}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23215",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "8e644cbb-7d9a-443b-abf9-ccc704ae17bc",
+      "content_hash": "c5ac3ba11b3f2bf35d35fe63",
+      "question": "The measure of angle C is \\(7\\pi/4\\) radians. What is the value of cos(C)?",
+      "passage": null,
+      "choices": [
+        "- ^{1}/_{2}",
+        "- √2 /_{2}",
+        "^{1}/_{2}",
+        "√2 /_{2}"
+      ],
+      "rationale": {
+        "A": "This has the wrong reference-angle value and sign.",
+        "B": "Cosine is positive in quadrant IV.",
+        "C": "This has the right sign but the wrong reference-angle value.",
+        "correct": "The angle \\(7\\pi/4\\) has reference angle \\(\\pi/4\\), and cosine is positive in quadrant IV, so \\(\\cos(C)=\frac{\\sqrt{2}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23216",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "2f14d7b3-1c5b-480f-9a24-b4f6cfbffef4",
+      "content_hash": "581a02c80fa008abcfdcdd99",
+      "question": "The measure of angle C is \\(4\\pi/3\\) radians. What is the value of cos(C)?",
+      "passage": null,
+      "choices": [
+        "- ^{1}/_{2}",
+        "- √3 /_{2}",
+        "^{1}/_{2}",
+        "√3 /_{2}"
+      ],
+      "rationale": {
+        "B": "This uses the sine magnitude for the reference angle rather than the cosine magnitude.",
+        "C": "Cosine is negative in quadrant III.",
+        "D": "Cosine is negative in quadrant III, and this has the wrong reference-angle value.",
+        "correct": "The angle \\(4\\pi/3\\) has reference angle \\(\\pi/3\\), and cosine is negative in quadrant III, so \\(\\cos(C)=-\frac{1}{2}\\).",
+        "classmarker": {
+          "id": "cm:23218",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "ba41468b-965d-44c8-aa54-d469d235a47d",
+      "content_hash": "b219ce65ab14f20f7baa08f8",
+      "question": "The graph above shows the average cost of back surgery followed by a hospital stay in the United States. The hospital charges for the surgery itself plus all the costs associated with recovery care for each night the patient remains in the hospital. Based on the graph, what is the average cost per night spent in the hospital?",
+      "passage": null,
+      "choices": [
+        "$2,600",
+        "$4,000",
+        "$6,600",
+        "$8,000"
+      ],
+      "rationale": {
+        "A": "The slope is about \\(($66,000-$26,000)/10=$4,000\\) per night, not $2,600.",
+        "C": "The initial surgery cost is about $26,000, but the nightly cost is the slope, about $4,000.",
+        "D": "The total increase of $40,000 occurs over 10 nights, yielding $4,000 per night, not $8,000.",
+        "correct": "The graph rises from about $26,000 at 0 nights to about $66,000 at 10 nights. The increase per night is \\(($66,000-$26,000)/10=$4,000\\).",
+        "classmarker": {
+          "id": "cm:6266",
+          "figure": "12189505_SYTVNIHA.png",
+          "category": "172"
+        }
+      }
+    },
+    {
+      "id": "e048b051-3d32-4022-8066-eeb8ec33dbfc",
+      "content_hash": "f0fd0e6d1adf25c2e194cdf5",
+      "question": "The measure of angle C is \\(5\\pi/4\\) radians. What is the value of sin(C)?",
+      "passage": null,
+      "choices": [
+        "^{1}/_{2}",
+        "√2 /_{2}",
+        "- ^{1}/_{2}",
+        "- √2 /_{2}"
+      ],
+      "rationale": {
+        "A": "This has the wrong reference-angle value and sign.",
+        "B": "Sine is negative in quadrant III.",
+        "C": "This has the right sign but the wrong reference-angle value.",
+        "correct": "The angle \\(5\\pi/4\\) has reference angle \\(\\pi/4\\), and sine is negative in quadrant III, so \\(\\sin(C)=-\frac{\\sqrt{2}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23219",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "4df13fd8-7833-4c20-b51b-131374620c8e",
+      "content_hash": "3d911ced2613598cbcf249be",
+      "question": "The solution to the system of equations below is the ordered pair (x, y):\n\n\\(\\frac{x}{5}+4(y-10)=26\\)\\n\\(\\frac{x}{3}-4(y-10)=38\\)\n\n\nWhat is the value of 10x?",
+      "passage": null,
+      "choices": [],
+      "rationale": {
+        "correct": "Let u=y−10. Adding the equations gives 8x/15=64, so x=120; therefore 10x=1200.",
+        "classmarker": {
+          "id": "cm:19093",
+          "category": "92"
+        }
+      }
+    },
+    {
+      "id": "df6e0c6b-c15f-42a1-9f7c-99b0c0bdaf6e",
+      "content_hash": "630d49ab7442dfd9a2e066a4",
+      "question": "The table below shows the volume of two similar solids, right circular cylinder A and right circular cylinder B.\\n\\nRight circular cylinder A: \\(250\\pi\\)\\nRight circular cylinder B: \\(54\\pi\\)\\n\\nThe radius of cylinder A is 5 units. The surface area of cylinder A is \\(k\\pi\\) square units, and the surface area of cylinder B is \\(n\\pi\\) square units. What is the value of \\(k-n\\)?\\n\\n(The surface area of a right cylinder with radius \\(r\\) and height \\(h\\) is \\(2\\pi r^2+2\\pi rh\\).)",
+      "passage": null,
+      "choices": [
+        "96",
+        "104",
+        "150",
+        "204"
+      ],
+      "rationale": {
+        "B": "This choice is not the calculated value: 104.",
+        "C": "This choice is not the calculated value: 150.",
+        "D": "This choice is not the calculated value: 204.",
+        "correct": "The volume ratio is 250/54=125/27, so the linear scale factor is 5/3. Cylinder A has height 10 and surface-area coefficient 150; cylinder B has radius 3 and height 6, giving coefficient 54. The difference is 96.",
+        "classmarker": {
+          "id": "cm:23486",
+          "category": "343"
+        }
+      }
+    },
+    {
+      "id": "b00cf89d-d0ce-4c5c-9832-7513b4061afe",
+      "content_hash": "026745563598843aa4e77d13",
+      "question": "In right triangle XYZ, angle X and angle Y are complementary. If cos(X) = \\(\\frac{3}{5}\\), what is the value of sin(Y)?",
+      "passage": null,
+      "choices": [
+        "^{4}/_{5}",
+        "^{3}/_{5}",
+        "^{5}/_{3}",
+        "^{3}/_{4}"
+      ],
+      "rationale": {
+        "A": "This uses the other leg-to-hypotenuse ratio and does not equal the given cosine.",
+        "C": "A trigonometric ratio for an acute angle in a right triangle cannot exceed 1.",
+        "D": "This does not follow from the complementary-angle identity.",
+        "correct": "Because X and Y are complementary, \\(\\sin(Y)=\\cos(X)=\frac{3}{5}\\).",
+        "classmarker": {
+          "id": "cm:23209",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "b1b831b5-8aab-4466-889f-b04fb9315c5c",
+      "content_hash": "4388e707e2e65c49d0b82af7",
+      "question": "In right triangle DEF, angle D and angle E are acute angles such that \\(D + E = 90^\\circ\\). If sin(D) = \\(\\frac{7}{25}\\), what is the value of cos(E)?",
+      "passage": null,
+      "choices": [
+        "^{24}/_{25}",
+        "^{7}/_{24}",
+        "^{25}/_{7}",
+        "^{7}/_{25}"
+      ],
+      "rationale": {
+        "A": "This is not the sine of D; it results from using the wrong side ratio.",
+        "B": "This is not the complement identity and does not match the given sine.",
+        "C": "This is greater than 1, which is impossible for a cosine of an acute angle.",
+        "correct": "D and E are complementary, so \\(\\cos(E)=\\sin(D)=\frac{7}{25}\\).",
+        "classmarker": {
+          "id": "cm:23211",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "790f6217-b9de-493a-8002-b34c7bf6da25",
+      "content_hash": "7309adbf30c75a5be882231e",
+      "question": "The measure of angle C is \\(5\\pi/6\\) radians. What is the value of cos(C)?",
+      "passage": null,
+      "choices": [
+        "-√3 /_{2}",
+        "-^{1}/_{2}",
+        "^{1}/_{2}",
+        "√3 /_{2}"
+      ],
+      "rationale": {
+        "B": "This is the sine magnitude for the reference angle, not the cosine magnitude.",
+        "C": "Cosine is negative in quadrant II.",
+        "D": "Cosine is negative in quadrant II, and this also has the wrong reference-angle value.",
+        "correct": "The reference angle for \\(5\\pi/6\\) is \\(\\pi/6\\), and cosine is negative in quadrant II, so \\(\\cos(C)=-\frac{\\sqrt{3}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23214",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "9e8ef7ff-79e7-4ea6-a1b3-5c0d61fb6b76",
+      "content_hash": "38ac86d3ab3dbb5f53c9ec12",
+      "question": "The measure of angle C is \\(2\\pi/3\\) radians. What is the value of sin(C)?",
+      "passage": null,
+      "choices": [
+        "- ^{1}/_{2}",
+        "^{1}/_{2}",
+        "√3 /_{2}",
+        "-√3 /_{2}"
+      ],
+      "rationale": {
+        "A": "This has the wrong reference-angle value and sign.",
+        "B": "This is the cosine magnitude for the reference angle, not the sine.",
+        "D": "Sine is positive in quadrant II.",
+        "correct": "The reference angle for \\(2\\pi/3\\) is \\(\\pi/3\\). Sine is positive in quadrant II, so \\(\\sin(C)=\frac{\\sqrt{3}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23215",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "c5505a30-ac71-4614-8edc-4fc2a056860c",
+      "content_hash": "c5ac3ba11b3f2bf35d35fe63",
+      "question": "The measure of angle C is \\(7\\pi/4\\) radians. What is the value of cos(C)?",
+      "passage": null,
+      "choices": [
+        "- ^{1}/_{2}",
+        "- √2 /_{2}",
+        "^{1}/_{2}",
+        "√2 /_{2}"
+      ],
+      "rationale": {
+        "A": "This has the wrong reference-angle value and sign.",
+        "B": "Cosine is positive in quadrant IV.",
+        "C": "This has the right sign but the wrong reference-angle value.",
+        "correct": "The angle \\(7\\pi/4\\) has reference angle \\(\\pi/4\\), and cosine is positive in quadrant IV, so \\(\\cos(C)=\frac{\\sqrt{2}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23216",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "b8ee4a51-19aa-48a8-8dd5-24b688de0c68",
+      "content_hash": "581a02c80fa008abcfdcdd99",
+      "question": "The measure of angle C is \\(4\\pi/3\\) radians. What is the value of cos(C)?",
+      "passage": null,
+      "choices": [
+        "- ^{1}/_{2}",
+        "- √3 /_{2}",
+        "^{1}/_{2}",
+        "√3 /_{2}"
+      ],
+      "rationale": {
+        "B": "This uses the sine magnitude for the reference angle rather than the cosine magnitude.",
+        "C": "Cosine is negative in quadrant III.",
+        "D": "Cosine is negative in quadrant III, and this has the wrong reference-angle value.",
+        "correct": "The angle \\(4\\pi/3\\) has reference angle \\(\\pi/3\\), and cosine is negative in quadrant III, so \\(\\cos(C)=-\frac{1}{2}\\).",
+        "classmarker": {
+          "id": "cm:23218",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "cdc47417-f4f8-40da-86cb-0fea559d20b7",
+      "content_hash": "f0fd0e6d1adf25c2e194cdf5",
+      "question": "The measure of angle C is \\(5\\pi/4\\) radians. What is the value of sin(C)?",
+      "passage": null,
+      "choices": [
+        "^{1}/_{2}",
+        "√2 /_{2}",
+        "- ^{1}/_{2}",
+        "- √2 /_{2}"
+      ],
+      "rationale": {
+        "A": "This has the wrong reference-angle value and sign.",
+        "B": "Sine is negative in quadrant III.",
+        "C": "This has the right sign but the wrong reference-angle value.",
+        "correct": "The angle \\(5\\pi/4\\) has reference angle \\(\\pi/4\\), and sine is negative in quadrant III, so \\(\\sin(C)=-\frac{\\sqrt{2}}{2}\\).",
+        "classmarker": {
+          "id": "cm:23219",
+          "category": "344"
+        }
+      }
+    },
+    {
+      "id": "b8aa0058-f51b-4ff1-8a13-068e76a3b8a9",
+      "content_hash": "630d49ab7442dfd9a2e066a4",
+      "question": "The table below shows the volume of two similar solids, right circular cylinder A and right circular cylinder B.\\n\\nRight circular cylinder A: \\(250\\pi\\)\\nRight circular cylinder B: \\(54\\pi\\)\\n\\nThe radius of cylinder A is 5 units. The surface area of cylinder A is \\(k\\pi\\) square units, and the surface area of cylinder B is \\(n\\pi\\) square units. What is the value of \\(k-n\\)?\\n\\n(The surface area of a right cylinder with radius \\(r\\) and height \\(h\\) is \\(2\\pi r^2+2\\pi rh\\).)",
+      "passage": null,
+      "choices": [
+        "96",
+        "104",
+        "150",
+        "204"
+      ],
+      "rationale": {
+        "B": "This choice is not the calculated value: 104.",
+        "C": "This choice is not the calculated value: 150.",
+        "D": "This choice is not the calculated value: 204.",
+        "correct": "The volume ratio is 250/54=125/27, so the linear scale factor is 5/3. Cylinder A has height 10 and surface-area coefficient 150; cylinder B has radius 3 and height 6, giving coefficient 54. The difference is 96.",
+        "classmarker": {
+          "id": "cm:23486",
+          "category": "343"
+        }
+      }
+    },
+    {
+      "id": "7a6f796b-adbe-415c-a903-4586b22feb47",
+      "content_hash": "1b14460594dc3e10beabdbe2",
+      "question": "The solution to the system of equations below is the ordered pair \\((x, y)\\):\n\n\\(\\frac{x}{3} + 8(y - 10) = 21\\)\\n\\(\\frac{x}{6} - 8(y - 10) = 33\\)\n\n\nWhat is the value of \\(10x\\)?",
+      "passage": null,
+      "choices": [],
+      "rationale": {
+        "correct": "Written in the same form, the equations are \\(x + 24y = 303\\) and \\(x - 48y = -282\\). Subtracting the second from the first eliminates \\(x\\): \\(72y = 585\\), so \\(y = 8.125\\). Substituting this value into either equation gives \\(x = 108\\). So \\(10x = 10(108) = 1{,}080\\).",
+        "variation": {
+          "of": "4df13fd8-7833-4c20-b51b-131374620c8e",
+          "engine": "variation-1",
+          "params": [
+            {
+              "to": "3",
+              "from": "5"
+            },
+            {
+              "to": "8",
+              "from": "4"
+            },
+            {
+              "to": "10",
+              "from": "10"
+            },
+            {
+              "to": "21",
+              "from": "26"
+            },
+            {
+              "to": "6",
+              "from": "3"
+            },
+            {
+              "to": "33",
+              "from": "38"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b35eb214-303d-4c16-8cad-cd6b25d5d5e7",
+      "content_hash": "08bd57096f4ad30a4d8d375e",
+      "question": "The solution to the system of equations below is the ordered pair \\((x, y)\\):\n\n\\(\\frac{x}{6} + 8(y - 5) = 28\\)\\n\\(\\frac{x}{12} - 8(y - 5) = 27\\)\n\n\nWhat is the value of \\(5x\\)?",
+      "passage": null,
+      "choices": [],
+      "rationale": {
+        "correct": "Written in the same form, the equations are \\(x + 48y = 408\\) and \\(x - 96y = -156\\). Subtracting the second from the first eliminates \\(x\\): \\(144y = 564\\), so \\(y = \\frac{47}{12}\\). Substituting this value into either equation gives \\(x = 220\\). So \\(5x = 5(220) = 1{,}100\\).",
+        "variation": {
+          "of": "4df13fd8-7833-4c20-b51b-131374620c8e",
+          "engine": "variation-1",
+          "params": [
+            {
+              "to": "6",
+              "from": "5"
+            },
+            {
+              "to": "8",
+              "from": "4"
+            },
+            {
+              "to": "5",
+              "from": "10"
+            },
+            {
+              "to": "28",
+              "from": "26"
+            },
+            {
+              "to": "12",
+              "from": "3"
+            },
+            {
+              "to": "27",
+              "from": "38"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "cff44a8b-4e3a-4f3a-badf-da3e26cd09ac",
+      "content_hash": "53a3921e6197a2cf276a2ca4",
+      "question": "The solution to the system of equations below is the ordered pair \\((x, y)\\):\n\n\\(\\frac{x}{7} + 6(y - 5) = 37\\)\\n\\(\\frac{x}{9} - 6(y - 5) = 27\\)\n\n\nWhat is the value of \\(5x\\)?",
+      "passage": null,
+      "choices": [],
+      "rationale": {
+        "correct": "Written in the same form, the equations are \\(x + 42y = 469\\) and \\(x - 54y = -27\\). Subtracting the second from the first eliminates \\(x\\): \\(96y = 496\\), so \\(y = \\frac{31}{6}\\). Substituting this value into either equation gives \\(x = 252\\). So \\(5x = 5(252) = 1{,}260\\).",
+        "variation": {
+          "of": "4df13fd8-7833-4c20-b51b-131374620c8e",
+          "engine": "variation-1",
+          "params": [
+            {
+              "to": "7",
+              "from": "5"
+            },
+            {
+              "to": "6",
+              "from": "4"
+            },
+            {
+              "to": "5",
+              "from": "10"
+            },
+            {
+              "to": "37",
+              "from": "26"
+            },
+            {
+              "to": "9",
+              "from": "3"
+            },
+            {
+              "to": "27",
+              "from": "38"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "8add1660-63b4-4b5c-b829-b981b1686901",
+      "content_hash": "1b14460594dc3e10beabdbe2",
+      "question": "The solution to the system of equations below is the ordered pair \\((x, y)\\):\n\n\\(\\frac{x}{3} + 8(y - 10) = 21\\)\\n\\(\\frac{x}{6} - 8(y - 10) = 33\\)\n\n\nWhat is the value of \\(10x\\)?",
+      "passage": null,
+      "choices": [],
+      "rationale": {
+        "correct": "Written in the same form, the equations are \\(x + 24y = 303\\) and \\(x - 48y = -282\\). Subtracting the second from the first eliminates \\(x\\): \\(72y = 585\\), so \\(y = 8.125\\). Substituting this value into either equation gives \\(x = 108\\). So \\(10x = 10(108) = 1{,}080\\).",
+        "variation": {
+          "of": "4df13fd8-7833-4c20-b51b-131374620c8e",
+          "engine": "variation-1",
+          "params": [
+            {
+              "to": "3",
+              "from": "5"
+            },
+            {
+              "to": "8",
+              "from": "4"
+            },
+            {
+              "to": "10",
+              "from": "10"
+            },
+            {
+              "to": "21",
+              "from": "26"
+            },
+            {
+              "to": "6",
+              "from": "3"
+            },
+            {
+              "to": "33",
+              "from": "38"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e3cfe841-b73d-4514-ac90-cba653ba4467",
+      "content_hash": "08bd57096f4ad30a4d8d375e",
+      "question": "The solution to the system of equations below is the ordered pair \\((x, y)\\):\n\n\\(\\frac{x}{6} + 8(y - 5) = 28\\)\\n\\(\\frac{x}{12} - 8(y - 5) = 27\\)\n\n\nWhat is the value of \\(5x\\)?",
+      "passage": null,
+      "choices": [],
+      "rationale": {
+        "correct": "Written in the same form, the equations are \\(x + 48y = 408\\) and \\(x - 96y = -156\\). Subtracting the second from the first eliminates \\(x\\): \\(144y = 564\\), so \\(y = \\frac{47}{12}\\). Substituting this value into either equation gives \\(x = 220\\). So \\(5x = 5(220) = 1{,}100\\).",
+        "variation": {
+          "of": "4df13fd8-7833-4c20-b51b-131374620c8e",
+          "engine": "variation-1",
+          "params": [
+            {
+              "to": "6",
+              "from": "5"
+            },
+            {
+              "to": "8",
+              "from": "4"
+            },
+            {
+              "to": "5",
+              "from": "10"
+            },
+            {
+              "to": "28",
+              "from": "26"
+            },
+            {
+              "to": "12",
+              "from": "3"
+            },
+            {
+              "to": "27",
+              "from": "38"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "9bb694b6-36ec-40bd-947b-1d985faa7131",
+      "content_hash": "53a3921e6197a2cf276a2ca4",
+      "question": "The solution to the system of equations below is the ordered pair \\((x, y)\\):\n\n\\(\\frac{x}{7} + 6(y - 5) = 37\\)\\n\\(\\frac{x}{9} - 6(y - 5) = 27\\)\n\n\nWhat is the value of \\(5x\\)?",
+      "passage": null,
+      "choices": [],
+      "rationale": {
+        "correct": "Written in the same form, the equations are \\(x + 42y = 469\\) and \\(x - 54y = -27\\). Subtracting the second from the first eliminates \\(x\\): \\(96y = 496\\), so \\(y = \\frac{31}{6}\\). Substituting this value into either equation gives \\(x = 252\\). So \\(5x = 5(252) = 1{,}260\\).",
+        "variation": {
+          "of": "4df13fd8-7833-4c20-b51b-131374620c8e",
+          "engine": "variation-1",
+          "params": [
+            {
+              "to": "7",
+              "from": "5"
+            },
+            {
+              "to": "6",
+              "from": "4"
+            },
+            {
+              "to": "5",
+              "from": "10"
+            },
+            {
+              "to": "37",
+              "from": "26"
+            },
+            {
+              "to": "9",
+              "from": "3"
+            },
+            {
+              "to": "27",
+              "from": "38"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "sessions": []
+}

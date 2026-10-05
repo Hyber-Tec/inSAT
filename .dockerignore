@@ -1,0 +1,11 @@
+# Keep the API image small — the API Dockerfile only needs server/ and db/.
+**/node_modules
+client
+.logs
+.git
+**/.env
+**/.env.*
+client/dist
+**/*.log
+.claude
+docs

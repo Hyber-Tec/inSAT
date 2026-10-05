@@ -1,0 +1,931 @@
+{
+  "items": [
+    {
+      "id": "5de1fbf8-66f6-4ba3-bd0f-40fe4c911016",
+      "content_hash": "927686e1c78eea0eac094f82",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=\\frac{10\\sqrt{3}}{3},\\ y=\\frac{5\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{5}{2},\\ y=\\frac{10\\sqrt{3}}{3}\\)",
+        "\\(x=5,\\ y=\\frac{5\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{10\\sqrt{3}}{3},\\ y=\\frac{5}{2}\\)"
+      ],
+      "rationale": {
+        "B": "This makes the hypotenuse shorter than the side of length 5, which is impossible, and assigns the long-leg length to the short leg.",
+        "C": "The side opposite 60° is the long leg, so it cannot equal the short leg of length (5\\sqrt{3}/3); the hypotenuse must also be longer than 5.",
+        "D": "The short leg is (5\\sqrt{3}/3), not (5/2); doubling the short leg gives the hypotenuse.",
+        "correct": "The side of length 5 is opposite the 60° angle, so it is the long leg of a 30°-60°-90° triangle. The short leg is (5/\\sqrt{3}=5\\sqrt{3}/3), and the hypotenuse is twice that, (10\\sqrt{3}/3).",
+        "classmarker": {
+          "id": "cm:14221",
+          "figure": "12189505_CXJUVIBB.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "39d6d774-935b-49b0-bd4f-353012c30c8e",
+      "content_hash": "2d59859a3c10c5d68bee5296",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=\\frac{4\\sqrt{3}}{3},\\ y=\\frac{2\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{2\\sqrt{3}}{3},\\ y=\\frac{8\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{8\\sqrt{3}}{3},\\ y=\\frac{2\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{8\\sqrt{3}}{3},\\ y=1\\)"
+      ],
+      "rationale": {
+        "B": "This reverses the roles of the hypotenuse and the short leg: the hypotenuse must be the longest side.",
+        "C": "The side opposite 30° is the short leg, so y must be (2\\sqrt{3}/3), not the long-leg length.",
+        "D": "Although x is the hypotenuse, a short leg of 1 would make the long leg \\(\\sqrt{3}\\), not 2.",
+        "correct": "The side of length 2 is the long leg, opposite 60°. The short leg is (2/\\sqrt{3}=2\\sqrt{3}/3), and the hypotenuse is twice the short leg, (4\\sqrt{3}/3).",
+        "classmarker": {
+          "id": "cm:14222",
+          "figure": "12189505_8MMB08VH.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "9479b48a-3071-4b98-a2b8-c57b80d4ad2d",
+      "content_hash": "63931002251c771bdeb4ee99",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(a=\\frac{2\\sqrt{3}}{3},\\ b=\\frac{16\\sqrt{3}}{3}\\)",
+        "\\(a=\\frac{4\\sqrt{3}}{3},\\ b=\\frac{16\\sqrt{3}}{3}\\)",
+        "\\(a=\\frac{16\\sqrt{3}}{3},\\ b=\\frac{2\\sqrt{3}}{3}\\)",
+        "\\(a=\\frac{8\\sqrt{3}}{3},\\ b=\\frac{4\\sqrt{3}}{3}\\)"
+      ],
+      "rationale": {
+        "A": "This makes the hypotenuse shorter than the given side of length 4 and assigns an even smaller value to the short leg.",
+        "B": "The hypotenuse is correctly the longest side, but the long leg should equal 4, not (4\\sqrt{3}/3).",
+        "C": "The hypotenuse is correctly (16\\sqrt{3}/3) only if the long leg were 8; the given long leg is 4, so these values are doubled.",
+        "correct": "The side of length 4 is opposite 60°, so it is the long leg. The short leg is (4/\\sqrt{3}=4\\sqrt{3}/3), and the hypotenuse is twice that, (8\\sqrt{3}/3).",
+        "classmarker": {
+          "id": "cm:14223",
+          "figure": "12189505_3D9J2F9G.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "220d5636-b75d-4ee9-aa5d-cbd6f0377844",
+      "content_hash": "cbccddf48e5e76d11b0c740f",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=\\frac{9}{2},\\ y=\\frac{3}{2}\\)",
+        "\\(x=\\frac{3\\sqrt{3}}{2},\\ y=\\frac{3}{2}\\)",
+        "\\(x=\\frac{9}{2},\\ y=\\frac{\\sqrt{3}}{2}\\)",
+        "\\(x=\\frac{3}{2},\\ y=\\frac{3\\sqrt{3}}{2}\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse is given as 3, so x cannot be (9/2), which is longer.",
+        "C": "The long leg should be (3\\sqrt{3}/2), while the short leg is (3/2); these values do not match those roles.",
+        "D": "This assigns the short-leg length to x even though x is opposite 60°, and makes y too long.",
+        "correct": "The side of length 3 is the hypotenuse. With a 60° angle, the short leg is (3/2), and the long leg is (3\\sqrt{3}/2).",
+        "classmarker": {
+          "id": "cm:14230",
+          "figure": "12189505_2ZCJ8BMA.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "b9a5de01-bc1f-4de4-8a22-5357a50c51a0",
+      "content_hash": "6a383b407e13cafdef7d4e28",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=8,\\ y=4\\)",
+        "\\(x=8\\sqrt{3},\\ y=2\\sqrt{2}\\)",
+        "\\(x=8\\sqrt{3},\\ y=4\\)",
+        "\\(x=8,\\ y=2\\sqrt{2}\\)"
+      ],
+      "rationale": {
+        "B": "The short leg should be 4, so the proposed y value is too small; the hypotenuse should be 8, not (8\\sqrt{3}).",
+        "C": "The short leg is correctly 4, but the hypotenuse is twice the short leg, so it is 8.",
+        "D": "The hypotenuse is 8, but the short leg is 4 rather than (2\\sqrt{2}).",
+        "correct": "The side (4\\sqrt{3}) is opposite 60°, so it is the long leg. The short leg is 4, and the hypotenuse is 8.",
+        "classmarker": {
+          "id": "cm:14233",
+          "figure": "12189505_9E1UCC3Y.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "2e6ca907-9bc9-4766-80b9-f4776280500c",
+      "content_hash": "936c66f47965d1459254d01a",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(m=\\frac{8}{3},\\ n=\\frac{4\\sqrt{3}}{3}\\)",
+        "\\(m=\\frac{4}{3},\\ n=\\frac{2\\sqrt{6}}{3}\\)",
+        "\\(m=\\frac{4}{3},\\ n=\\frac{4\\sqrt{3}}{3}\\)",
+        "\\(m=\\frac{8}{3},\\ n=\\frac{2\\sqrt{6}}{3}\\)"
+      ],
+      "rationale": {
+        "B": "The hypotenuse cannot equal the short leg (4/3), and the long-leg value does not follow the 30°-60°-90° ratio.",
+        "C": "The side (4/3) is the short leg, so it cannot also be the hypotenuse; the long leg should be (4\\sqrt{3}/3).",
+        "D": "The hypotenuse is correct, but the long leg should be (4\\sqrt{3}/3), not (2\\sqrt{6}/3).",
+        "correct": "The side (4/3) is opposite 30°, so it is the short leg. The hypotenuse is twice it, (8/3), and the long leg is (4\\sqrt{3}/3).",
+        "classmarker": {
+          "id": "cm:14236",
+          "figure": "12189505_WWFZOCB1.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "b6b67998-0aa9-41b5-bf09-3f05b32f592c",
+      "content_hash": "dc9e13dda32c67edbc75a999",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(m=4,\\ n=4\\)",
+        "\\(m=\\sqrt{2},\\ n=\\sqrt{2}\\)",
+        "\\(m=2,\\ n=2\\)",
+        "\\(m=2\\sqrt{2},\\ n=2\\sqrt{2}\\)"
+      ],
+      "rationale": {
+        "A": "Two legs of length 4 would have hypotenuse (4\\sqrt{2}), not 4.",
+        "B": "Legs of length \\(\\sqrt{2}\\) would have hypotenuse 2, not 4.",
+        "C": "Legs of length 2 would have hypotenuse (2\\sqrt{2}), not 4.",
+        "correct": "The triangle is 45°-45°-90° with hypotenuse 4. Each leg is (4/\\sqrt{2}=2\\sqrt{2}).",
+        "classmarker": {
+          "id": "cm:14237",
+          "figure": "12189505_ZHK0YGLN.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "800aa145-c325-4ef0-b5b1-85f0ac384460",
+      "content_hash": "22835d9503594bb75ceeb92b",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(m=2\\sqrt{6},\\ n=4\\sqrt{3}\\)",
+        "\\(m=2\\sqrt{6},\\ n=2\\sqrt{3}\\)",
+        "\\(m=4\\sqrt{3},\\ n=2\\sqrt{6}\\)",
+        "\\(m=4\\sqrt{3},\\ n=2\\sqrt{3}\\)"
+      ],
+      "rationale": {
+        "A": "The proposed long leg n is longer than the hypotenuse m, which is impossible.",
+        "B": "The value of n is the short leg, but m should be twice that, (4\\sqrt{3}).",
+        "C": "The hypotenuse is correct, but n should be the short leg (2\\sqrt{3}), not (2\\sqrt{6}).",
+        "correct": "The side 6 is opposite 60°, so it is the long leg. The short leg is (6/\\sqrt{3}=2\\sqrt{3}), and the hypotenuse is (4\\sqrt{3}).",
+        "classmarker": {
+          "id": "cm:14238",
+          "figure": "12189505_Y6NCAE3S.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "79866042-f2f8-4f64-8ef4-7cbf6c52d9e7",
+      "content_hash": "9f22de7c0d4e4dccf92e787b",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(u=4,\\ v=\\sqrt{3}\\)",
+        "\\(u=2\\sqrt{3},\\ v=\\sqrt{3}\\)",
+        "\\(u=4,\\ v=1\\)",
+        "\\(u=2\\sqrt{3},\\ v=1\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse 4 and short leg \\(\\sqrt{3}\\) do not satisfy the 30°-60°-90° side ratio for long leg 3.",
+        "C": "A short leg of 1 would give a long leg of \\(\\sqrt{3}\\), not 3.",
+        "D": "The hypotenuse is correctly (2\\sqrt{3}), but the short leg should be \\(\\sqrt{3}\\), not 1.",
+        "correct": "The side 3 is the long leg opposite 60°. Thus the short leg is (3/\\sqrt{3}=\\sqrt{3}), and the hypotenuse is (2\\sqrt{3}).",
+        "classmarker": {
+          "id": "cm:14239",
+          "figure": "12189505_UED5JQ3Y.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "3507a3a3-6538-4dc1-9ece-6ca36d69325e",
+      "content_hash": "489672b80760e8beb36ec613",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=6\\sqrt{2},\\ y=4\\)",
+        "\\(x=4,\\ y=6\\)",
+        "\\(x=4\\sqrt{3},\\ y=6\\sqrt{2}\\)",
+        "\\(x=4\\sqrt{3},\\ y=6\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse should be (4\\sqrt{3}), and the long leg should be 6.",
+        "B": "A hypotenuse of 4 is shorter than the known leg (2\\sqrt{3}) times the ratio requires; the side lengths do not match the special-triangle ratios.",
+        "C": "The hypotenuse is correct, but the long leg is 6, not (6\\sqrt{2}).",
+        "correct": "The side (2\\sqrt{3}) is opposite 30°, so it is the short leg. The hypotenuse is (4\\sqrt{3}), and the long leg is 6.",
+        "classmarker": {
+          "id": "cm:14240",
+          "figure": "12189505_LMAX3QCQ.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "20991a47-b0fa-4f64-a334-0412b8fa0d56",
+      "content_hash": "a47138cc3f6b2068947028de",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=\\frac{5\\sqrt{6}}{3},\\ y=5\\)",
+        "\\(x=5\\sqrt{2},\\ y=\\frac{5\\sqrt{3}}{3}\\)",
+        "\\(x=5\\sqrt{2},\\ y=5\\)",
+        "\\(x=\\frac{5\\sqrt{6}}{3},\\ y=\\frac{5\\sqrt{3}}{3}\\)"
+      ],
+      "rationale": {
+        "A": "The leg y is correct, but the hypotenuse should be (5\\sqrt{2}), not (5\\sqrt{6}/3).",
+        "B": "The hypotenuse is correct, but equal legs require y=5.",
+        "D": "The proposed hypotenuse is shorter than the given leg 5, which is impossible.",
+        "correct": "The triangle is 45°-45°-90°, so its legs are equal. Since one leg is 5, y is 5 and the hypotenuse is (5\\sqrt{2}).",
+        "classmarker": {
+          "id": "cm:14241",
+          "figure": "12189505_RX68IU85.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "382dbf82-344c-4e3e-8b53-4a1b44f7967c",
+      "content_hash": "570eb0155401e8a589d44fce",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=2\\sqrt{3},\\ y=2\\sqrt{2}\\)",
+        "\\(x=4,\\ y=2\\sqrt{6}\\)",
+        "\\(x=2\\sqrt{2},\\ y=2\\sqrt{6}\\)",
+        "\\(x=4,\\ y=2\\sqrt{3}\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse should be twice the short leg, or 4, and the long leg should be (2\\sqrt{3}).",
+        "B": "The hypotenuse is correctly 4, but the long leg should be (2\\sqrt{3}), not (2\\sqrt{6}).",
+        "C": "The hypotenuse should be 4, while the long leg should be (2\\sqrt{3}).",
+        "correct": "The given side 2 is the short leg opposite 30°. The hypotenuse is 4, and the long leg is (2\\sqrt{3}).",
+        "classmarker": {
+          "id": "cm:14243",
+          "figure": "12189505_HXHS1YK4.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "3883a84c-24c5-490c-931d-c145a1afc18b",
+      "content_hash": "f901dcad112af27fdb16c1e0",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=4\\sqrt{3},\\ y=2\\sqrt{2}\\)",
+        "\\(x=4,\\ y=\\sqrt{2}\\)",
+        "\\(x=4\\sqrt{3},\\ y=\\sqrt{2}\\)",
+        "\\(x=4,\\ y=2\\sqrt{2}\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse should be 4, and the other leg should equal (2\\sqrt{2}).",
+        "B": "The hypotenuse is correctly 4, but the two legs must be equal, so y is (2\\sqrt{2}).",
+        "C": "The leg y should equal the known leg (2\\sqrt{2}), and the hypotenuse is 4.",
+        "correct": "The triangle is 45°-45°-90°. Its legs are equal, and the known leg is (2\\sqrt{2}), so y is (2\\sqrt{2}). The hypotenuse is (2\\sqrt{2}\\cdot\\sqrt{2}=4).",
+        "classmarker": {
+          "id": "cm:14244",
+          "figure": "12189505_8DDFXBCC.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "e964062e-dd0b-43cf-aba8-42e10a124d7a",
+      "content_hash": "fa9b497c51822b0e80010012",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(m=\\frac{4\\sqrt{2}}{3},\\ n=\\frac{2}{3}\\)",
+        "\\(m=\\frac{2\\sqrt{2}}{3},\\ n=\\frac{4\\sqrt{2}}{3}\\)",
+        "\\(m=\\frac{4\\sqrt{2}}{3},\\ n=\\frac{2\\sqrt{2}}{3}\\)",
+        "\\(m=\\frac{2\\sqrt{6}}{3},\\ n=\\frac{2\\sqrt{2}}{3}\\)"
+      ],
+      "rationale": {
+        "A": "The side opposite 60° should be (2\\sqrt{6}/3), and the other leg should be half the hypotenuse, (2\\sqrt{2}/3).",
+        "B": "The proposed leg n is longer than m, though m is opposite 60° and must be the longer leg.",
+        "C": "This assigns m the value of the shorter leg; the side opposite 60° must be (2\\sqrt{6}/3).",
+        "correct": "The given side (4\\sqrt{2}/3) is the hypotenuse. Opposite 60° is m, so (m=(4\\sqrt{2}/3)(\\sqrt{3}/2)=2\\sqrt{6}/3). The other leg is half the hypotenuse, (n=2\\sqrt{2}/3).",
+        "classmarker": {
+          "id": "cm:14246",
+          "figure": "12189505_M7PGJNU9.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "a1fa802c-3e80-41fb-93ea-0e035ef71423",
+      "content_hash": "dc9e13dda32c67edbc75a999",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(m=4,\\ n=4\\)",
+        "\\(m=\\sqrt{2},\\ n=\\sqrt{2}\\)",
+        "\\(m=2,\\ n=2\\)",
+        "\\(m=2\\sqrt{2},\\ n=2\\sqrt{2}\\)"
+      ],
+      "rationale": {
+        "A": "Two legs of length 4 would have hypotenuse (4\\sqrt{2}), not 4.",
+        "B": "Legs of length \\(\\sqrt{2}\\) would have hypotenuse 2, not 4.",
+        "C": "Legs of length 2 would have hypotenuse (2\\sqrt{2}), not 4.",
+        "correct": "The triangle is 45°-45°-90° with hypotenuse 4. Each leg is (4/\\sqrt{2}=2\\sqrt{2}).",
+        "classmarker": {
+          "id": "cm:14237",
+          "figure": "12189505_ZHK0YGLN.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "53844b4f-1640-4d24-84c9-153d0415764e",
+      "content_hash": "927686e1c78eea0eac094f82",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=\\frac{10\\sqrt{3}}{3},\\ y=\\frac{5\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{5}{2},\\ y=\\frac{10\\sqrt{3}}{3}\\)",
+        "\\(x=5,\\ y=\\frac{5\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{10\\sqrt{3}}{3},\\ y=\\frac{5}{2}\\)"
+      ],
+      "rationale": {
+        "B": "This makes the hypotenuse shorter than the side of length 5, which is impossible, and assigns the long-leg length to the short leg.",
+        "C": "The side opposite 60° is the long leg, so it cannot equal the short leg of length (5\\sqrt{3}/3); the hypotenuse must also be longer than 5.",
+        "D": "The short leg is (5\\sqrt{3}/3), not (5/2); doubling the short leg gives the hypotenuse.",
+        "correct": "The side of length 5 is opposite the 60° angle, so it is the long leg of a 30°-60°-90° triangle. The short leg is (5/\\sqrt{3}=5\\sqrt{3}/3), and the hypotenuse is twice that, (10\\sqrt{3}/3).",
+        "classmarker": {
+          "id": "cm:14221",
+          "figure": "12189505_CXJUVIBB.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "b8218245-8a0d-437c-afb4-135a06e492a8",
+      "content_hash": "2d59859a3c10c5d68bee5296",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=\\frac{4\\sqrt{3}}{3},\\ y=\\frac{2\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{2\\sqrt{3}}{3},\\ y=\\frac{8\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{8\\sqrt{3}}{3},\\ y=\\frac{2\\sqrt{3}}{3}\\)",
+        "\\(x=\\frac{8\\sqrt{3}}{3},\\ y=1\\)"
+      ],
+      "rationale": {
+        "B": "This reverses the roles of the hypotenuse and the short leg: the hypotenuse must be the longest side.",
+        "C": "The side opposite 30° is the short leg, so y must be (2\\sqrt{3}/3), not the long-leg length.",
+        "D": "Although x is the hypotenuse, a short leg of 1 would make the long leg \\(\\sqrt{3}\\), not 2.",
+        "correct": "The side of length 2 is the long leg, opposite 60°. The short leg is (2/\\sqrt{3}=2\\sqrt{3}/3), and the hypotenuse is twice the short leg, (4\\sqrt{3}/3).",
+        "classmarker": {
+          "id": "cm:14222",
+          "figure": "12189505_8MMB08VH.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "4dd0855c-882f-4de9-b59d-e36117ed93ec",
+      "content_hash": "63931002251c771bdeb4ee99",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(a=\\frac{2\\sqrt{3}}{3},\\ b=\\frac{16\\sqrt{3}}{3}\\)",
+        "\\(a=\\frac{4\\sqrt{3}}{3},\\ b=\\frac{16\\sqrt{3}}{3}\\)",
+        "\\(a=\\frac{16\\sqrt{3}}{3},\\ b=\\frac{2\\sqrt{3}}{3}\\)",
+        "\\(a=\\frac{8\\sqrt{3}}{3},\\ b=\\frac{4\\sqrt{3}}{3}\\)"
+      ],
+      "rationale": {
+        "A": "This makes the hypotenuse shorter than the given side of length 4 and assigns an even smaller value to the short leg.",
+        "B": "The hypotenuse is correctly the longest side, but the long leg should equal 4, not (4\\sqrt{3}/3).",
+        "C": "The hypotenuse is correctly (16\\sqrt{3}/3) only if the long leg were 8; the given long leg is 4, so these values are doubled.",
+        "correct": "The side of length 4 is opposite 60°, so it is the long leg. The short leg is (4/\\sqrt{3}=4\\sqrt{3}/3), and the hypotenuse is twice that, (8\\sqrt{3}/3).",
+        "classmarker": {
+          "id": "cm:14223",
+          "figure": "12189505_3D9J2F9G.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "ce638ac8-17be-419a-9092-7c329729a59c",
+      "content_hash": "cbccddf48e5e76d11b0c740f",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=\\frac{9}{2},\\ y=\\frac{3}{2}\\)",
+        "\\(x=\\frac{3\\sqrt{3}}{2},\\ y=\\frac{3}{2}\\)",
+        "\\(x=\\frac{9}{2},\\ y=\\frac{\\sqrt{3}}{2}\\)",
+        "\\(x=\\frac{3}{2},\\ y=\\frac{3\\sqrt{3}}{2}\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse is given as 3, so x cannot be (9/2), which is longer.",
+        "C": "The long leg should be (3\\sqrt{3}/2), while the short leg is (3/2); these values do not match those roles.",
+        "D": "This assigns the short-leg length to x even though x is opposite 60°, and makes y too long.",
+        "correct": "The side of length 3 is the hypotenuse. With a 60° angle, the short leg is (3/2), and the long leg is (3\\sqrt{3}/2).",
+        "classmarker": {
+          "id": "cm:14230",
+          "figure": "12189505_2ZCJ8BMA.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "a2bff7d7-b396-431b-af43-5c97a7d68fc1",
+      "content_hash": "6a383b407e13cafdef7d4e28",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=8,\\ y=4\\)",
+        "\\(x=8\\sqrt{3},\\ y=2\\sqrt{2}\\)",
+        "\\(x=8\\sqrt{3},\\ y=4\\)",
+        "\\(x=8,\\ y=2\\sqrt{2}\\)"
+      ],
+      "rationale": {
+        "B": "The short leg should be 4, so the proposed y value is too small; the hypotenuse should be 8, not (8\\sqrt{3}).",
+        "C": "The short leg is correctly 4, but the hypotenuse is twice the short leg, so it is 8.",
+        "D": "The hypotenuse is 8, but the short leg is 4 rather than (2\\sqrt{2}).",
+        "correct": "The side (4\\sqrt{3}) is opposite 60°, so it is the long leg. The short leg is 4, and the hypotenuse is 8.",
+        "classmarker": {
+          "id": "cm:14233",
+          "figure": "12189505_9E1UCC3Y.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "c6d6d2e1-c898-4860-9b4d-e4ddb9e93ea4",
+      "content_hash": "936c66f47965d1459254d01a",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(m=\\frac{8}{3},\\ n=\\frac{4\\sqrt{3}}{3}\\)",
+        "\\(m=\\frac{4}{3},\\ n=\\frac{2\\sqrt{6}}{3}\\)",
+        "\\(m=\\frac{4}{3},\\ n=\\frac{4\\sqrt{3}}{3}\\)",
+        "\\(m=\\frac{8}{3},\\ n=\\frac{2\\sqrt{6}}{3}\\)"
+      ],
+      "rationale": {
+        "B": "The hypotenuse cannot equal the short leg (4/3), and the long-leg value does not follow the 30°-60°-90° ratio.",
+        "C": "The side (4/3) is the short leg, so it cannot also be the hypotenuse; the long leg should be (4\\sqrt{3}/3).",
+        "D": "The hypotenuse is correct, but the long leg should be (4\\sqrt{3}/3), not (2\\sqrt{6}/3).",
+        "correct": "The side (4/3) is opposite 30°, so it is the short leg. The hypotenuse is twice it, (8/3), and the long leg is (4\\sqrt{3}/3).",
+        "classmarker": {
+          "id": "cm:14236",
+          "figure": "12189505_WWFZOCB1.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "4dc0e106-cefb-4fbe-886a-68a20aab96dc",
+      "content_hash": "22835d9503594bb75ceeb92b",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(m=2\\sqrt{6},\\ n=4\\sqrt{3}\\)",
+        "\\(m=2\\sqrt{6},\\ n=2\\sqrt{3}\\)",
+        "\\(m=4\\sqrt{3},\\ n=2\\sqrt{6}\\)",
+        "\\(m=4\\sqrt{3},\\ n=2\\sqrt{3}\\)"
+      ],
+      "rationale": {
+        "A": "The proposed long leg n is longer than the hypotenuse m, which is impossible.",
+        "B": "The value of n is the short leg, but m should be twice that, (4\\sqrt{3}).",
+        "C": "The hypotenuse is correct, but n should be the short leg (2\\sqrt{3}), not (2\\sqrt{6}).",
+        "correct": "The side 6 is opposite 60°, so it is the long leg. The short leg is (6/\\sqrt{3}=2\\sqrt{3}), and the hypotenuse is (4\\sqrt{3}).",
+        "classmarker": {
+          "id": "cm:14238",
+          "figure": "12189505_Y6NCAE3S.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "fa3f7594-8b11-46f9-8540-978afa09168a",
+      "content_hash": "9f22de7c0d4e4dccf92e787b",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(u=4,\\ v=\\sqrt{3}\\)",
+        "\\(u=2\\sqrt{3},\\ v=\\sqrt{3}\\)",
+        "\\(u=4,\\ v=1\\)",
+        "\\(u=2\\sqrt{3},\\ v=1\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse 4 and short leg \\(\\sqrt{3}\\) do not satisfy the 30°-60°-90° side ratio for long leg 3.",
+        "C": "A short leg of 1 would give a long leg of \\(\\sqrt{3}\\), not 3.",
+        "D": "The hypotenuse is correctly (2\\sqrt{3}), but the short leg should be \\(\\sqrt{3}\\), not 1.",
+        "correct": "The side 3 is the long leg opposite 60°. Thus the short leg is (3/\\sqrt{3}=\\sqrt{3}), and the hypotenuse is (2\\sqrt{3}).",
+        "classmarker": {
+          "id": "cm:14239",
+          "figure": "12189505_UED5JQ3Y.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "c18d232f-25a8-4694-b388-334ba5a00652",
+      "content_hash": "489672b80760e8beb36ec613",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=6\\sqrt{2},\\ y=4\\)",
+        "\\(x=4,\\ y=6\\)",
+        "\\(x=4\\sqrt{3},\\ y=6\\sqrt{2}\\)",
+        "\\(x=4\\sqrt{3},\\ y=6\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse should be (4\\sqrt{3}), and the long leg should be 6.",
+        "B": "A hypotenuse of 4 is shorter than the known leg (2\\sqrt{3}) times the ratio requires; the side lengths do not match the special-triangle ratios.",
+        "C": "The hypotenuse is correct, but the long leg is 6, not (6\\sqrt{2}).",
+        "correct": "The side (2\\sqrt{3}) is opposite 30°, so it is the short leg. The hypotenuse is (4\\sqrt{3}), and the long leg is 6.",
+        "classmarker": {
+          "id": "cm:14240",
+          "figure": "12189505_LMAX3QCQ.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "2b28b4f8-9c16-464f-9416-5fc4f908a39b",
+      "content_hash": "a47138cc3f6b2068947028de",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=\\frac{5\\sqrt{6}}{3},\\ y=5\\)",
+        "\\(x=5\\sqrt{2},\\ y=\\frac{5\\sqrt{3}}{3}\\)",
+        "\\(x=5\\sqrt{2},\\ y=5\\)",
+        "\\(x=\\frac{5\\sqrt{6}}{3},\\ y=\\frac{5\\sqrt{3}}{3}\\)"
+      ],
+      "rationale": {
+        "A": "The leg y is correct, but the hypotenuse should be (5\\sqrt{2}), not (5\\sqrt{6}/3).",
+        "B": "The hypotenuse is correct, but equal legs require y=5.",
+        "D": "The proposed hypotenuse is shorter than the given leg 5, which is impossible.",
+        "correct": "The triangle is 45°-45°-90°, so its legs are equal. Since one leg is 5, y is 5 and the hypotenuse is (5\\sqrt{2}).",
+        "classmarker": {
+          "id": "cm:14241",
+          "figure": "12189505_RX68IU85.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "1dd0cdbf-042b-4aad-abb7-b979a4fcaa89",
+      "content_hash": "570eb0155401e8a589d44fce",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=2\\sqrt{3},\\ y=2\\sqrt{2}\\)",
+        "\\(x=4,\\ y=2\\sqrt{6}\\)",
+        "\\(x=2\\sqrt{2},\\ y=2\\sqrt{6}\\)",
+        "\\(x=4,\\ y=2\\sqrt{3}\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse should be twice the short leg, or 4, and the long leg should be (2\\sqrt{3}).",
+        "B": "The hypotenuse is correctly 4, but the long leg should be (2\\sqrt{3}), not (2\\sqrt{6}).",
+        "C": "The hypotenuse should be 4, while the long leg should be (2\\sqrt{3}).",
+        "correct": "The given side 2 is the short leg opposite 30°. The hypotenuse is 4, and the long leg is (2\\sqrt{3}).",
+        "classmarker": {
+          "id": "cm:14243",
+          "figure": "12189505_HXHS1YK4.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "3ecae035-1a18-4d71-acb4-dedfa74a095e",
+      "content_hash": "f901dcad112af27fdb16c1e0",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(x=4\\sqrt{3},\\ y=2\\sqrt{2}\\)",
+        "\\(x=4,\\ y=\\sqrt{2}\\)",
+        "\\(x=4\\sqrt{3},\\ y=\\sqrt{2}\\)",
+        "\\(x=4,\\ y=2\\sqrt{2}\\)"
+      ],
+      "rationale": {
+        "A": "The hypotenuse should be 4, and the other leg should equal (2\\sqrt{2}).",
+        "B": "The hypotenuse is correctly 4, but the two legs must be equal, so y is (2\\sqrt{2}).",
+        "C": "The leg y should equal the known leg (2\\sqrt{2}), and the hypotenuse is 4.",
+        "correct": "The triangle is 45°-45°-90°. Its legs are equal, and the known leg is (2\\sqrt{2}), so y is (2\\sqrt{2}). The hypotenuse is (2\\sqrt{2}\\cdot\\sqrt{2}=4).",
+        "classmarker": {
+          "id": "cm:14244",
+          "figure": "12189505_8DDFXBCC.png",
+          "category": "210"
+        }
+      }
+    },
+    {
+      "id": "6322b779-68f5-4888-ac30-ed73e1d544f2",
+      "content_hash": "fa9b497c51822b0e80010012",
+      "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+      "passage": null,
+      "choices": [
+        "\\(m=\\frac{4\\sqrt{2}}{3},\\ n=\\frac{2}{3}\\)",
+        "\\(m=\\frac{2\\sqrt{2}}{3},\\ n=\\frac{4\\sqrt{2}}{3}\\)",
+        "\\(m=\\frac{4\\sqrt{2}}{3},\\ n=\\frac{2\\sqrt{2}}{3}\\)",
+        "\\(m=\\frac{2\\sqrt{6}}{3},\\ n=\\frac{2\\sqrt{2}}{3}\\)"
+      ],
+      "rationale": {
+        "A": "The side opposite 60° should be (2\\sqrt{6}/3), and the other leg should be half the hypotenuse, (2\\sqrt{2}/3).",
+        "B": "The proposed leg n is longer than m, though m is opposite 60° and must be the longer leg.",
+        "C": "This assigns m the value of the shorter leg; the side opposite 60° must be (2\\sqrt{6}/3).",
+        "correct": "The given side (4\\sqrt{2}/3) is the hypotenuse. Opposite 60° is m, so (m=(4\\sqrt{2}/3)(\\sqrt{3}/2)=2\\sqrt{6}/3). The other leg is half the hypotenuse, (n=2\\sqrt{2}/3).",
+        "classmarker": {
+          "id": "cm:14246",
+          "figure": "12189505_M7PGJNU9.png",
+          "category": "210"
+        }
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "id": "2f32a60b-695e-4f3c-83f1-6790a69723d9",
+      "form": {
+        "meta": {
+          "notes": []
+        },
+        "routing": {
+          "thresholdFraction": 0.6
+        },
+        "sections": [
+          {
+            "kind": "math",
+            "name": "Math",
+            "modules": [
+              {
+                "key": "math:1",
+                "ordinal": 1,
+                "adaptive": false,
+                "questions": [
+                  {
+                    "qid": "q-e1b44810-6e22-4dab-8c51-52a6c93edc45",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "38b50bdd-c582-42f6-9e25-75ebcbca68b8",
+                    "assetId": "1510391c-b89e-46fa-b354-6c74f3c164f3",
+                    "choices": [],
+                    "passage": null,
+                    "section": "math",
+                    "accepted": [],
+                    "question": "In the right triangle △XYZ shown above, the right angle is at Y, XZ = 37, and XY = 12. What is the value of cos(X)?",
+                    "rationale": {
+                      "correct": "For angle X, XY=12 is adjacent and XZ=37 is the hypotenuse, so cos X=12/37."
+                    },
+                    "answerText": "12/37",
+                    "answerType": "grid-in",
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-736cef07-568b-431d-aade-6cd4d16781ad",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "481d8abd-3e0c-49b5-a0c4-6d43c0b2f1be",
+                    "assetId": null,
+                    "choices": [
+                      "10√6 m",
+                      "20 m",
+                      "400 m",
+                      "100 m"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "The area of a square garden is 200 m^{2}. How long is the diagonal?",
+                    "rationale": {
+                      "A": "The required length follows from the Pythagorean theorem for the stated dimensions. A square with area 200 has side length sqrt(200)=10sqrt(2). Its diagonal is 20 meters.",
+                      "B": "",
+                      "C": "The required length follows from the Pythagorean theorem for the stated dimensions. A square with area 200 has side length sqrt(200)=10sqrt(2). Its diagonal is 20 meters.",
+                      "D": "The required length follows from the Pythagorean theorem for the stated dimensions. A square with area 200 has side length sqrt(200)=10sqrt(2). Its diagonal is 20 meters.",
+                      "correct": "A square with area 200 has side length sqrt(200)=10sqrt(2). Its diagonal is 20 meters."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 1,
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-1e948df7-f9e0-4596-8497-d22f3183c4d3",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "e1a428ae-a44e-4ca6-a8e3-d2abe85ab60a",
+                    "assetId": "53ab53ec-c57c-4a17-8bc7-1399d218ec1b",
+                    "choices": [
+                      "√(1,924)",
+                      "√58",
+                      "√116",
+                      "√720"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "In the right triangle shown, what is the value of x?",
+                    "rationale": {
+                      "A": "",
+                      "B": "This does not equal the sum of the squared leg lengths.",
+                      "C": "This omits part of the square of the 40-unit leg.",
+                      "D": "This omits part of the square of the 18-unit leg.",
+                      "correct": "The legs are 18 and 40, so the hypotenuse is √(18²+40²)=√1,924."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 0,
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-7fc4ab2a-7d40-488a-bb86-8209e23e73e1",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "b6b67998-0aa9-41b5-bf09-3f05b32f592c",
+                    "assetId": "a8358d96-3d6a-4b29-beaa-990868587ecc",
+                    "choices": [
+                      "\\(m=2\\sqrt{2},\\ n=2\\sqrt{2}\\)",
+                      "\\(m=2,\\ n=2\\)",
+                      "\\(m=\\sqrt{2},\\ n=\\sqrt{2}\\)",
+                      "\\(m=4,\\ n=4\\)"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+                    "rationale": {
+                      "A": "",
+                      "B": "Legs of length 2 would have hypotenuse (2\\sqrt{2}), not 4.",
+                      "C": "Legs of length \\(\\sqrt{2}\\) would have hypotenuse 2, not 4.",
+                      "D": "Two legs of length 4 would have hypotenuse (4\\sqrt{2}), not 4.",
+                      "correct": "The triangle is 45°-45°-90° with hypotenuse 4. Each leg is (4/\\sqrt{2}=2\\sqrt{2})."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 0,
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-c8e4812f-cb86-4bd1-a893-4e9186aaa8a8",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "e964062e-dd0b-43cf-aba8-42e10a124d7a",
+                    "assetId": "f9d1c55f-1a19-41bc-8b75-f2ca62dcb1c4",
+                    "choices": [
+                      "\\(m=\\frac{2\\sqrt{6}}{3},\\ n=\\frac{2\\sqrt{2}}{3}\\)",
+                      "\\(m=\\frac{4\\sqrt{2}}{3},\\ n=\\frac{2\\sqrt{2}}{3}\\)",
+                      "\\(m=\\frac{4\\sqrt{2}}{3},\\ n=\\frac{2}{3}\\)",
+                      "\\(m=\\frac{2\\sqrt{2}}{3},\\ n=\\frac{4\\sqrt{2}}{3}\\)"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+                    "rationale": {
+                      "A": "",
+                      "B": "This assigns m the value of the shorter leg; the side opposite 60° must be (2\\sqrt{6}/3).",
+                      "C": "The side opposite 60° should be (2\\sqrt{6}/3), and the other leg should be half the hypotenuse, (2\\sqrt{2}/3).",
+                      "D": "The proposed leg n is longer than m, though m is opposite 60° and must be the longer leg.",
+                      "correct": "The given side (4\\sqrt{2}/3) is the hypotenuse. Opposite 60° is m, so (m=(4\\sqrt{2}/3)(\\sqrt{3}/2)=2\\sqrt{6}/3). The other leg is half the hypotenuse, (n=2\\sqrt{2}/3)."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 0,
+                    "difficulty": "medium"
+                  },
+                  {
+                    "qid": "q-322d266a-8c5b-4daa-897d-713c9564e58b",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "00a2f7a3-3c02-4ee9-a1d3-868736affccc",
+                    "assetId": null,
+                    "choices": [
+                      "2(cos 66°) + 2(cos 24°)",
+                      "(cos 66°)² + (cos 24°)²",
+                      "(cos 66°)² + (sin 24°)²",
+                      "2(cos 66°)(sin 24°)"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "Which of the following expressions is equivalent to (sin 24°)(cos 66°) + (cos 24°)(sin 66°)?",
+                    "rationale": {
+                      "A": "The calculation gives (cos 66°)² + (cos 24°)², so the claim that 2(cos 66°) + 2(cos 24°) does not match the stated relationship.",
+                      "B": "",
+                      "C": "The calculation gives (cos 66°)² + (cos 24°)², so the claim that (cos 66°)² + (sin 24°)² does not match the stated relationship.",
+                      "D": "The calculation gives (cos 66°)² + (cos 24°)², so the claim that 2(cos 66°)(sin 24°) does not match the stated relationship.",
+                      "correct": "The sine addition identity gives sin(24° + 66°) = sin(90°) = 1. The expression with squared cosine terms equals 1 because cos(66°) = sin(24°)."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 1,
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-c58f14b5-234e-463d-bc2f-5616310b1456",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "55572897-537d-42dc-a0ad-dafa22d24143",
+                    "assetId": "6180a7ad-8467-4a6f-b8d9-24b969c975fb",
+                    "choices": [],
+                    "passage": null,
+                    "section": "math",
+                    "accepted": [],
+                    "question": "In triangle XYZ, the length of side XY is 9 units shorter than the length of side XZ. The hypotenuse XZ measures 35 units. A point W lies on segment XZ such that YW is perpendicular to XZ.\nWhat is the value of the ratio YZ / YW?",
+                    "rationale": {
+                      "correct": "The stated hypotenuse is 35 and XY=35−9=26. In the right triangle, YW is the altitude to hypotenuse XZ, so YW=XY·YZ/XZ. Therefore YZ/YW=XZ/XY=35/26≈1.35."
+                    },
+                    "answerText": "1.35",
+                    "answerType": "grid-in",
+                    "difficulty": "hard"
+                  },
+                  {
+                    "qid": "q-db36f85d-1c59-4355-91ad-9973d5b2a1a2",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "8c20fa9b-aa3d-45e2-bddd-f78ff56e06c0",
+                    "assetId": null,
+                    "choices": [
+                      "√3 /_{2}",
+                      "√2 /_{2}",
+                      "-√2 /_{2}",
+                      "^{-1}/_{2}"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "The measure of angle C is ^{3π}/_{4} radians. What is the value of cos (C)?",
+                    "rationale": {
+                      "A": "The statement or value √3 /_{2} does not match the equation or data in the prompt.",
+                      "B": "The statement or value √2 /_{2} does not match the equation or data in the prompt.",
+                      "C": "",
+                      "D": "The statement or value ^{-1}/_{2} does not match the equation or data in the prompt.",
+                      "correct": "The angle is in quadrant II with reference angle π/4, so its cosine is -√2/2."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 2,
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-7477168c-9ac0-41c4-823c-87c69265ec3b",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "ad2ca3e5-d361-47d5-8bde-9d4b71997457",
+                    "assetId": "961c86df-76a3-4ea1-b787-ca97444c8358",
+                    "choices": [
+                      "x = ^{2√3 }/ _{3}, y = 2",
+                      "x = 2, y =√3",
+                      "x = √3 , y = 2",
+                      "x = ^{2√3 }/ _{3}, y =√3"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "Find the missing side lengths. Leave your answers as radicals in simplest form.",
+                    "rationale": {
+                      "A": "This gives a value for x inconsistent with the short leg 1.",
+                      "B": "",
+                      "C": "x=√3 and y=2 reverses the hypotenuse and long leg.",
+                      "D": "This gives y=√3 but x=2 is the required hypotenuse.",
+                      "correct": "In a 30-60-90 triangle, the side opposite 30° is 1, so the hypotenuse x=2 and the other leg y=√3."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 1,
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-a9450ca7-8bca-4af6-91ed-6cd18b4ddb3f",
+                    "skill": "Right triangles and trigonometry",
+                    "domain": "geometry-trig",
+                    "figure": null,
+                    "itemId": "28aa99b9-74dc-4652-8eae-0562655ded48",
+                    "assetId": "2d9d945b-9873-47ca-ae89-775902c90ce9",
+                    "choices": [
+                      "x = 6, y = 3√2",
+                      "x = 3√2 , y = 6",
+                      "x = 12, y = 3√2",
+                      "x = 12, y = 3√6"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "Find the missing side lengths. Leave your answers as radicals in simplest form",
+                    "rationale": {
+                      "A": "",
+                      "B": "This assigns the given leg as x and doubles y incorrectly.",
+                      "C": "This doubles x rather than using the 45-45-90 ratio.",
+                      "D": "Neither length follows from the given 3√2 leg.",
+                      "correct": "A 45-45-90 triangle with hypotenuse 3√2 has legs 3. Here the labeled leg is 3√2, so x=6 and y=3√2."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 0,
+                    "difficulty": "easy"
+                  }
+                ]
+              }
+            ],
+            "timeLimitSec": null
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,246 @@
+{
+  "items": [],
+  "sessions": [
+    {
+      "id": "bbf07490-e6fc-460a-9930-f3564b482b9c",
+      "form": {
+        "meta": {
+          "notes": []
+        },
+        "routing": {
+          "thresholdFraction": 0.6
+        },
+        "sections": [
+          {
+            "kind": "math",
+            "name": "Math",
+            "modules": [
+              {
+                "key": "math:1",
+                "ordinal": 1,
+                "adaptive": false,
+                "questions": [
+                  {
+                    "qid": "q-005c2399-27e7-4f30-88ef-b49c9414a6b9",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "a53d0c91-b3fc-4d03-8a5e-93896b26c073",
+                    "assetId": null,
+                    "choices": [
+                      "13",
+                      "10",
+                      "7",
+                      "4"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "A bowling league charges a one-time membership fee of $25, plus x dollars each month. If a bowler has paid $53 for the first 4 months, including the membership fee, what is the value of x?",
+                    "rationale": {
+                      "A": "This value does not agree with the calculation, which gives B.",
+                      "B": "This value does not agree with the calculation, which gives B.",
+                      "C": "",
+                      "D": "This value does not agree with the calculation, which gives B.",
+                      "correct": "$25+4x=$53 gives x=$7."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 2,
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-d321b580-3715-44ed-a010-11cee4c721d4",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "38363a07-aae9-453a-ab9e-b2d16a4da3ab",
+                    "assetId": null,
+                    "choices": [],
+                    "passage": null,
+                    "section": "math",
+                    "accepted": [],
+                    "question": "If -7(13 - 5x) + 3 = -8(13 - 5x) + 21, what is the value of 13 - 5x ?",
+                    "rationale": {
+                      "correct": "Let u=13-5x; then -7u+3=-8u+21 gives u=18."
+                    },
+                    "answerText": "18",
+                    "answerType": "grid-in",
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-07b20afd-1ffd-49fb-b997-89cbbc4d7271",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "9fd5b275-b69d-43da-9481-0d365773bfd3",
+                    "assetId": null,
+                    "choices": [],
+                    "passage": null,
+                    "section": "math",
+                    "accepted": [],
+                    "question": "If 4x + 7 = 15, what is the value of 8x - 3?",
+                    "rationale": {
+                      "correct": "The equation gives x=2, so 8x-3=13."
+                    },
+                    "answerText": "13",
+                    "answerType": "grid-in",
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-1cc640a9-9062-4ba6-b3b4-42ae90bb37b6",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "b24280a9-66db-4bfe-9af3-b9a92f66bdf0",
+                    "assetId": null,
+                    "choices": [],
+                    "passage": null,
+                    "section": "math",
+                    "accepted": [],
+                    "question": "A line in the xy-plane passes through the points (9, 1), (0, 8), (c, 0). What is the value of c?",
+                    "rationale": {
+                      "correct": "The line has slope −7/9 and y-intercept 8, so its x-intercept is 72/7."
+                    },
+                    "answerText": "72/7",
+                    "answerType": "grid-in",
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-21cfe3df-0803-4585-b2ec-a5d6f4fccbc8",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "8d398bad-08e2-4734-98ea-83cf8b3cb400",
+                    "assetId": null,
+                    "choices": [],
+                    "passage": null,
+                    "section": "math",
+                    "accepted": [],
+                    "question": "The equation x^{2 }+ 9x + 12 = 0 has a solution that can be written in the form\nx = ^{-9 +√m}/_{2} for some constant m. What is the value of m?",
+                    "rationale": {
+                      "correct": "The discriminant is 9²−4(1)(12)=33, so m=33."
+                    },
+                    "answerText": "33",
+                    "answerType": "grid-in",
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-386cb31b-4bcf-49a7-a602-01cbe87aab81",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "177a7712-120a-4d9b-8e72-8692e5d73e1c",
+                    "assetId": null,
+                    "choices": [],
+                    "passage": null,
+                    "section": "math",
+                    "accepted": [],
+                    "question": "Suppose the equation (x⁶)^{(1/5}^{)} = y^{(3/2)} is true, where x > 1 and y > 1. If y = x^{k} for some constant k, what is the value of k?",
+                    "rationale": {
+                      "correct": "Equating exponents gives 6/5=3k/2, hence k=4/5."
+                    },
+                    "answerText": "4/5",
+                    "answerType": "grid-in",
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-a93b0c0c-3a48-4431-bf78-2117b406c38c",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "c773a870-d41b-4505-92c7-26b44ea0e938",
+                    "assetId": null,
+                    "choices": [
+                      "650",
+                      "10",
+                      "90",
+                      "110"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "If 6y + 5 = 65, what is the value of 60y + 50?",
+                    "rationale": {
+                      "A": "",
+                      "B": "The stated calculation gives 650; the claim that 10 is inconsistent with the equation or data.",
+                      "C": "The stated calculation gives 650; the claim that 90 is inconsistent with the equation or data.",
+                      "D": "The stated calculation gives 650; the claim that 110 is inconsistent with the equation or data.",
+                      "correct": "60y+50 is 10 times 6y+5, so its value is 650."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 0,
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-37f53e14-c837-45f5-bf37-b445f55151c2",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "a299e896-a33f-40cb-9525-ef7dc91910dd",
+                    "assetId": null,
+                    "choices": [],
+                    "passage": null,
+                    "section": "math",
+                    "accepted": [],
+                    "question": "If the linear function 3x - 8 = kx + 13 has no solution, where k is a constant, what is the value of k?",
+                    "rationale": {
+                      "correct": "Solving the equation with the given values gives 3."
+                    },
+                    "answerText": "3",
+                    "answerType": "grid-in",
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-10a60bb5-8d09-4e17-80e7-b82d012fefbe",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "eb7fb90a-2993-4fc2-8a90-37e1df15e202",
+                    "assetId": null,
+                    "choices": [],
+                    "passage": null,
+                    "section": "math",
+                    "accepted": [],
+                    "question": "If \\(\\frac{x}{5} = 7\\), what is the value of \\(\\frac{5}{x}\\)?",
+                    "rationale": {
+                      "correct": "From \\(\\frac{x}{5} = 7\\), multiplying both sides by \\(5\\) gives \\(x = 35\\). Then \\(\\frac{5}{x} = \\frac{5}{35} = \\frac{1}{7}\\). Taking the reciprocal of both sides of \\(\\frac{x}{5} = 7\\) gives the same value."
+                    },
+                    "answerText": "1/7",
+                    "answerType": "grid-in",
+                    "difficulty": "easy"
+                  },
+                  {
+                    "qid": "q-04a685e7-27bf-4cda-baee-be4d006e556e",
+                    "skill": "Linear equations in one variable",
+                    "domain": "algebra",
+                    "figure": null,
+                    "itemId": "d8f0ff49-9660-4240-8c5d-1188e9e187d9",
+                    "assetId": null,
+                    "choices": [
+                      "z = ^{(x + 3)}/_{y}",
+                      "z = ^{(x + 12)}/_{y} − 9",
+                      "z = ^{(x + 12)}/_{y} + 9",
+                      "z = (^{x}/_{y}) + 3"
+                    ],
+                    "passage": null,
+                    "section": "math",
+                    "question": "x + 12 = y(z + 9)\n\nThe given equation relates the distinct positive variables x, y, and z. Which equation correctly represents z in terms of x and y?",
+                    "rationale": {
+                      "A": "This proposed result does not satisfy the relationship in the question; the calculation gives z = ^{(x + 12)}/_{y} − 9.",
+                      "B": "",
+                      "C": "This proposed result does not satisfy the relationship in the question; the calculation gives z = ^{(x + 12)}/_{y} − 9.",
+                      "D": "This proposed result does not satisfy the relationship in the question; the calculation gives z = ^{(x + 12)}/_{y} − 9.",
+                      "correct": "Using the information in the question gives z = ^{(x + 12)}/_{y} − 9 as the result."
+                    },
+                    "answerType": "multiple-choice",
+                    "correctIdx": 1,
+                    "difficulty": "easy"
+                  }
+                ]
+              }
+            ],
+            "timeLimitSec": null
+          }
+        ]
+      }
+    }
+  ]
+}

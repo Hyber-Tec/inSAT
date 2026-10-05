@@ -1,0 +1,38 @@
+{
+  "name": "@satify/server",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --env-file=.env --watch index.js",
+    "start": "node --env-file=.env index.js",
+    "seed:bank": "node --env-file=.env scripts/seed-bank.js",
+    "pool:topup": "node --env-file=.env scripts/topup-pool.js",
+    "check:templates": "node scripts/check-templates.js",
+    "check:similarity": "node scripts/check-similarity.js",
+    "check:scoring": "node scripts/check-scoring.js",
+    "check:practice": "node scripts/check-practice.js",
+    "check:generation": "node --test tests/generation.test.js",
+    "check:verification": "node --test tests/template-verification.test.js",
+    "check:variation": "node --test tests/variation.test.js",
+    "check:text-repair": "node --test tests/text-repair.test.js",
+    "pool:prepare": "node --env-file=.env scripts/prepare-practice-batch.js",
+    "pool:coverage": "node --env-file=.env scripts/report-practice-coverage.js",
+    "pool:vary": "node --env-file=.env scripts/vary-bank.js",
+    "pool:rebuild-templates": "node --env-file=.env scripts/rebuild-template-items.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "katex": "^0.16.47",
+    "multer": "^2.2.0",
+    "pdf-lib": "^1.17.1",
+    "pg": "^8.12.0",
+    "zod": "^3.23.8"
+  }
+}

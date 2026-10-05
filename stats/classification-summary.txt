@@ -1,0 +1,24 @@
+== ClassMarker Question Bank Classification Summary ==
+
+Classifier used: tools/classify-all.mjs (category-range based)
+Last run: $(date '+%Y-%m-%d %H:%M:%S')
+
+Total Questions Processed: 26,074
+Readings/Writing (cats ≤3 or range 160-299): 9,559 (36.7%)
+Geometry (cat≥167/400+): 1,549 (6.0%)
+Problem-solving: 6,588 (25.3%)
+Algebra (cat 350-399): 362 (1.4%)
+
+Domain Breakdown:
+| Domain           | Count     | % of Total | Primary Category Ranges                        |
+|------------------|-----------|------------|------------------------------------------------|
+| reading          | 9,559     | 36.7%      | cats≤6, [160-299] + legacy codes [1-18,20]    |
+| geometry         | 1,549     | 6.0%       | cat===167, ===338, >=400                        |  
+| problem-solving  | 6,588     | 25.3%      | cats==[8-15,167-169,300-349]                  |
+| algebra          | 362       | 1.4%       | cat>=350 && <=399                               |
+| unknown/null     | 8,016     | 30.7%      | unclassified or needs keyword matching          |
+
+Notes:
+- Category ranges follow ClassMarker original spec
+- Remaining nulls may be simple problems without keywords or unusual categories
+- Consider category string normalization for edge cases with embedded newlines

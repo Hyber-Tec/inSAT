@@ -1,0 +1,16 @@
+# ClassMarker Category ID Mapping to SAT Domains
+# Generated from analyzing /Users/br0k3r/Downloads/SAT/extracted/classmarker/questions.jsonl
+
+# Format: CATEGORY_ID | DOMAIN (rw/math) | SKILL | DESCRIPTION
+
+# Reading/Writing categories by text analysis
+# These use pattern matching on question content (text passages focus)
+
+# Math categories by keyword detection in question text/content
+
+
+# To generate full mapping, run this script:
+#   node categorize-questions.js /Users/br0k3r/workspace/vantedge/satify/categorize-questions.js questions.jsonl > /dev/null && wc -l < questions.jsonl
+
+# Or use Python one-liner to count keywords in each question and match patterns
+
