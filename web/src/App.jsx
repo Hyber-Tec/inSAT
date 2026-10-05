@@ -7,6 +7,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import Landing from './Landing.jsx';
 import { isExamApp } from './desktop.js';
 import Login from './Login.jsx';
+import SignUp from './SignUp.jsx';
 import { ROUTES, useLocation, navigate } from './nav.js';
 import AcceptInvite from './AcceptInvite.jsx';
 
@@ -41,17 +42,21 @@ function Root() {
   const { user, loading } = useAuth();
   const { pathname: path, search } = useLocation();
   useEffect(() => applyAccent(user?.branding?.accent), [user]);
-  // Once signed in, drop /sign-in from the URL so a refresh lands on the app
-  // rather than a sign-in page the user no longer needs.
+  // Once signed in, drop /sign-in or /sign-up from the URL so a refresh lands
+  // on the app rather than a page the user no longer needs.
   useEffect(() => {
-    if (user && window.location.pathname === ROUTES.signIn) navigate(ROUTES.home, { replace: true });
+    if (user && [ROUTES.signIn, ROUTES.signUp].includes(window.location.pathname)) navigate(ROUTES.home, { replace: true });
   }, [user]);
   const inviteToken = new URLSearchParams(search).get('invite');
   if (inviteToken) return <AcceptInvite token={inviteToken} />;
   if (loading) return <FullScreenSpinner />;
-  // Signed out: the landing page is the front door, sign-in its own route. The
-  // desktop exam app skips the marketing page - students open it to sign in.
-  if (!user) return path === ROUTES.signIn || isExamApp ? <Login /> : <Landing />;
+  // Signed out: the landing page is the front door, sign-in and sign-up their
+  // own routes. The desktop exam app skips the marketing page - students open
+  // it to sign in.
+  if (!user) {
+    if (path === ROUTES.signUp && !isExamApp) return <SignUp />;
+    return path === ROUTES.signIn || isExamApp ? <Login /> : <Landing />;
+  }
   const RoleApp = user.role === 'superadmin' ? SuperAdminApp : user.role === 'admin' ? AdminApp : StudentApp;
   return (
     <Suspense fallback={<FullScreenSpinner />}>

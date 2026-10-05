@@ -4,8 +4,9 @@
 // written as bare parentheses, a $ or % inside math. A student sees each as
 // raw markup or a KaTeX error.
 //
-//   node --env-file=.env scripts/repair-item-text.js            # report only
-//   node --env-file=.env scripts/repair-item-text.js --apply    # repair, keeping a backup
+//   node --env-file-if-exists=.env.local scripts/repair-item-text.js            # report only
+//   node --env-file-if-exists=.env.local scripts/repair-item-text.js --apply    # repair, keeping a backup
+// (from functions/; the emulators when FIRESTORE_EMULATOR_HOST is set, production otherwise)
 //
 // Only what a student reads is repaired (question, passage, choices,
 // explanations), in every bank, the global pool's copies included, and in
@@ -22,8 +23,10 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { query, pool } from '../lib/db.js';
-import { contentHash } from '../lib/items.js';
+import { db, target } from '../lib/firebase.js';
+import { COL, col, docOf, queryRows, writeAll } from '../lib/store.js';
+import { touched } from '../lib/pool.js';
+import { contentHash, hashRef } from '../lib/items.js';
 import { simhash } from '../lib/similarity.js';
 import { repairItemText } from '../lib/textRepair.js';
 
@@ -51,9 +54,8 @@ function hashFor(row, next) {
 }
 
 try {
-  const { rows } = await query(
-    `SELECT id, institution_id, section, source, content_hash, question, passage, choices, rationale FROM pa_items`,
-  );
+  const rows = await queryRows(col(COL.items)
+    .select('institution_id', 'section', 'source', 'content_hash', 'question', 'passage', 'choices', 'rationale'));
   const changes = [];
   const unhashed = [];
   for (const row of rows) {
@@ -76,7 +78,7 @@ try {
     }
   }
 
-  const { rows: sessions } = await query('SELECT id, form FROM pa_sessions');
+  const sessions = await queryRows(col(COL.sessions).select('form'));
   const sessionChanges = [];
   for (const sess of sessions) {
     const form = structuredClone(sess.form);
@@ -115,19 +117,24 @@ try {
       items: changes.map(({ row }) => ({ id: row.id, content_hash: row.content_hash, ...Object.fromEntries(FIELDS.map((f) => [f, row[f]])) })),
       sessions: sessionChanges.map(({ id, before }) => ({ id, form: before })),
     }, null, 2) + '\n');
+    console.log(`writing to ${target()}`);
     for (const { row, next, hash } of changes) {
-      await query(
-        `UPDATE pa_items SET question = $2, passage = $3, choices = $4::jsonb, rationale = $5::jsonb, content_hash = $6, simhash = $7
-          WHERE id = $1`,
-        [row.id, next.question, next.passage, JSON.stringify(next.choices), JSON.stringify(next.rationale), hash, simhash(next)],
-      );
+      // The repaired text, and its place in the bank when its words changed.
+      const batch = db.batch();
+      if (hash !== row.content_hash) {
+        if (row.content_hash) batch.delete(hashRef(row.institution_id, row.content_hash));
+        batch.create(hashRef(row.institution_id, hash), { item_id: row.id });
+      }
+      batch.update(col(COL.items).doc(row.id), {
+        question: next.question, passage: next.passage, choices: next.choices, rationale: next.rationale,
+        content_hash: hash, simhash: simhash(next), ...touched(),
+      });
+      await batch.commit();
     }
-    for (const c of sessionChanges) await query('UPDATE pa_sessions SET form = $2::jsonb WHERE id = $1', [c.id, JSON.stringify(c.after)]);
+    await writeAll(sessionChanges.map((c) => ['update', col(COL.sessions).doc(c.id), docOf(COL.sessions, { form: c.after })]));
     console.log(`repaired ${changes.length} items and ${sessionChanges.length} sessions; previous text saved to ${backup}`);
   }
 } catch (err) {
   console.error(err.message);
   process.exitCode = 1;
-} finally {
-  await pool.end();
 }

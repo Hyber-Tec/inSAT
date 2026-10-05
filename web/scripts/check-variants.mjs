@@ -1,6 +1,7 @@
-// Real browser + database check of the variation engine's questions.
-// Requires the local API and client, and a batch from `npm run pool:vary`.
-//   From client: npm run check:variants -- ../exports/variants-2026-09-30
+// Real browser + database check of the variation engine's questions, on the
+// emulators. Requires the local API and client (./start.sh), and a batch from
+// `npm run pool:vary`.
+//   From web: npm run check:variants -- ../exports/variants-2026-09-30
 //
 // In an isolated institution holding a set of source questions and their
 // variants, a student practises one skill twice. The check proves that
@@ -15,16 +16,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
-import { query, pool } from '../../functions/lib/db.js';
-import { hashPassword } from '../../functions/lib/auth.js';
-import { importRows } from '../../functions/lib/items.js';
+import {
+  COL, bankOf, call, close, getMany, importRows, makeAccount, makeInstitution, removeAccount, removeInstitution, stored,
+} from './fixtures.mjs';
 
 const batchDirectory = path.resolve(process.argv[2] || '../exports/variants');
 const skill = process.env.E2E_SKILL || 'Linear equations in one variable';
 const sourceCount = Number(process.env.E2E_SOURCES || 12);
 const output = path.resolve(process.env.E2E_OUTPUT || '../.logs/variants-e2e');
-const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5174';
-const apiOrigin = process.env.E2E_API_URL || 'http://localhost:3002';
+// The client, which serves the API on its own origin (the Vite proxy).
+const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5180';
+const apiOrigin = `${origin}/api`;
 fs.mkdirSync(output, { recursive: true });
 const users = [];
 const institutions = [];
@@ -32,16 +34,19 @@ const errors = [];
 const evidence = {};
 let browser;
 let page;
+let learner;
 
 async function student(institutionId) {
-  const email = `variants-${crypto.randomUUID()}@example.test`;
-  const password = crypto.randomBytes(24).toString('base64url');
-  const { rows } = await query("INSERT INTO pa_users(email,password_hash,display_name,role,institution_id,must_change_password) VALUES($1,$2,'Variant check','student',$3,false) RETURNING id", [email, await hashPassword(password), institutionId]);
-  users.push(rows[0].id);
-  return { ...rows[0], email, password };
+  const account = await makeAccount({
+    email: `variants-${crypto.randomUUID()}@example.test`, password: crypto.randomBytes(24).toString('base64url'),
+    role: 'student', institutionId, name: 'Variant check',
+  });
+  users.push(account.id);
+  return account;
 }
 
 async function login(account) {
+  learner = account;
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   page = await context.newPage();
   page.on('pageerror', (err) => errors.push(err.message));
@@ -54,7 +59,6 @@ async function login(account) {
   await page.getByRole('heading', { name: 'Start with a diagnostic test' }).waitFor();
 }
 
-const stored = async (id) => (await query('SELECT * FROM pa_sessions WHERE id=$1', [id])).rows[0];
 const served = (s) => s.form.sections.flatMap((sec) => sec.modules.flatMap((m) => m.questions || m.variants[s.routing[sec.kind]]));
 
 /** Start a one-skill practice set from the dashboard, as a student does. */
@@ -122,23 +126,22 @@ try {
 
   // The fixture institution draws on its own bank, not on insat's pool
   // (functions/lib/pool.js), so the check knows every question it can be served.
-  const { rows: fixture } = await query("INSERT INTO pa_institutions(name,slug) VALUES('Temporary variant check',$1) RETURNING id", [`qa-${crypto.randomUUID()}`]);
-  const inst = fixture[0].id;
+  const inst = await makeInstitution({ name: 'Temporary variant check', ownBank: true });
   institutions.push(inst);
-  await query('UPDATE pa_institutions SET pool_institution_id = id WHERE id = $1', [inst]);
   // Copy each source into the fixture institution, then its variants linked to the copy.
   const sourceIds = picked.map(([id]) => id);
-  const { rows: sources } = await query('SELECT * FROM pa_items WHERE id = ANY($1::uuid[])', [sourceIds]);
+  const sources = [...(await getMany(COL.items, sourceIds)).values()];
   const copy = new Map();
   for (const s of sources) {
-    const res = await importRows([{ ...s, image: null, png: null, svg: null, variant_of: null }], inst, { nearDuplicates: 'allow' });
+    let added = null;
+    const res = await importRows([{ ...s, image: null, png: null, svg: null, variant_of: null }], inst, { nearDuplicates: 'allow', onAdded: (r) => { added = r; } });
     assert.equal(res.added, 1);
-    copy.set(s.id, (await query('SELECT id FROM pa_items WHERE institution_id=$1 AND content_hash=$2', [inst, s.content_hash])).rows[0].id);
+    copy.set(s.id, added.id);
   }
   const variants = picked.flatMap(([id, vs]) => vs.map((v) => ({ ...v, variant_of: copy.get(id) })));
   const added = await importRows(variants, inst, { nearDuplicates: 'allow' });
   assert.equal(added.added, variants.length);
-  const bank = (await query('SELECT id, variant_of FROM pa_items WHERE institution_id=$1', [inst])).rows;
+  const bank = await bankOf(inst);
   const lineageOf = new Map(bank.map((r) => [r.id, r.variant_of || r.id]));
   const lineage = { of: (id) => lineageOf.get(id) || id, isVariant: (id) => Boolean(bank.find((r) => r.id === id)?.variant_of) };
 
@@ -152,7 +155,7 @@ try {
   const firstLineages = firstQs.map((q) => lineage.of(q.itemId));
   assert.equal(new Set(firstLineages).size, firstQs.length, 'a question and its variant in one set');
   const shots1 = await answerAll(first, lineage, 'set1');
-  const result1 = (await page.evaluate(async ({ url }) => (await fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem('satify_token')}` } })).json(), { url: `${apiOrigin}/api/student/sessions/${first.sessionId}/results` })).results;
+  const result1 = (await call(origin, learner, 'GET', `/api/student/sessions/${first.sessionId}/results`)).results;
   assert.equal(result1.totalCorrect, 10, 'every keyed answer, entered through the UI, is scored correct');
   const review1 = await reviewVariant(firstQs, lineage, 'set1');
   await page.getByRole('button', { name: 'Back to dashboard', exact: true }).click();
@@ -197,7 +200,7 @@ try {
   throw err;
 } finally {
   await browser?.close();
-  for (const id of users) await query('DELETE FROM pa_users WHERE id=$1', [id]);
-  for (const id of institutions) await query('DELETE FROM pa_institutions WHERE id=$1', [id]);
-  await pool.end();
+  for (const id of users) await removeAccount(id);
+  for (const id of institutions) await removeInstitution(id);
+  await close();
 }

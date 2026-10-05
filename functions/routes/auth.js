@@ -1,22 +1,32 @@
-// Auth routes: login (returns a JWT), the current user, and change-password.
+// Auth routes. Signing in happens in the browser with Firebase Auth (email and
+// password, or Google); the API knows the account by its ID token. Here: the
+// current user (made on first sign-in), a password change's "must reset"
+// clearing, and invite links.
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { query } from '../lib/db.js';
-import { verifyPassword, hashPassword, signToken, requireAuth } from '../lib/auth.js';
-import { verifyInvite } from '../lib/invite.js';
-import { asyncHandler, parseBody, unauthorized, badRequest, notFound } from '../lib/http.js';
+import { COL, col, getRow } from '../lib/store.js';
+import { ensureProfile, requireAuth, verifyRequest } from '../lib/auth.js';
+import { setPassword } from '../lib/accounts.js';
+import { readInvite, spendInvite } from '../lib/invite.js';
+import { asyncHandler, parseBody, badRequest, forbidden } from '../lib/http.js';
 
 const router = Router();
 
-// A user with what the client shows of their institution: its name, its
-// branding, and whether it is self-guided or managed.
-const WITH_INSTITUTION = `SELECT u.*, i.name AS institution_name,
-            i.logo_asset_id AS institution_logo_asset_id, i.accent AS institution_accent,
-            i.mode AS institution_mode
-       FROM pa_users u LEFT JOIN pa_institutions i ON i.id = u.institution_id`;
+/** A user row with what the client shows of their institution: its name, its
+ *  branding, and whether it is self-guided or managed. */
+export async function withInstitution(u) {
+  const i = u?.institution_id ? await getRow(COL.institutions, u.institution_id) : null;
+  return {
+    ...u,
+    institution_name: i?.name ?? null,
+    institution_logo_asset_id: i?.logo_asset_id ?? null,
+    institution_accent: i?.accent ?? null,
+    institution_mode: i?.mode ?? null,
+  };
+}
 
-/** Shape a user row for client consumption (never includes the password hash). */
+/** Shape a user row for client consumption. */
 export function publicUser(u) {
   return {
     id: u.id,
@@ -35,78 +45,41 @@ export function publicUser(u) {
   };
 }
 
-const loginSchema = z.object({ email: z.string().min(1), password: z.string().min(1) });
-
-router.post('/login', asyncHandler(async (req, res) => {
-  const { email, password } = parseBody(loginSchema, req.body);
-  const { rows } = await query(
-    `${WITH_INSTITUTION} WHERE u.email = $1 AND u.active = true`,
-    [email.toLowerCase().trim()],
-  );
-  const user = rows[0];
-  if (!user || !(await verifyPassword(password, user.password_hash))) {
-    throw unauthorized('Invalid email or password');
-  }
-  await query('UPDATE pa_users SET last_seen_at = now() WHERE id = $1', [user.id]);
-  res.json({ token: signToken(user), user: publicUser(user) });
+// The signed-in account. Its first call makes the profile: a new sign-up is a
+// student of insat's own academy.
+router.get('/me', asyncHandler(async (req, res) => {
+  const claims = await verifyRequest(req);
+  const profile = await ensureProfile(claims);
+  if (profile.active === false) throw forbidden('This account is deactivated. Contact your administrator.');
+  res.json({ user: publicUser(await withInstitution(profile)) });
 }));
 
-router.get('/me', requireAuth, asyncHandler(async (req, res) => {
-  const { rows } = await query(
-    `${WITH_INSTITUTION} WHERE u.id = $1`,
-    [req.user.sub],
-  );
-  if (!rows[0]) throw notFound('user');
-  res.json({ user: publicUser(rows[0]) });
-}));
-
-const changePwSchema = z.object({
-  currentPassword: z.string().min(1),
-  newPassword: z.string().min(6),
-});
-
-router.post('/change-password', requireAuth, asyncHandler(async (req, res) => {
-  const { currentPassword, newPassword } = parseBody(changePwSchema, req.body);
-  const { rows } = await query('SELECT * FROM pa_users WHERE id = $1', [req.user.sub]);
-  const user = rows[0];
-  if (!user || !(await verifyPassword(currentPassword, user.password_hash))) {
-    throw badRequest('Current password is incorrect');
-  }
-  await query('UPDATE pa_users SET password_hash = $1, must_change_password = false WHERE id = $2', [
-    await hashPassword(newPassword),
-    user.id,
-  ]);
+// The browser changed the password (Firebase Auth); the admin's "must reset"
+// is now done.
+router.post('/password-changed', requireAuth, asyncHandler(async (req, res) => {
+  await col(COL.users).doc(req.user.sub).update({ must_change_password: false });
   res.json({ ok: true });
 }));
 
 // --- Invites ----------------------------------------------------------------
 
 router.get('/invite/:token', asyncHandler(async (req, res) => {
-  try {
-    const { userId, email } = verifyInvite(req.params.token);
-    const { rows } = await query('SELECT display_name, role FROM pa_users WHERE id = $1 AND email = $2', [userId, email]);
-    if (!rows[0]) throw new Error('gone');
-    res.json({ valid: true, email, name: rows[0].display_name, role: rows[0].role });
-  } catch {
-    res.json({ valid: false });
-  }
+  const invite = await readInvite(req.params.token);
+  const user = invite ? await getRow(COL.users, invite.userId) : null;
+  if (!user || user.email !== invite.email) return res.json({ valid: false });
+  res.json({ valid: true, email: invite.email, name: user.display_name, role: user.role });
 }));
 
+// Choose a password from an invite; the browser then signs in with it.
 router.post('/accept-invite', asyncHandler(async (req, res) => {
   const { token, password } = parseBody(z.object({ token: z.string().min(10), password: z.string().min(6) }), req.body);
-  let payload;
-  try { payload = verifyInvite(token); } catch { throw badRequest('This invite link is invalid or has expired.'); }
-  const { rows } = await query('SELECT id FROM pa_users WHERE id = $1 AND email = $2', [payload.userId, payload.email]);
-  if (!rows[0]) throw badRequest('This invite is no longer valid.');
-  await query(
-    'UPDATE pa_users SET password_hash = $1, must_change_password = false, active = true WHERE id = $2',
-    [await hashPassword(password), payload.userId],
-  );
-  const fresh = (await query(
-    `${WITH_INSTITUTION} WHERE u.id = $1`,
-    [payload.userId],
-  )).rows[0];
-  res.json({ token: signToken(fresh), user: publicUser(fresh) });
+  const invite = await readInvite(token);
+  if (!invite) throw badRequest('This invite link is invalid or has expired.');
+  const user = await getRow(COL.users, invite.userId);
+  if (!user || user.email !== invite.email) throw badRequest('This invite is no longer valid.');
+  await setPassword(user.id, password, { mustChange: false });
+  await spendInvite(token);
+  res.json({ ok: true, email: user.email });
 }));
 
 export default router;

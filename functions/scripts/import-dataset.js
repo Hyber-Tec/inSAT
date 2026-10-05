@@ -25,17 +25,19 @@
 //         served question may sit in a student's history, so never deleted),
 //         and one the dataset carries again comes back.
 //
-// Run:
-//   node --env-file=.env scripts/import-dataset.js "/path/to/extracted/dataset" cb --dry-run
-//   node --env-file=.env scripts/import-dataset.js "/path/to/extracted/dataset" cb --replace
-//   node --env-file=.env scripts/import-dataset.js "/path/to/extracted/dataset" dsat --replace
-//   node --env-file=.env scripts/import-dataset.js "/path/to/extracted/dataset" original --institution satify --replace
+// Run (from functions/; the emulators when FIRESTORE_EMULATOR_HOST is set,
+// production otherwise):
+//   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" cb --dry-run
+//   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" cb --replace
+//   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" dsat --replace
+//   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" original --institution satify --replace
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { pool, query } from '../lib/db.js';
-import { globalPoolId, ensureGlobalPool } from '../lib/pool.js';
-import { contentHash, importRows } from '../lib/items.js';
+import { bucket, target as writingTo } from '../lib/firebase.js';
+import { COL, col, queryRows, writeAll } from '../lib/store.js';
+import { globalPoolId, ensureGlobalPool, touched } from '../lib/pool.js';
+import { contentHash, hashRef, importRows } from '../lib/items.js';
 import { repairItemText } from '../lib/textRepair.js';
 import { DOMAINS, canonicalSkill } from '../lib/taxonomy.js';
 
@@ -70,7 +72,7 @@ function originalRationale(q) {
   return out;
 }
 
-/** One dataset question -> a pa_items row, or a reason it cannot be one. */
+/** One dataset question -> an item row, or a reason it cannot be one. */
 function toRow(q) {
   if (!DOMAINS[q.section]?.includes(q.domain)) return { skip: `unknown domain ${q.domain}` };
   if (collection === 'dsat') {
@@ -129,9 +131,9 @@ async function targetInstitution() {
     return { id: await globalPoolId(), label: 'the global pool' };
   }
   if (!institutionSlug) throw new Error('original questions are served to students: name the bank with --institution <slug>');
-  const { rows } = await query('SELECT id, name FROM pa_institutions WHERE slug = $1', [institutionSlug]);
-  if (!rows[0]) throw new Error(`No institution with slug "${institutionSlug}"`);
-  return { id: rows[0].id, label: `the ${rows[0].name} bank` };
+  const [found] = await queryRows(col(COL.institutions).where('slug', '==', institutionSlug).limit(1));
+  if (!found) throw new Error(`No institution with slug "${institutionSlug}"`);
+  return { id: found.id, label: `the ${found.name} bank` };
 }
 
 /**
@@ -144,22 +146,23 @@ async function targetInstitution() {
  */
 async function syncOriginals(institutionId, rows) {
   const wanted = new Set(rows.map((r) => r.content_hash));
-  const { rows: have } = await query(
-    `SELECT id, content_hash, retired_at FROM pa_items
-      WHERE institution_id = $1 AND source = 'original' AND rationale ? 'original'`,
-    [institutionId],
-  );
+  const have = (await queryRows(col(COL.items)
+    .where('institution_id', '==', institutionId).where('source', '==', 'original')
+    .select('content_hash', 'retired_at', 'rationale')))
+    .filter((item) => item.rationale && 'original' in item.rationale);
+  const writes = [];
   let retired = 0;
   let restored = 0;
   for (const item of have) {
     if (wanted.has(item.content_hash) && item.retired_at) {
       restored += 1;
-      await query('UPDATE pa_items SET retired_at = NULL WHERE id = $1', [item.id]);
+      writes.push(['update', col(COL.items).doc(item.id), { retired_at: null, ...touched() }]);
     } else if (!wanted.has(item.content_hash) && !item.retired_at) {
       retired += 1;
-      await query('UPDATE pa_items SET retired_at = now() WHERE id = $1', [item.id]);
+      writes.push(['update', col(COL.items).doc(item.id), { retired_at: new Date(), ...touched() }]);
     }
   }
+  await writeAll(writes);
   console.log(`\nsynced with the dataset: retired ${retired}, restored ${restored}`);
 }
 
@@ -189,20 +192,24 @@ async function main() {
   if (dryRun) { console.log('\n--dry-run: nothing written.'); return; }
 
   const target = await targetInstitution();
+  console.log(`\nwriting to ${writingTo()}`);
   if (replace && servable) {
     await syncOriginals(target.id, rows);
   } else if (replace) {
     // Reference rows are never served, so no session or exam points at them;
-    // their figure assets go with them.
+    // their figure assets, and their place in the bank, go with them.
     const marker = collection === 'cb' ? 'collegeBoardId' : 'dsat';
-    const { rows: gone } = await query(
-      `DELETE FROM pa_items
-        WHERE institution_id = $1 AND source = 'reference' AND rationale ? $2
-        RETURNING asset_id`,
-      [target.id, marker],
-    );
-    const assets = gone.map((r) => r.asset_id).filter(Boolean);
-    if (assets.length) await query('DELETE FROM pa_assets WHERE id = ANY($1::uuid[])', [assets]);
+    const gone = (await queryRows(col(COL.items)
+      .where('institution_id', '==', target.id).where('source', '==', 'reference')
+      .select('content_hash', 'asset_id', 'rationale')))
+      .filter((item) => item.rationale && marker in item.rationale);
+    await writeAll(gone.flatMap((item) => [
+      ['delete', col(COL.items).doc(item.id)],
+      ...(item.content_hash ? [['delete', hashRef(target.id, item.content_hash)]] : []),
+    ]));
+    for (const id of gone.map((r) => r.asset_id).filter(Boolean)) {
+      await bucket().file(`assets/${id}`).delete({ ignoreNotFound: true });
+    }
     console.log(`\ncleared ${gone.length} earlier ${collection} reference items`);
   }
   // The College Board bank is a faithful copy: distinct questions that share a
@@ -219,5 +226,4 @@ async function main() {
 }
 
 main()
-  .catch((err) => { console.error(`\nFailed: ${err.message}`); process.exitCode = 1; })
-  .finally(() => pool.end?.());
+  .catch((err) => { console.error(`\nFailed: ${err.message}`); process.exitCode = 1; });

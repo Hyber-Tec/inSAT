@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// Question figures and academy logos are served by the API
+// (GET /api/assets/:id), never read from the bucket by a browser.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

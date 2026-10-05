@@ -1,16 +1,28 @@
+// The generation route against the Firestore emulator, with the AI provider
+// mocked: what reaches a bank, and what each model call is shown. Run it with
+// `npm run check:generation`, which starts the emulators, or against running
+// ones with FIRESTORE_EMULATOR_HOST set.
+
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { after, before, test } from 'node:test';
 
-process.env.DATABASE_URL = 'postgres://unused@localhost/unused';
+// Never against production: every write below goes to the emulator.
+assert.ok(process.env.FIRESTORE_EMULATOR_HOST, 'Run against the Firestore emulator (npm run check:generation).');
+// Off Google Cloud there is no metadata server to wait for.
+process.env.METADATA_SERVER_DETECTION ||= 'none';
 process.env.ANTHROPIC_API_KEY = 'test-only';
 process.env.REQUIRE_INSTITUTION_KEY = 'false';
 const { default: express } = await import('express');
-const { pool } = await import('../lib/db.js');
 const { default: bank } = await import('../routes/bank.js');
 const { errorHandler } = await import('../lib/http.js');
+const { COL, col, queryRows, writeAll } = await import('../lib/store.js');
+const { hashRef } = await import('../lib/items.js');
 
+const MESSAGES_API = 'https://api.anthropic.com/v1/messages';
+// A bank of its own, so the test sees only what it added.
+const SCHOOL = `test-school-${randomUUID()}`;
 const nativeFetch = globalThis.fetch;
-const originalQuery = pool.query;
 let server, endpoint, inserted, responses, prompts;
 const draft = {
   question: 'What is 25 percent of 80?', answer_type: 'multiple-choice',
@@ -19,22 +31,20 @@ const draft = {
 };
 const verdict = { i: 0, answer: 'A', single_correct: true, domain: 'problem-solving', skill: 'Percentages' };
 
+/** The questions in the test's bank. */
+const bankItems = () => queryRows(col(COL.items).where('institution_id', '==', SCHOOL));
+
 before(async () => {
-  pool.query = async (sql, params) => {
-    if (sql.includes('INSERT INTO pa_items')) { inserted.push(params); return { rows: [] }; }
-    if (sql.includes('SELECT id FROM pa_institutions')) return { rows: [{ id: 'global-test' }] };
-    if (sql.includes('FROM pa_items') || sql.includes('FROM pa_institutions')) return { rows: [] };
-    throw new Error(`Unexpected SQL: ${sql}`);
-  };
+  // Model calls are answered from `responses`; anything else (the emulators) goes out.
   globalThis.fetch = async (url, options) => {
-    assert.equal(url, 'https://api.anthropic.com/v1/messages');
+    if (String(url) !== MESSAGES_API) return nativeFetch(url, options);
     prompts.push(JSON.parse(options.body));
     assert.ok(responses.length, 'unexpected model call');
     return new Response(JSON.stringify({ content: [{ type: 'text', text: JSON.stringify(responses.shift()) }] }));
   };
   const app = express();
   app.use(express.json());
-  app.use((req, _res, next) => { req.user = { inst: 'test-school' }; next(); });
+  app.use((req, _res, next) => { req.user = { inst: SCHOOL }; next(); });
   app.use('/api/bank', bank);
   app.use(errorHandler);
   server = app.listen(0, '127.0.0.1');
@@ -43,19 +53,22 @@ before(async () => {
 });
 after(async () => {
   globalThis.fetch = nativeFetch;
-  pool.query = originalQuery;
   await new Promise((resolve) => server.close(resolve));
-  await pool.end();
+  const items = await bankItems();
+  await writeAll(items.flatMap((i) => [['delete', col(COL.items).doc(i.id)], ['delete', hashRef(SCHOOL, i.content_hash)]]));
 });
 
 async function generate(item, review, topic = 'Percentages') {
-  inserted = []; prompts = []; responses = [[item], [review]];
+  prompts = []; responses = [[item], [review]];
+  const had = new Set((await bankItems()).map((i) => i.id));
   const response = await nativeFetch(endpoint, {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ section: 'math', domain: 'problem-solving', n: 1, topic }),
   });
   assert.equal(response.status, 200);
-  return response.json();
+  const result = await response.json();
+  inserted = (await bankItems()).filter((i) => !had.has(i.id));
+  return result;
 }
 
 test('generation endpoint rejects an answer agreement with a conflicting skill', async () => {
@@ -126,11 +139,11 @@ test('verified questions preserve classification through bank, session results a
   assert.equal(result.verified, 1);
   assert.equal(result.added, 1);
   assert.equal(inserted.length, 1);
-  const params = inserted[0];
-  assert.equal(params[0], 'test-school');
-  assert.equal(params[3], 'problem-solving');
-  assert.equal(params[4], 'Percentages');
-  assert.equal(params[15], true);
+  const item = inserted[0];
+  assert.equal(item.institution_id, SCHOOL);
+  assert.equal(item.domain, 'problem-solving');
+  assert.equal(item.skill, 'Percentages');
+  assert.equal(item.verified, true);
   const blindPrompt = prompts[1].messages[0].content;
   assert.ok(!blindPrompt.includes(draft.rationale.correct));
   assert.ok(!blindPrompt.includes('Answer: A'));
@@ -138,9 +151,9 @@ test('verified questions preserve classification through bank, session results a
   const { buildResults } = await import('../lib/session.js');
   const { skillsSpec } = await import('../lib/practice.js');
   const q = instanceFromRow({
-    id: 'test-item', section: params[2], domain: params[3], skill: params[4], difficulty: params[5],
-    question: params[7], choices: JSON.parse(params[8]), correct_idx: params[9], answer_type: params[10],
-    rationale: JSON.parse(params[11]),
+    id: 'test-item', section: item.section, domain: item.domain, skill: item.skill, difficulty: item.difficulty,
+    question: item.question, choices: item.choices, correct_idx: item.correct_idx, answer_type: item.answer_type,
+    rationale: item.rationale,
   });
   const form = { sections: [{ kind: 'math', modules: [{ ordinal: 1, questions: [q] }] }] };
   const results = buildResults(form, { answers: {} }, {});

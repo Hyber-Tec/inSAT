@@ -35,10 +35,11 @@
 // saved beside the input (stage0/1/2.jsonl), so a rerun continues where the
 // last one stopped and never pays twice for a question.
 //
-// Run from functions/:
-//   node --env-file=.env scripts/import-classmarker.js <questions.jsonl> --institution satify --dry-run
-//   node --env-file=.env scripts/import-classmarker.js <questions.jsonl> --institution satify --limit 200
-//   node --env-file=.env scripts/import-classmarker.js <questions.jsonl> --institution satify
+// Run from functions/ (the emulators when FIRESTORE_EMULATOR_HOST is set,
+// production otherwise):
+//   node --env-file-if-exists=.env.local scripts/import-classmarker.js <questions.jsonl> --institution satify --dry-run
+//   node --env-file-if-exists=.env.local scripts/import-classmarker.js <questions.jsonl> --institution satify --limit 200
+//   node --env-file-if-exists=.env.local scripts/import-classmarker.js <questions.jsonl> --institution satify
 //
 // Flags:
 //   --limit N        send at most N new questions through each pass this run
@@ -64,7 +65,8 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { query, pool } from '../lib/db.js';
+import { target } from '../lib/firebase.js';
+import { COL, col, queryRows } from '../lib/store.js';
 import { config } from '../lib/config.js';
 import { DOMAINS, SKILLS, DOMAIN_LABEL, canonicalSkill, sectionForDomain } from '../lib/taxonomy.js';
 import { contentHash, importRows } from '../lib/items.js';
@@ -677,8 +679,9 @@ async function main() {
     return;
   }
 
-  const { rows: inst } = await query('SELECT id FROM pa_institutions WHERE slug = $1', [slug]);
+  const inst = await queryRows(col(COL.institutions).where('slug', '==', slug).limit(1));
   if (!inst[0]) throw new Error(`No institution with slug "${slug}"`);
+  console.log(`writing to ${target()}`);
   const cut = [];
   if (jobsMode) {
     const open = (name, n) => outstanding(name, n, dir);
@@ -691,7 +694,7 @@ async function main() {
   let creds = null;
   const ensureKey = async () => {
     creds ??= await getInstitutionCredentials(inst[0].id);
-    if (!batchSupported(creds)) throw new Error('No Anthropic API key: add one in admin Settings (or ANTHROPIC_API_KEY in functions/.env).');
+    if (!batchSupported(creds)) throw new Error('No Anthropic API key: add one in admin Settings (or ANTHROPIC_API_KEY in functions/.env.local).');
     return creds;
   };
   const pending = (name) => fs.existsSync(path.join(dir, `${name}.pending.json`));
@@ -771,5 +774,4 @@ async function main() {
 }
 
 main()
-  .catch((err) => { console.error(`\nFailed: ${err.message}`); process.exitCode = 1; })
-  .finally(() => pool.end?.());
+  .catch((err) => { console.error(`\nFailed: ${err.message}`); process.exitCode = 1; });

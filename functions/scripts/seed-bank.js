@@ -3,11 +3,13 @@
 // demo has questions out of the box. Optional: every institution can also just
 // generate from an empty bank (generation is zero-shot when the bank is empty).
 //
-//   npm run seed:bank        (from functions/)
+//   npm run seed:bank        (from functions/; the emulators when
+//                            FIRESTORE_EMULATOR_HOST is set, production otherwise)
 
-import { query } from '../lib/db.js';
+import { target } from '../lib/firebase.js';
+import { COL, col } from '../lib/store.js';
 import { contentHash, importRows } from '../lib/items.js';
-import { globalPoolId } from '../lib/pool.js';
+import { globalPoolId, POOL_SLUG } from '../lib/pool.js';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 const mc = (A, B, C, D) => ({ A, B, C, D });
@@ -117,7 +119,7 @@ const ENGLISH_EXEMPLARS = [
   },
 ];
 
-// Convert a seed exemplar into a normalized pa_items row.
+// Convert a seed exemplar into a normalized item row.
 function toRow(ex) {
   const choices = LETTERS.map((L) => String(ex.choices[L] ?? '').trim());
   const correctIdx = Math.max(0, LETTERS.indexOf(ex.answer));
@@ -143,12 +145,13 @@ function toRow(ex) {
 }
 
 async function main() {
-  const { rows } = await query("SELECT id FROM pa_institutions WHERE slug = 'satify'");
-  const instId = rows[0]?.id;
+  const found = await col(COL.institutions).where('slug', '==', POOL_SLUG).limit(1).get();
+  const instId = found.docs[0]?.id;
   if (!instId) {
     console.error('Default institution not found - start the API once first to seed it.');
     process.exit(1);
   }
+  console.log(`[insat] writing to ${target()}`);
   const seedRows = ENGLISH_EXEMPLARS.map(toRow);
   const imported = await importRows(seedRows, instId);
   console.log('[insat] seeded R&W exemplars into the default institution:', imported);

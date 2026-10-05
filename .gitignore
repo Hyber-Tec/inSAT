@@ -3,8 +3,13 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.secret.local
 web/src-tauri/target/
 web/dist/
+
+# Firebase CLI and emulators
+.firebase/
+*-debug.log
 
 # Local/tool artifacts
 .playwright-mcp/

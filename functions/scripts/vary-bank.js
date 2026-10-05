@@ -1,8 +1,11 @@
 // Grow an institution's practice pool with verified variations of its own
 // math questions (lib/variation).
 //
-//   node --env-file=.env scripts/vary-bank.js --institution satify
-//   node --env-file=.env scripts/vary-bank.js --institution satify --import
+//   node --env-file-if-exists=.env.local scripts/vary-bank.js --institution satify
+//   node --env-file-if-exists=.env.local scripts/vary-bank.js --institution satify --import
+//
+// From functions/; the emulators when FIRESTORE_EMULATOR_HOST is set,
+// production otherwise.
 //
 // Every original math question without a figure is read by the engine. It is
 // used only when the engine understands it: every piece of math parses, the
@@ -31,7 +34,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { query, pool } from '../lib/db.js';
+import { target } from '../lib/firebase.js';
+import { COL, col, getMany, queryRows, writeAll } from '../lib/store.js';
+import { touched } from '../lib/pool.js';
 import { contentHash, importRows } from '../lib/items.js';
 import { domainForSkill } from '../lib/taxonomy.js';
 import { understand, vary, ENGINE_VERSION } from '../lib/variation/engine.js';
@@ -59,32 +64,32 @@ const seedFor = (id, round) => crypto.createHash('sha256').update(`${baseSeed}:$
 
 async function main() {
   if (!Number.isInteger(perSource) || perSource < 1 || perSource > 20) throw new Error('--per-source must be an integer from 1 to 20');
-  const institution = (await query('SELECT id FROM pa_institutions WHERE slug = $1', [slug])).rows[0];
+  const [institution] = await queryRows(col(COL.institutions).where('slug', '==', slug).limit(1));
   if (!institution) throw new Error(`Unknown institution: ${slug}`);
   const inst = institution.id;
 
-
-  const { rows: sources } = await query(
-    `SELECT id, domain, skill, difficulty, question, choices, correct_idx, answer_type, answer_text, accepted, realism, rationale
-       FROM pa_items
-      WHERE institution_id = $1 AND section = 'math' AND source = 'original' AND variant_of IS NULL
-        AND retired_at IS NULL AND asset_id IS NULL AND figure IS NULL
-        AND ($2::text IS NULL OR skill = $2)
-        AND COALESCE(realism, 4) >= $3
-        AND question !~ '-{3,}' AND choices::text !~ '-{3,}'
-      ORDER BY skill, id`,
-    [inst, onlySkill, minRealism],
-  );
+  // The bank, read once: its original math questions are the sources, its
+  // variants are what a rerun tops up or syncs, and every hash it holds is a
+  // question not to make again.
+  const bank = await queryRows(col(COL.items).where('institution_id', '==', inst).select(
+    'section', 'source', 'variant_of', 'retired_at', 'asset_id', 'figure', 'domain', 'skill', 'difficulty',
+    'question', 'choices', 'correct_idx', 'answer_type', 'answer_text', 'accepted', 'realism', 'rationale', 'content_hash',
+  ));
+  const dashes = /-{3,}/;
+  const sources = bank
+    .filter((r) => r.section === 'math' && r.source === 'original' && !r.variant_of && !r.retired_at && !r.asset_id && !r.figure
+      && (onlySkill === null || r.skill === onlySkill) && (r.realism ?? 4) >= minRealism
+      && !dashes.test(r.question) && !dashes.test(JSON.stringify(r.choices)))
+    .sort((a, b) => (a.skill < b.skill ? -1 : a.skill > b.skill ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   // With --replace the batch is made whole (every source's full set) and the
   // bank is synced to it below; otherwise existing variants count toward
   // --per-source and only the shortfall is made.
-  const variantHashes = new Map((await query("SELECT id, content_hash, retired_at FROM pa_items WHERE institution_id = $1 AND source = 'variant'", [inst])).rows.map((r) => [r.content_hash, r]));
-  const hashes = new Set((await query('SELECT content_hash FROM pa_items WHERE institution_id = $1', [inst])).rows.map((r) => r.content_hash)
-    .filter((h) => !(replace && variantHashes.has(h))));
-  const existing = replace ? new Map() : new Map((await query(
-    "SELECT variant_of, count(*)::int AS n FROM pa_items WHERE institution_id = $1 AND source = 'variant' AND retired_at IS NULL GROUP BY variant_of",
-    [inst],
-  )).rows.map((r) => [r.variant_of, r.n]));
+  const variantHashes = new Map(bank.filter((r) => r.source === 'variant').map((r) => [r.content_hash, r]));
+  const hashes = new Set(bank.map((r) => r.content_hash).filter((h) => !(replace && variantHashes.has(h))));
+  const existing = new Map();
+  if (!replace) {
+    for (const r of bank) if (r.source === 'variant' && !r.retired_at) existing.set(r.variant_of, (existing.get(r.variant_of) || 0) + 1);
+  }
 
   const rows = [];
   const records = [];
@@ -157,6 +162,7 @@ async function main() {
   let imported = null;
   let bankIds = [];
   if (shouldImport && (rows.length || replace)) {
+    console.log(`writing to ${target()}`);
     let restored = 0;
     let retired = 0;
     const fresh = rows.filter((r) => !variantHashes.has(r.content_hash));
@@ -164,13 +170,16 @@ async function main() {
       // Sync: the same question comes back, a dropped one is retired (never
       // deleted: a served question stays in its session).
       const keep = new Set(rows.map((r) => r.content_hash));
+      const writes = [];
       for (const [hash, v] of variantHashes) {
-        if (keep.has(hash) && v.retired_at) { await query('UPDATE pa_items SET retired_at = NULL WHERE id = $1', [v.id]); restored += 1; }
-        if (!keep.has(hash) && !v.retired_at) { await query('UPDATE pa_items SET retired_at = now() WHERE id = $1', [v.id]); retired += 1; }
+        if (keep.has(hash) && v.retired_at) { writes.push(['update', col(COL.items).doc(v.id), { retired_at: null, ...touched() }]); restored += 1; }
+        if (!keep.has(hash) && !v.retired_at) { writes.push(['update', col(COL.items).doc(v.id), { retired_at: new Date(), ...touched() }]); retired += 1; }
       }
+      await writeAll(writes);
     }
     imported = { ...(await importRows(fresh, inst, { nearDuplicates: 'allow' })), restored, retired };
-    bankIds = (await query('SELECT id, content_hash FROM pa_items WHERE institution_id = $1 AND content_hash = ANY($2::text[])', [inst, rows.map((r) => r.content_hash)])).rows;
+    const locks = await getMany(COL.itemHashes, rows.map((r) => `${inst}_${r.content_hash}`));
+    bankIds = [...locks.values()].map((lock) => ({ id: lock.item_id, content_hash: lock.id.slice(inst.length + 1) }));
   }
   const manifest = {
     generatedAt: new Date().toISOString(),
@@ -237,6 +246,4 @@ try {
 } catch (err) {
   console.error(err.message);
   process.exitCode = 1;
-} finally {
-  await pool.end();
 }

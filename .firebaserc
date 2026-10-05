@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "insat-hyber"
+  },
+  "targets": {
+    "insat-hyber": {
+      "hosting": {
+        "app": ["insatprep"]
+      }
+    }
+  }
+}

@@ -32,14 +32,15 @@ export const parseBody = (schema, body) => {
 
 /** Express error handler - must be registered last. */
 export const errorHandler = (err, _req, res, _next) => {
-  // Postgres refusing to read a value as its column's type (22P02) means the
-  // request carried a malformed value, in practice an id in the URL: a bad
-  // request, not a server fault, and no database message for the client.
-  if (!err.status && err.code === '22P02') err = badRequest('Malformed id or value in the request.');
-  const status = err.status || 500;
+  // The AI client marks its own errors with a statusCode (a rejected key is the
+  // admin's to fix, a 400; an unreachable service a 502).
+  const status = err.status || err.statusCode || 500;
   if (status >= 500) console.error('[api]', err);
+  // A fault with no status of its own is ours (a database error, a bug): log
+  // it, and tell the client no more than that.
+  const ours = !err.status && !err.statusCode;
   res.status(status).json({
-    error: err.code || 'error',
-    message: err.message || 'Internal server error',
+    error: typeof err.code === 'string' && !ours ? err.code : 'error',
+    message: ours ? 'Something went wrong on our side. Please try again.' : (err.message || 'Internal server error'),
   });
 };

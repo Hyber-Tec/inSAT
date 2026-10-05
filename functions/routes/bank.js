@@ -7,9 +7,8 @@
 // imported into this bank.
 
 import { Router } from 'express';
-import multer from 'multer';
 import { z } from 'zod';
-import { query } from '../lib/db.js';
+import { COL, col, getRow, queryRows } from '../lib/store.js';
 import { asyncHandler, parseBody, badRequest, notFound } from '../lib/http.js';
 import { DOMAINS, DOMAIN_LABEL, isValidDomain } from '../lib/taxonomy.js';
 import { config } from '../lib/config.js';
@@ -17,14 +16,26 @@ import { generateQuestions } from '../lib/generate.js';
 import { extractFromUploads } from '../lib/ingest.js';
 import { importRows, insertManualItem, rowToBankItem, updateBankItem } from '../lib/items.js';
 import { aiStatus, getInstitutionCredentials } from '../lib/institutions.js';
-import { POOL_SOURCES } from '../lib/pool.js';
+import { POOL_SOURCES, touched } from '../lib/pool.js';
+import { multipart } from '../lib/upload.js';
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024, files: 10 } });
+const upload = multipart({ field: 'files', files: 10, fileSize: 25 * 1024 * 1024 });
 const inst = (req) => req.user.inst;
 // An academy's own questions. insat's own institution also holds the pool,
 // which is never listed, edited or retired here (lib/pool.js).
-const OWN = 'NOT (source = ANY($2::text[]))';
+const own = (r) => !POOL_SOURCES.includes(r.source);
+
+/** This institution's own live questions. */
+const ownItems = async (institutionId) => (await queryRows(
+  col(COL.items).where('institution_id', '==', institutionId).where('retired_at', '==', null),
+)).filter(own);
+
+/** One of this institution's own questions, or null. */
+async function ownItem(id, institutionId) {
+  const r = await getRow(COL.items, id);
+  return r && r.institution_id === institutionId && own(r) ? r : null;
+}
 
 // The institution's own LLM credentials (provider + key + optional model) so
 // generation bills to them, not the platform. Enforces REQUIRE_INSTITUTION_KEY;
@@ -39,12 +50,13 @@ async function resolveCreds(req) {
 
 // Bank meta: counts by section/domain/difficulty for THIS institution.
 router.get('/meta', asyncHandler(async (req, res) => {
-  const { rows } = await query(
-    `SELECT section, domain, difficulty, COUNT(*)::int AS n
-       FROM pa_items WHERE institution_id = $1 AND retired_at IS NULL AND ${OWN}
-      GROUP BY section, domain, difficulty`,
-    [inst(req), POOL_SOURCES],
-  );
+  const groups = new Map();
+  for (const r of await ownItems(inst(req))) {
+    const key = `${r.section}|${r.domain}|${r.difficulty}`;
+    if (!groups.has(key)) groups.set(key, { section: r.section, domain: r.domain, difficulty: r.difficulty, n: 0 });
+    groups.get(key).n += 1;
+  }
+  const rows = [...groups.values()];
   res.json({
     total: rows.reduce((a, b) => a + b.n, 0),
     counts: rows,
@@ -57,17 +69,12 @@ router.get('/meta', asyncHandler(async (req, res) => {
 // List items (this institution), with optional filters.
 router.get('/items', asyncHandler(async (req, res) => {
   const { section, domain, difficulty, search } = req.query;
-  const where = ['institution_id = $1', OWN, 'retired_at IS NULL'];
-  const params = [inst(req), POOL_SOURCES];
-  let i = 3;
-  if (section) { where.push(`section = $${i++}`); params.push(section); }
-  if (domain) { where.push(`domain = $${i++}`); params.push(domain); }
-  if (difficulty) { where.push(`difficulty = $${i++}`); params.push(difficulty); }
-  if (search) { where.push(`question ILIKE $${i++}`); params.push(`%${search}%`); }
-  const { rows } = await query(
-    `SELECT * FROM pa_items WHERE ${where.join(' AND ')} ORDER BY created_at DESC LIMIT 500`,
-    params,
-  );
+  const needle = search ? String(search).toLowerCase() : null;
+  const rows = (await ownItems(inst(req)))
+    .filter((r) => (!section || r.section === section) && (!domain || r.domain === domain)
+      && (!difficulty || r.difficulty === difficulty) && (!needle || String(r.question).toLowerCase().includes(needle)))
+    .sort((a, b) => b.created_at - a.created_at)
+    .slice(0, 500);
   res.json({ items: rows.map(rowToBankItem) });
 }));
 
@@ -96,7 +103,7 @@ router.post('/generate', asyncHandler(async (req, res) => {
 }));
 
 // Upload images / PDFs; the vision model extracts each question, we import them.
-router.post('/ingest', upload.array('files'), asyncHandler(async (req, res) => {
+router.post('/ingest', upload, asyncHandler(async (req, res) => {
   const files = req.files || [];
   if (!files.length) throw badRequest('No files uploaded');
   const creds = await resolveCreds(req);
@@ -139,15 +146,15 @@ const editSchema = z.object({
 
 router.patch('/items/:id', asyncHandler(async (req, res) => {
   const d = parseBody(editSchema, req.body);
-  const own = await query(`SELECT 1 FROM pa_items WHERE institution_id = $1 AND ${OWN} AND id = $3`, [inst(req), POOL_SOURCES, req.params.id]);
-  if (!own.rows.length) throw notFound('item');
+  if (!(await ownItem(req.params.id, inst(req)))) throw notFound('item');
   const item = await updateBankItem(req.params.id, inst(req), d);
   if (!item) throw notFound('item');
   res.json({ item });
 }));
 
 router.delete('/items/:id', asyncHandler(async (req, res) => {
-  await query(`UPDATE pa_items SET retired_at = now() WHERE institution_id = $1 AND ${OWN} AND id = $3`, [inst(req), POOL_SOURCES, req.params.id]);
+  const item = await ownItem(req.params.id, inst(req));
+  if (item && !item.retired_at) await col(COL.items).doc(item.id).update({ retired_at: new Date(), ...touched() });
   res.json({ ok: true });
 }));
 

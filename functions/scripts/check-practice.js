@@ -6,9 +6,7 @@
 
 import assert from 'node:assert/strict';
 
-// lib/practice.js also holds the database-backed profile. Nothing here queries,
-// but loading the module reads the config, which requires a database URL.
-process.env.DATABASE_URL ||= 'postgres://unused@localhost/unused';
+// lib/practice.js also holds the Firestore-backed profile; nothing here reads it.
 const {
   mastery, level, practiceDifficulty, perSkillFor, skillsSpec, sectionSpec, practiceTitle,
 } = await import('../lib/practice.js');

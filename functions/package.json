@@ -1,38 +1,47 @@
 {
-  "name": "@satify/server",
-  "version": "0.2.0",
+  "name": "@insat/functions",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
+  "main": "index.js",
   "engines": {
-    "node": ">=20"
+    "node": "22"
   },
   "scripts": {
-    "dev": "node --env-file=.env --watch index.js",
-    "start": "node --env-file=.env index.js",
-    "seed:bank": "node --env-file=.env scripts/seed-bank.js",
-    "pool:topup": "node --env-file=.env scripts/topup-pool.js",
+    "api": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8090 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9109 FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9209 node --env-file-if-exists=.env.local server.js",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "migrate:postgres": "node --env-file-if-exists=.env.local scripts/migrate-from-postgres.js",
+    "seed:bank": "node --env-file-if-exists=.env.local scripts/seed-bank.js",
+    "pool:topup": "node --env-file-if-exists=.env.local scripts/topup-pool.js",
+    "pool:sync": "node --env-file-if-exists=.env.local scripts/sync-global-pool.js",
+    "pool:prepare": "node --env-file-if-exists=.env.local scripts/prepare-practice-batch.js",
+    "pool:coverage": "node --env-file-if-exists=.env.local scripts/report-practice-coverage.js",
+    "pool:vary": "node --env-file-if-exists=.env.local scripts/vary-bank.js",
+    "pool:rebuild-templates": "node --env-file-if-exists=.env.local scripts/rebuild-template-items.js",
     "check:templates": "node scripts/check-templates.js",
     "check:similarity": "node scripts/check-similarity.js",
     "check:scoring": "node scripts/check-scoring.js",
     "check:practice": "node scripts/check-practice.js",
-    "check:generation": "node --test tests/generation.test.js",
+    "check:generation": "firebase emulators:exec --only firestore,storage --project demo-insat 'node --test tests/generation.test.js'",
     "check:verification": "node --test tests/template-verification.test.js",
     "check:variation": "node --test tests/variation.test.js",
-    "check:text-repair": "node --test tests/text-repair.test.js",
-    "pool:prepare": "node --env-file=.env scripts/prepare-practice-batch.js",
-    "pool:coverage": "node --env-file=.env scripts/report-practice-coverage.js",
-    "pool:vary": "node --env-file=.env scripts/vary-bank.js",
-    "pool:rebuild-templates": "node --env-file=.env scripts/rebuild-template-items.js"
+    "check:text-repair": "node --test tests/text-repair.test.js"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
+    "busboy": "^1.6.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2",
+    "firebase-admin": "^14.5.0",
+    "firebase-functions": "^7.4.0",
     "katex": "^0.16.47",
-    "multer": "^2.2.0",
     "pdf-lib": "^1.17.1",
-    "pg": "^8.12.0",
     "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "pg": "^8.12.0"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
   }
 }

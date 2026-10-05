@@ -1,8 +1,10 @@
 // Generate, independently solve, export, and optionally import a real math batch.
-// node --env-file=.env scripts/prepare-practice-batch.js --institution satify --import
+// node --env-file-if-exists=.env.local scripts/prepare-practice-batch.js --institution satify --import
+// (from functions/; the emulators when FIRESTORE_EMULATOR_HOST is set, production otherwise)
 import fs from 'node:fs';
 import path from 'node:path';
-import { query, pool } from '../lib/db.js';
+import { target } from '../lib/firebase.js';
+import { COL, col, getMany, queryRows } from '../lib/store.js';
 import { MATH_TEMPLATES } from '../lib/templates/math.js';
 import { templateRows, importTemplateRows } from '../lib/templateItems.js';
 import { verifyTemplateItem } from './check-templates.js';
@@ -20,9 +22,9 @@ const templateIds = ['alg-linear-solve', 'adv-equivalent', 'ps-mean-missing', 'g
 try {
   if (!Number.isInteger(count) || count < 1 || count > 100) throw new Error('--per-skill must be an integer from 1 to 100');
   if (fs.existsSync(output)) throw new Error('Output directory already exists; choose a new --output path');
-  const institution = (await query('SELECT id FROM pa_institutions WHERE slug=$1', [slug])).rows[0];
+  const [institution] = await queryRows(col(COL.institutions).where('slug', '==', slug).limit(1));
   if (!institution) throw new Error(`Unknown institution: ${slug}`);
-  const existing = new Set((await query('SELECT content_hash FROM pa_items WHERE institution_id=$1', [institution.id])).rows.map((r) => r.content_hash));
+  const existing = new Set((await col(COL.items).where('institution_id', '==', institution.id).select('content_hash').get()).docs.map((d) => d.get('content_hash')));
   const rows = [], records = [], checks = [];
   const seed = Date.now() % 1000000;
   for (const templateId of templateIds) {
@@ -46,10 +48,13 @@ try {
   fs.mkdirSync(output, { recursive: true });
   fs.writeFileSync(path.join(output, 'questions.jsonl'), records.map((r) => JSON.stringify(r)).join('\n') + '\n');
   fs.writeFileSync(path.join(output, 'verification.json'), JSON.stringify(checks, null, 2) + '\n');
+  if (shouldImport) console.log(`writing to ${target()}`);
   const imported = shouldImport ? await importTemplateRows(rows, institution.id) : null;
-  const bankIds = shouldImport ? (await query('SELECT id,content_hash FROM pa_items WHERE institution_id=$1 AND content_hash=ANY($2::text[])', [institution.id, rows.map((r) => r.content_hash)])).rows : [];
+  const bankIds = shouldImport
+    ? [...(await getMany(COL.itemHashes, rows.map((r) => `${institution.id}_${r.content_hash}`))).values()]
+      .map((lock) => ({ id: lock.item_id, content_hash: lock.id.slice(institution.id.length + 1) }))
+    : [];
   const manifest = { generatedAt: new Date().toISOString(), institution: slug, generation: 'deterministic-math-templates', independentVerification: 'Answers re-derived from the exact rendered stems; classification checked against the canonical template taxonomy.', questions: rows.length, skills: templateIds.map((id) => { const t = MATH_TEMPLATES.find((t) => t.id === id); return { domain: t.domain, skill: t.skill, difficulty: t.difficulty, count }; }), imported, bankIds };
   fs.writeFileSync(path.join(output, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   console.log(JSON.stringify({ output, questions: rows.length, imported, persisted: bankIds.length }));
 } catch (err) { console.error(err.message); process.exitCode = 1; }
-finally { await pool.end(); }

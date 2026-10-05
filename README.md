@@ -19,20 +19,29 @@ key; those stay private to it.
 
 ## Architecture
 
+insat runs on Firebase (project `insat-hyber`): the web app on Firebase
+Hosting at **https://insatprep.web.app**, the API as a Cloud Function behind
+it (`/api/**`), the data in Cloud Firestore, figures and logos in Cloud
+Storage, and sign-in with Firebase Authentication (email and password, or
+Google).
+
 ```
-web/   React + Vite SPA, Tailwind CSS + shadcn/ui (see "The interface")
+web/         React + Vite SPA, Tailwind CSS + shadcn/ui (see "The interface"); Firebase Hosting
   src/components/ui/  shadcn/ui components; src/ui.jsx  the app's shared pieces
+  src/firebase.js     the Firebase app and Auth; auth.jsx  who is signed in; api.js  the API client
   src/super/    superadmin console - provision institutions + their first admin
   src/admin/    institution admin - student accounts, progress, settings; when managed,
                 groups, tests (SAT tests, and custom tests from uploads or AI), assignments
                 and a page per student
   src/student/  student - diagnostic, skill profile, practice sets (self-guided) or assigned
                 work (managed), the adaptive test runner, results
-functions/   Node + Express API (ESM), Postgres via `pg`, JWT auth (bcrypt)
-  lib/      db, auth, crypto, taxonomy, scoring, blueprints, assembly (unique forms),
-            items (import/normalize), session (scoring), provision,
+functions/   the API: Node + Express (ESM) as the `api` Cloud Function (index.js, app.js)
+  lib/      firebase (Admin SDK), store (Firestore access), auth (ID tokens + profiles),
+            accounts, invite, assets (Storage), upload (multipart), crypto, taxonomy,
+            scoring, blueprints, assembly (unique forms), items (import/normalize),
+            session + sessions (scoring, the session documents),
             practice (skill profile + practice specs), modes (self-guided / managed),
-            pool (insat's shared question pool), examForm (custom tests)
+            pool (insat's shared question pool, cached per instance), examForm (custom tests)
             templates/  deterministic math item generators (no model, no cost)
             templateItems.js  template rows for the bank, built on demand or offline
             variation/  the variation engine: new verified questions from the bank's own
@@ -40,37 +49,74 @@ functions/   Node + Express API (ESM), Postgres via `pg`, JWT auth (bcrypt)
             batch.js    Anthropic Message Batches - offline generation at half price
             similarity.js  SimHash near-duplicate detection for the bank
   routes/   auth, super, admin (+ bank, settings), student
-db/       schema.sql (base) + migrate.sql (multi-tenant, idempotent)
+  scripts/  offline tools: imports, pool top-ups, repairs, the Postgres migration
+firebase.json         Hosting (site insatprep), Functions, Firestore, Storage, emulators
+firestore.rules       no browser reads or writes: everything goes through the API
+firestore.indexes.json  composite indexes, and the large fields left unindexed
+storage.rules         the same for Storage
 ```
 
 **Roles:** `superadmin` (platform owner - creates institutions + admins) ·
 `admin` (institution‑scoped) · `student` (belongs to one institution).
 
-**Data model:** every tenant table carries an `institution_id`; the API scopes
-every query by the caller's institution, so an academy only ever sees its own
-data. Blueprints (the CB test structure) are global templates shared by all,
-and every institution's tests and practice draw on insat's question pool
-(`functions/lib/pool.js`).
+**Accounts:** anyone can sign up (email and password, or Google) and becomes a
+student of insat's own self-guided academy. An academy's admin makes its
+students' accounts (a starting password or an invite link); the platform owner
+makes institutions and their admins. The platform owners are the verified
+emails in `SUPERADMIN_EMAILS` (`functions/.env.insat-hyber`): one of them signed
+in is the superadmin. Firebase Auth holds the sign-in; each account's profile
+(role, institution, active) is a `users` document the API reads on every
+request.
+
+**Data model:** one Firestore collection per kind of record (`institutions`,
+`users`, `groups`, `items`, `blueprints`, `exams`, `examFolders`,
+`assignments`, `sessions`, `invites`), each document keeping the field names
+(snake_case) and ids (UUIDs) the Postgres tables had. Every tenant document
+carries an `institution_id`; the API scopes every query by the caller's
+institution, so an academy only ever sees its own data. A session holds its
+form, resume state and, once finished, one response per question served.
+Blueprints (the CB test structure) are global templates shared by all, and
+every institution's tests and practice draw on insat's question pool
+(`functions/lib/pool.js`). The browser never reads Firestore or Storage
+directly: the rules refuse it, and the API (the Admin SDK) does it all.
 
 ## Run it
 
-Prereqs: Docker (for local Postgres) and Node 22.12 or newer (or 20.19+). An
-`ANTHROPIC_API_KEY` in `functions/.env` is optional: the platform fallback for a
-managed academy's uploads and AI-written questions when it has no key of its
-own.
+Prereqs: Node 22 or newer, Java 21 or newer (the Firestore emulator), and the
+Firebase CLI (`npm i -g firebase-tools`, signed in with `firebase login`).
+Copy `web/.env.example` to `web/.env.local` and fill in the Firebase web config
+(Firebase console, Project settings, Your apps, inSAT). Then:
 
 ```bash
 ./start.sh
 ```
 
-This brings up Postgres (`:5434`), the API (`:3002`) and the client (`:5174`),
-applies the schema + migrations, and seeds the accounts below.
-Then open **http://localhost:5174**.
+This starts the Firebase emulators (Auth `:9109`, Firestore `:8090`, Storage
+`:9209`, the `api` function `:5011`, the Emulator UI `:4010`) and the web app
+(`:5180`, with `/api` proxied to the function as Hosting does in production).
+Open **http://localhost:5180** and make an account on the sign-up page.
+"Continue with Google" offers the Auth emulator's test accounts; a Google
+sign-in with an address in `SUPERADMIN_EMAILS` (`functions/.env.local`) is the
+platform owner. The emulators keep their data in `.logs/emulator-data`.
+
+The ports differ from Firebase's and Vite's defaults so insat runs beside
+other projects. `cd functions && npm run api` serves the same API on `:3002`
+outside the Functions emulator (the browser checks use it).
 
 insat's question pool is the bank of the default institution (insat, slug
 `satify`), and every institution's tests and practice draw on it. It is filled
-by the original-question import and the math templates (see below); there is
-nothing to seed before a student can start.
+by the original-question import and the math templates (see below); math can
+be served from the first test, Reading and Writing once the originals are
+imported.
+
+**Admin scripts and their target.** Everything under `functions/scripts/` runs
+with `node --env-file-if-exists=.env.local` (or its `npm run` name) and writes
+to the emulators when `FIRESTORE_EMULATOR_HOST`, `FIREBASE_AUTH_EMULATOR_HOST`
+and `FIREBASE_STORAGE_EMULATOR_HOST` are set (see `functions/.env.example`),
+and to production otherwise, with Application Default Credentials
+(`gcloud auth application-default login`, then
+`gcloud auth application-default set-quota-project insat-hyber`). Each script
+says which before it writes.
 
 ### Filling the pool ahead of time
 
@@ -141,7 +187,7 @@ npm run check:self-guided -- ../exports/verified-practice-2026-09-30
 
 The check creates temporary students and an isolated institution for the new
 batch (pointed at its own bank with `pool_institution_id`, so it is served the
-batch and not insat's pool) and removes those fixtures afterward. It uses the local database and
+batch and not insat's pool) and removes those fixtures afterward. It uses the emulators and
 writes screenshots and results to `.logs/self-guided-e2e/`. Normal practice
 assembly can add math template questions to the default institution's bank during the check.
 
@@ -250,9 +296,9 @@ the sources. Import it with:
 
 ```bash
 cd functions
-node --env-file=.env scripts/import-dataset.js "/path/to/SAT/extracted/dataset" cb --dry-run
-node --env-file=.env scripts/import-dataset.js "/path/to/SAT/extracted/dataset" cb --replace
-node --env-file=.env scripts/import-dataset.js "/path/to/SAT/extracted/dataset" dsat --replace
+node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/SAT/extracted/dataset" cb --dry-run
+node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/SAT/extracted/dataset" cb --replace
+node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/SAT/extracted/dataset" dsat --replace
 ```
 
 Import `cb` first: a practice-test question the bank already holds is skipped,
@@ -277,7 +323,7 @@ matches the key. They are imported into an institution's own bank as
 `source='original'`, which students are served:
 
 ```bash
-node --env-file=.env scripts/import-dataset.js "/path/to/SAT/extracted/dataset" original --institution satify --replace
+node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/SAT/extracted/dataset" original --institution satify --replace
 ```
 
 `--replace` here syncs the bank with the dataset: a question the dataset
@@ -302,27 +348,27 @@ math or a table into text and keeps at most one real figure as the question's
 picture.
 
 ```bash
-node --env-file=.env scripts/import-classmarker.js /path/to/classmarker/questions.jsonl --institution satify --dry-run
-node --env-file=.env scripts/import-classmarker.js /path/to/classmarker/questions.jsonl --institution satify --limit 200
+node --env-file-if-exists=.env.local scripts/import-classmarker.js /path/to/classmarker/questions.jsonl --institution satify --dry-run
+node --env-file-if-exists=.env.local scripts/import-classmarker.js /path/to/classmarker/questions.jsonl --institution satify --limit 200
 ```
 
-### Default accounts (change these before hosting)
+### Accounts
 
-| Role | Email | Password |
-|------|-------|----------|
-| Superadmin | `superadmin@satify.test` | `satify-super` |
-| Admin (demo institution) | `admin@satify.test` | `satify-admin` |
-
-The superadmin creates new institutions and their first admin; that admin
-invites their own students (credentials are shown once so they can be shared).
+There are no default accounts or passwords. The platform owner signs in with
+Google as one of `SUPERADMIN_EMAILS`, creates institutions and their first
+admin, and that admin makes their own students (a starting password, shown
+once, or an invite link). Anyone else who signs up is a self-guided student of
+insat's own academy.
 
 ## LLM API keys (per institution)
 
 Each institution sets its **own Anthropic API key** in the admin **Settings**
 tab, so generation/upload bills to them - not the platform. Keys are encrypted
-at rest and never returned to the browser. If an institution has no key, the
-platform fallback (`ANTHROPIC_API_KEY` in `functions/.env`) is used unless
-`REQUIRE_INSTITUTION_KEY=true`, which forces each institution to bring its own.
+at rest (with the `ENCRYPTION_KEY` secret) and never returned to the browser.
+If an institution has no key, the platform fallback (`ANTHROPIC_API_KEY`) is
+used unless `REQUIRE_INSTITUTION_KEY=true`, which forces each institution to
+bring its own. Production sets it true and binds no platform key; locally,
+`functions/.env.local` holds both, and the offline scripts bill that key.
 
 ## How a practice test works
 
@@ -372,11 +418,11 @@ one was cloned from) did, on this question pool and interface:
 
 - **Groups** of students, to give work to a whole class at once.
 - **Tests**: the full SAT, Reading and Writing, or Math, timed or untimed
-  (`pa_exams.kind = 'sat'` with a `scope`). Every student who is given a test
+  (`exams.kind = 'sat'` with a `scope`). Every student who is given a test
   gets their own form, assembled from insat's pool and specs exactly as a
   self-guided test is. Tests can be filed in folders (a folder is assigned at
   once), locked until a release time, or hidden from students.
-- **Custom tests** (`pa_exams.kind = 'fixed'`): the academy's own questions,
+- **Custom tests** (`exams.kind = 'fixed'`): the academy's own questions,
   the same for every student. AI reads them out of uploaded PDFs or images
   (a whole practice test works, its answer key included), or writes them for a
   chosen domain or skill, each one solved again and kept only when that check
@@ -387,7 +433,7 @@ one was cloned from) did, on this question pool and interface:
   has no scaled score). Uploads and AI run on the academy's own LLM API key
   (Settings), or the platform's when it has none.
 - **Assignments**: a test, or practice topics, given to any number of students
-  and groups at once, with an optional due date (`pa_assignments.kind` is
+  and groups at once, with an optional due date (`assignments.kind` is
   `exam` or `practice`); a test already given to someone is skipped.
 - **A page per student**: their skill map, test history and assigned work.
   Practice topics are assigned from the skill map, starting from the
@@ -468,16 +514,29 @@ on screen.
 
 ## Hosting
 
-The DB layer is addressed by `DATABASE_URL`, so the same code runs locally
-(Docker Postgres) and in production (Neon / Railway / Supabase) with one env
-swap. Recommended: client → Cloudflare Pages/Vercel; API → Railway/Render;
-Postgres → **Neon**.
+Firebase, project `insat-hyber`: Hosting site `insatprep`
+(https://insatprep.web.app) serves `web/dist` and rewrites `/api/**` to the
+`api` function (us-central1); Firestore is `(default)` in `nam5`. Hosting
+gives a rewritten request 60 seconds, so the AI requests that can run longer
+(reading an upload, writing questions) go straight to the function's own URL
+(`VITE_API_DIRECT_URL`, `web/.env.production`). A daily `syncPool` function
+copies new pool questions into the generation pool. Deploying, the secrets and
+the one-time Postgres migration are in [DEPLOY.md](DEPLOY.md).
 
-## Config (`functions/.env`)
+## Config
 
-`DATABASE_URL`, `JWT_SECRET`, `ENCRYPTION_KEY` (for institution API keys),
-`SATGEN_URL`, `PORT`, `CLIENT_ORIGIN`, `SUPERADMIN_*`, `ADMIN_*`,
-`REQUIRE_INSTITUTION_KEY`. See `functions/.env.example`.
+- `functions/.env.insat-hyber` (committed, no secrets): `CLIENT_ORIGIN` (the
+  app's origins; invite links use the first), `SUPERADMIN_EMAILS`,
+  `REQUIRE_INSTITUTION_KEY`, `MAIL_FROM`.
+- Secret Manager: `ENCRYPTION_KEY` (encrypts academies' AI keys at rest;
+  `firebase functions:secrets:set ENCRYPTION_KEY`).
+- `functions/.env.local` (git-ignored, from `functions/.env.example`): the same
+  for the emulators and scripts, plus `ANTHROPIC_API_KEY`, `RESEND_API_KEY`,
+  model overrides. `functions/.secret.local` gives the emulators their
+  `ENCRYPTION_KEY`.
+- `web/.env.local` (git-ignored, from `web/.env.example`): the Firebase web
+  config and `VITE_DESMOS_API_KEY`; `web/.env.development.local` points the app
+  at the Auth emulator.
 
 ## License
 

@@ -1,7 +1,8 @@
 // End-to-end check of an institution-managed academy, driven in a real browser
-// the way its people use it. Requires the local API and client (`./start.sh`).
+// the way its people use it. Requires the local API and client (`./start.sh`),
+// on the emulators.
 //
-//   From client: npm run check:managed
+//   From web: npm run check:managed
 //
 // A temporary platform owner creates a managed academy and its admin. The
 // admin adds two students, makes a group, creates a Full SAT (drawn from
@@ -19,11 +20,13 @@ import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { query, pool } from '../../functions/lib/db.js';
-import { hashPassword } from '../../functions/lib/auth.js';
+import {
+  ask, close, institutionsNamed, makeAccount, removeAccount, removeInstitution,
+} from './fixtures.mjs';
 
-const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5174';
-const apiOrigin = process.env.E2E_API_URL || 'http://localhost:3002';
+// The client, which serves the API on its own origin (the Vite proxy).
+const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5180';
+const apiOrigin = `${origin}/api`;
 const output = path.resolve('../.logs/screens/managed');
 fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(output, { recursive: true });
@@ -46,7 +49,7 @@ async function open(viewport = DESKTOP) {
   current = page;
   page.on('pageerror', (e) => problems.push(`page error: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error') problems.push(`console: ${m.text().slice(0, 200)}`); });
-  page.on('response', (r) => { if (r.url().startsWith(apiOrigin) && r.status() >= 400) problems.push(`${r.status()} ${r.request().method()} ${r.url().replace(apiOrigin, '')}`); });
+  page.on('response', (r) => { if (r.url().startsWith(apiOrigin) && r.status() >= 400) problems.push(`${r.status()} ${r.request().method()} ${r.url().replace(origin, '')}`); });
   return page;
 }
 
@@ -90,21 +93,13 @@ async function takeIt(page) {
   throw new Error('the test did not reach its results');
 }
 
-/** Asked from here, so an expected refusal is not counted as a failed call of the page. */
-async function asked(page, method, endpoint, body) {
-  const token = await page.evaluate(() => localStorage.getItem('satify_token'));
-  const r = await fetch(`${apiOrigin}${endpoint}`, {
-    method, headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}),
-  });
-  return r.status;
+/** Asked from here as `who`, so an expected refusal is not counted as a failed call of the page. */
+async function asked(who, method, endpoint, body) {
+  return (await ask(origin, { email: email(who), password }, method, endpoint, body)).status;
 }
 
 try {
-  ownerId = (await query(
-    `INSERT INTO pa_users(email,password_hash,display_name,role,institution_id,must_change_password)
-     VALUES($1,$2,'Platform Owner','superadmin',NULL,false) RETURNING id`,
-    [email('owner'), await hashPassword(password)],
-  )).rows[0].id;
+  ownerId = (await makeAccount({ email: email('owner'), password, role: 'superadmin', name: 'Platform Owner' })).id;
   browser = await chromium.launch();
 
   // ---- The platform owner creates a managed academy and its admin.
@@ -188,7 +183,7 @@ try {
   expect(!(await ana.getByRole('button', { name: /Practice these skills/ }).isVisible()), 'student: a managed student is offered practice of their own');
   await ana.getByRole('link', { name: 'insat home' }).click();
   await ana.getByRole('heading', { name: 'Nothing waiting for you' }).waitFor();
-  expect(await asked(ana, 'POST', '/api/student/practice', { mode: 'skills', skills: ['Linear equations in one variable'] }) === 403,
+  expect(await asked('ana', 'POST', '/api/student/practice', { mode: 'skills', skills: ['Linear equations in one variable'] }) === 403,
     'api: a managed student could start practice of their own');
 
   // ---- The admin follows the student and assigns practice from their skills.
@@ -238,7 +233,7 @@ try {
   await capture(owner, 'owner-make-self-guided', { full: false });
   await owner.getByRole('button', { name: 'Make self-guided' }).click();
   await owner.getByRole('dialog').waitFor({ state: 'detached' });
-  expect(await asked(admin, 'GET', '/api/admin/groups') === 403, 'api: a self-guided academy\'s admin still reaches groups');
+  expect(await asked('admin', 'GET', '/api/admin/groups') === 403, 'api: a self-guided academy\'s admin still reaches groups');
   await admin.reload();
   await admin.getByRole('button', { name: 'Add student' }).waitFor();
   expect(!(await admin.getByRole('button', { name: 'Tests', exact: true }).count()), 'admin: a self-guided academy still shows Tests');
@@ -254,11 +249,7 @@ try {
   process.exitCode = 1;
 } finally {
   await browser?.close();
-  const { rows } = await query('SELECT id FROM pa_institutions WHERE name = $1', [academy]);
-  for (const { id } of rows) {
-    await query('DELETE FROM pa_sessions WHERE institution_id = $1', [id]);
-    await query('DELETE FROM pa_institutions WHERE id = $1', [id]);
-  }
-  if (ownerId) await query('DELETE FROM pa_users WHERE id = $1', [ownerId]);
-  await pool.end();
+  for (const id of await institutionsNamed(academy)) await removeInstitution(id);
+  if (ownerId) await removeAccount(ownerId);
+  await close();
 }

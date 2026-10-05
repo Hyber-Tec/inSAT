@@ -1,18 +1,30 @@
-// Signed invite tokens + link building. A token carries the invited user's id
-// and email; accepting it lets the user set their own password and sign in.
+// Invite links. An invite is a random token stored with the invited account's
+// id and email; opening the link lets the account's owner choose a password
+// and sign in. A token is good for 14 days and once.
 
-import jwt from 'jsonwebtoken';
+import crypto from 'node:crypto';
 import { config } from './config.js';
+import { COL, col, isDocId, now, rowOf } from './store.js';
 
-export function signInvite({ userId, email }) {
-  return jwt.sign({ sub: userId, email, purpose: 'invite' }, config.jwtSecret, { expiresIn: '14d' });
+const LIFETIME_MS = 14 * 24 * 60 * 60 * 1000;
+
+export async function createInvite({ userId, email }) {
+  const token = crypto.randomBytes(24).toString('base64url');
+  await col(COL.invites).doc(token).set({
+    user_id: userId, email, created_at: now(), expires_at: new Date(Date.now() + LIFETIME_MS),
+  });
+  return token;
 }
 
-export function verifyInvite(token) {
-  const d = jwt.verify(token, config.jwtSecret);
-  if (d.purpose !== 'invite') throw new Error('not an invite token');
-  return { userId: d.sub, email: d.email };
+/** The invite a token names, while it is good: { userId, email }, or null. */
+export async function readInvite(token) {
+  if (!isDocId(token)) return null;
+  const invite = rowOf(await col(COL.invites).doc(token).get(), COL.invites);
+  if (!invite || invite.expires_at < new Date()) return null;
+  return { userId: invite.user_id, email: invite.email };
 }
+
+export const spendInvite = (token) => col(COL.invites).doc(token).delete();
 
 export function inviteLink(token) {
   return `${config.clientOrigin.replace(/\/$/, '')}/?invite=${encodeURIComponent(token)}`;
