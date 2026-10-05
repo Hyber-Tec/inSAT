@@ -1,30 +1,23 @@
-// Central env-derived config. Read once at boot; fail fast on anything missing
-// that the app cannot run without.
+// Central env-derived config, read once per instance. Cloud Functions loads
+// functions/.env.<project> (the committed, non-secret values) and binds the
+// secrets (ENCRYPTION_KEY); the emulators and scripts also read
+// functions/.env.local and .secret.local (both git-ignored).
 
-const required = (name, fallback) => {
-  const v = process.env[name] ?? fallback;
-  if (v === undefined || v === '') {
-    throw new Error(`Missing required env var: ${name}`);
-  }
-  return v;
-};
+const list = (v) => String(v || '').split(',').map((s) => s.trim()).filter(Boolean);
+const inCloud = Boolean(process.env.K_SERVICE) && process.env.FUNCTIONS_EMULATOR !== 'true';
+
+// Where the app is served. The first origin is the one links point at
+// (invites); every one of them may call the API across origins.
+const origins = list(process.env.CLIENT_ORIGIN || 'http://localhost:5180');
 
 export const config = {
-  databaseUrl: required('DATABASE_URL'),
-  jwtSecret: required('JWT_SECRET', 'dev-only-change-me-satify'),
-  port: Number(process.env.PORT || 3002),
-  clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:5174',
-  admin: {
-    email: (process.env.ADMIN_EMAIL || 'admin@satify.test').toLowerCase(),
-    password: process.env.ADMIN_PASSWORD || 'satify-admin',
-    name: process.env.ADMIN_NAME || 'insat Admin',
-  },
-  // Platform owner - provisions institutions and their first admin.
-  super: {
-    email: (process.env.SUPERADMIN_EMAIL || 'superadmin@satify.test').toLowerCase(),
-    password: process.env.SUPERADMIN_PASSWORD || 'satify-super',
-    name: process.env.SUPERADMIN_NAME || 'insat Superadmin',
-  },
+  clientOrigin: origins[0],
+  corsOrigins: origins,
+  // The platform owners: an account signed in with one of these verified
+  // emails is the superadmin, who provisions institutions and their admins.
+  superadminEmails: list(process.env.SUPERADMIN_EMAILS).map((e) => e.toLowerCase()),
+  // The academy a new sign-up joins, as a student (insat's own, self-guided).
+  signupInstitutionSlug: process.env.SIGNUP_INSTITUTION_SLUG || 'satify',
   // Generation models - drafting is cheap, verification is strong.
   genModel: process.env.GEN_MODEL || 'sonnet',
   verifyModel: process.env.VERIFY_MODEL || 'opus',
@@ -35,16 +28,19 @@ export const config = {
   extractConcurrency: Math.max(1, Number(process.env.EXTRACT_CONCURRENCY) || 6),
   extractChunkPages: Math.max(1, Number(process.env.EXTRACT_CHUNK_PAGES) || 4),
   // Platform-wide Anthropic key - the fallback when an institution hasn't set
-  // its own. Generation + extraction run inside this API now (no external
-  // service), so this is the only key the app needs to generate questions.
+  // its own. Not bound in production (REQUIRE_INSTITUTION_KEY is true there);
+  // the offline scripts read it from functions/.env.local.
   platformApiKey: process.env.ANTHROPIC_API_KEY || '',
   // Optional email provider (Resend) for invite links. Empty => links are shown
   // to the admin to share manually instead of emailed.
   resendApiKey: process.env.RESEND_API_KEY || '',
   mailFrom: process.env.MAIL_FROM || 'insat <onboarding@resend.dev>',
-  // Encryption key for institution LLM API keys at rest.
-  encryptionKey: process.env.ENCRYPTION_KEY || `${process.env.JWT_SECRET || 'dev-only-change-me-satify'}-enc`,
+  // Encryption key for institution LLM API keys at rest: a secret in
+  // production, never a default there.
+  encryptionKey: process.env.ENCRYPTION_KEY || (inCloud ? '' : 'dev-only-insat-enc'),
   // When true, an institution must set its OWN key to generate/upload
   // (no platform-key fallback).
   requireInstitutionKey: String(process.env.REQUIRE_INSTITUTION_KEY || '').toLowerCase() === 'true',
 };
+
+if (!config.encryptionKey) throw new Error('Missing required secret: ENCRYPTION_KEY');

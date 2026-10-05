@@ -6,12 +6,41 @@
 // not mastery. Practice is a full SAT, one section, or a set built from chosen
 // skills at a difficulty matched to how the student is doing in each.
 
-import { query } from './db.js';
+import { COL, col, getMany } from './store.js';
 import { FULL_SAT_SPEC } from './blueprints.js';
 import { loadSeenItemIds } from './assembly.js';
-import { POOL_SOURCES, poolFor } from './pool.js';
+import { bankRows, poolFor, servable } from './pool.js';
 import { hasTemplates } from './templateItems.js';
 import { DOMAINS, DOMAIN_LABEL, SKILLS, domainForSkill, sectionForDomain } from './taxonomy.js';
+
+/**
+ * The questions a student answered in their completed sessions, counted per
+ * domain and skill of each question as the bank files it now (a question
+ * relabelled later counts where it is now filed).
+ */
+async function answeredBySkill(userId, pool) {
+  const snap = await col(COL.sessions).where('user_id', '==', userId).select('status', 'completed_at', 'responses').get();
+  const done = snap.docs.map((d) => d.data()).filter((s) => s.status === 'completed');
+  const ids = new Set(done.flatMap((s) => (s.responses || []).map((r) => r.item_id).filter(Boolean)));
+  const known = await bankRows(pool);
+  const items = new Map([...ids].filter((id) => known.has(id)).map((id) => [id, known.get(id)]));
+  for (const [id, r] of await getMany(COL.items, [...ids].filter((id) => !items.has(id)), ['domain', 'skill'])) items.set(id, r);
+  const out = new Map();
+  for (const s of done) {
+    const at = s.completed_at?.toDate?.() ?? s.completed_at ?? null;
+    for (const r of s.responses || []) {
+      const item = r.item_id && items.get(r.item_id);
+      if (!item) continue;
+      const key = `${item.domain}|${item.skill}`;
+      if (!out.has(key)) out.set(key, { domain: item.domain, skill: item.skill, answered: 0, correct: 0, last_practised: null });
+      const g = out.get(key);
+      g.answered += 1;
+      if (r.correct) g.correct += 1;
+      if (at && (!g.last_practised || at > g.last_practised)) g.last_practised = at;
+    }
+  }
+  return [...out.values()];
+}
 
 // Laplace-smoothed accuracy: (correct + 1) / (answered + 2). Untested reads
 // 0.5, 1 of 1 reads 0.67, 9 of 10 reads 0.83: the estimate moves toward the
@@ -44,11 +73,7 @@ export function practiceDifficulty(correct, answered) {
  */
 async function supply(userId, institutionId) {
   const seen = await loadSeenItemIds(userId);
-  const { rows } = await query(
-    `SELECT id, section, skill, difficulty FROM pa_items
-      WHERE institution_id = $1 AND retired_at IS NULL AND source = ANY($2::text[])`,
-    [await poolFor(institutionId), POOL_SOURCES],
-  );
+  const rows = await servable(await poolFor(institutionId));
   const ready = new Map();
   const bump = (key) => ready.set(key, (ready.get(key) || 0) + 1);
   for (const r of rows) {
@@ -78,18 +103,7 @@ async function supply(userId, institutionId) {
  * `institutionId`, with what its pool has to practise in each.
  */
 export async function skillProfile(userId, { institutionId = null } = {}) {
-  const { rows } = await query(
-    `SELECT i.domain, i.skill,
-            count(*)::int AS answered,
-            count(*) FILTER (WHERE r.correct)::int AS correct,
-            max(s.completed_at) AS last_practised
-       FROM pa_responses r
-       JOIN pa_sessions s ON s.id = r.session_id
-       JOIN pa_items i ON i.id = r.item_id
-      WHERE s.user_id = $1 AND s.status = 'completed'
-      GROUP BY i.domain, i.skill`,
-    [userId],
-  );
+  const rows = await answeredBySkill(userId, await poolFor(institutionId));
   const seen = new Map(rows.map((r) => [`${r.domain}|${r.skill}`, r]));
   const available = institutionId ? await supply(userId, institutionId) : null;
   const skills = [];

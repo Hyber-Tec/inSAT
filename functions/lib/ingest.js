@@ -212,7 +212,7 @@ async function extractFile(f, { creds, section, notes }) {
 }
 
 /**
- * Extract questions from a batch of multer files. Whole PDFs are chunked by page
+ * Extract questions from a batch of uploaded files (lib/upload.js). Whole PDFs are chunked by page
  * so a full practice test is captured rather than truncated at the token cap.
  * Duplicates (the same question repeated, e.g. in an answer-key section) are
  * collapsed by content hash across the whole upload.

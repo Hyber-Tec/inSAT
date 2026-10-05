@@ -6,9 +6,34 @@ or **institution-managed** (primeTesting's assigned tests, on this question
 pool and interface). See "Institution modes" in the README. primeTesting is no
 longer needed; none of its academies were moved here (on purpose).
 
-Running locally: `./start.sh` (Postgres `:5434`, API `:3002`, client `:5174`).
-Both projects can run at once: every port, the database name and the
-localStorage token key were moved so they do not collide.
+Running locally: `./start.sh` (the Firebase emulators: Auth `:9109`, Firestore
+`:8090`, Storage `:9209`, the `api` function `:5011`; the web app `:5180`).
+Their ports differ from Firebase's defaults so another project's emulators can
+run at the same time.
+
+## Firebase (2026-10-05)
+
+The platform moved from Render + Neon Postgres + its own JWT logins to
+Firebase, project `insat-hyber`: Hosting (`insatprep.web.app`) for `web/`, the
+API as the `api` Cloud Function behind `/api/**`, Firestore for the data,
+Storage for figures and logos, and Firebase Auth (email and password, Google)
+for sign-in. `client/` became `web/` and `server/` became `functions/`.
+
+- **Data.** One collection per former table, same ids and snake_case field
+  names (`functions/lib/store.js`); `pa_responses` rows live on their session
+  (`responses`), group members on the group (`member_ids`), an exam's folders
+  on the exam (`folder_ids`). What Postgres cascaded is done by the routes.
+  A question's identity in a bank is its `itemHashes` document. Every item
+  write sets `updated_at`, which keeps the per-instance bank cache current
+  (`bankRows` in `functions/lib/pool.js`).
+- **Accounts.** Profiles in `users`, sign-in in Firebase Auth. A new sign-up is
+  a student of insat's own academy; the platform owners are `SUPERADMIN_EMAILS`.
+  Invites are random tokens in `invites` (14 days, single use).
+- **The move.** `functions/scripts/migrate-from-postgres.js` copied the
+  2026-10-05 backup (`db-backups/satify-20261005-140521.dump`) into Firebase:
+  every row, every image, and the accounts with their bcrypt hashes, so
+  passwords carried over. The old API's two demo accounts (`@satify.test`,
+  on the README's published passwords) were left out; nothing referenced them.
 
 ## The practice loop
 
@@ -39,7 +64,7 @@ Server side (`functions/routes/student.js`, `functions/lib/practice.js`):
   generation can make more) and per section.
 - `POST /api/student/practice` with `{ mode: 'full' | 'rw' | 'math' | 'skills',
   skills?, timed? }`: materializes a unique form into a `kind = 'practice'`
-  session with no exam (`pa_sessions.exam_id` is nullable; title and timing
+  session with no exam (`sessions.exam_id` is nullable; title and timing
   live on the session).
 - `GET /api/student/practice` (history), `DELETE /api/student/practice/:id`
   (unfinished only, so its questions go back to the pool).
@@ -170,9 +195,9 @@ transcribed by `tools/sat-extract/` (see its README) and imported with
 ## Institution modes (2026-10-02)
 
 Built from `prompts/institution-modes.md` (phases 1 to 4). The mode is
-`pa_institutions.mode`; `functions/lib/modes.js` guards the routes. Managed tests
-are `pa_exams.kind = 'sat'` plus `scope`, assembled per attempt with
-`sectionSpec(scope)`; practice topics are `pa_assignments.kind = 'practice'`,
+`institutions.mode`; `functions/lib/modes.js` guards the routes. Managed tests
+are `exams.kind = 'sat'` plus `scope`, assembled per attempt with
+`sectionSpec(scope)`; practice topics are `assignments.kind = 'practice'`,
 built at start by the same `assemblePractice` as self-started practice
 (`functions/routes/student.js`). The admin's student page is
 `GET /api/admin/users/:id/overview`. Client: `admin/{Groups,Tests,Assignments,
@@ -185,14 +210,14 @@ draw on insat's pool, the bank of slug `satify` (`functions/lib/pool.js`; only
 read only the student's own institution's bank, so a new managed academy's
 Reading and Writing or Full SAT tests could not start and its Math tests were
 all template questions. A test fixture can point its throwaway institution at
-its own bank with `pa_institutions.pool_institution_id`; nothing in the app
+its own bank with `institutions.pool_institution_id`; nothing in the app
 sets it. Assembly never calls a model now: the hidden AI fallback is gone.
 
 **Custom tests (2026-10-02).** The user's rule: creating tests from uploads or
 AI is allowed only for private institutions, read as institution-managed
 academies (a self-guided institution gets 403 on `/api/admin/bank` and
 `/api/admin/settings/llm-key`, and no AI settings). A managed academy makes
-`pa_exams.kind = 'fixed'` tests from an upload (`POST /exams/from-upload`) or
+`exams.kind = 'fixed'` tests from an upload (`POST /exams/from-upload`) or
 written by AI (`POST /exams/from-ai`), reviews and edits them on
 `admin/TestEditor.jsx` (dialogs in `admin/authoring.jsx`), and can add more by
 upload, AI or hand. Their questions stay in the academy's own bank: never in
@@ -221,7 +246,7 @@ importing primeTesting's academies.
    code templates, one or two per skill, which are correct but formulaic; the
    real SAT math is reference-only (College Board's). The fix is SAT-style
    math written from those questions: with an Anthropic key in Settings,
-   `node --env-file=.env scripts/topup-pool.js --institution satify --math-model 10 --math 0 --rw 0`
+   `node --env-file-if-exists=.env.local scripts/topup-pool.js --institution satify --math-model 10 --math 0 --rw 0`
    writes 10 per skill and difficulty (570) through the Batches API, verifies
    each blind, and imports them; sets then prefer them over templates.
    `--dry-run` shows the count first. The ClassMarker import (item 4) is the
@@ -237,7 +262,7 @@ importing primeTesting's academies.
    `private-data/SAT/extracted/classmarker/questions.jsonl` with flags; 11,276 are
    text-only, not College Board or CrackSAT text, not repeats and well formed
    (10,306 multiple choice, 970 free response, mostly math). With a key in
-   Settings, `node --env-file=.env scripts/import-classmarker.js <that file> --institution satify --limit 200`
+   Settings, `node --env-file-if-exists=.env.local scripts/import-classmarker.js <that file> --institution satify --limit 200`
    is a trial run: a blind solve keeps a question only when it matches the
    academy's key, has one answer and rates 3+ on realism, sorts it into the
    SAT's skills and difficulty, then a keyed pass writes letter-free
@@ -278,7 +303,7 @@ importing primeTesting's academies.
    view for them yet (the student's own dashboard has it).
 7. **Server leftovers from the clone.** The exam, assignment, group and
    question-bank routes and tables (`routes/admin.js`, `routes/bank.js`,
-   `lib/examForm.js`, `pa_exams`, `pa_assignments`, `pa_groups`, the
+   `lib/examForm.js`, `exams`, `assignments`, `groups`, the
    assignment routes in `routes/student.js`) are still there; nothing in the
    UI reaches them since the admin panels and the student's "Assigned to you"
    section were removed. `ExamRunner.jsx` keeps its proctoring path

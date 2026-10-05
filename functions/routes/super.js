@@ -3,12 +3,11 @@
 
 import { Router } from 'express';
 import { z } from 'zod';
-import { query } from '../lib/db.js';
+import { COL, col, countOf, deleteWhere, getRow, newId, now, queryRows, writeAll } from '../lib/store.js';
 import { asyncHandler, parseBody, notFound, conflict, badRequest } from '../lib/http.js';
-import { randomUUID } from 'node:crypto';
-import { hashPassword } from '../lib/auth.js';
+import { createAccount, deleteAccount, setActive, setPassword } from '../lib/accounts.js';
 import { publicUser } from './auth.js';
-import { signInvite, inviteLink } from '../lib/invite.js';
+import { createInvite, inviteLink } from '../lib/invite.js';
 import { sendInvite } from '../lib/mail.js';
 import { GLOBAL_POOL_SLUG, POOL_SLUG } from '../lib/pool.js';
 import { MODES } from '../lib/modes.js';
@@ -17,6 +16,7 @@ const router = Router();
 
 const slugify = (s) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48) || 'academy';
+const newestFirst = (a, b) => (b.created_at?.getTime?.() ?? 0) - (a.created_at?.getTime?.() ?? 0);
 
 // insat's own institution holds the question pool every institution draws on
 // (lib/pool.js); its items are its questions, an academy's are its own.
@@ -26,32 +26,39 @@ const shapeInstitution = (i) => ({
   holdsPool: i.slug === POOL_SLUG,
 });
 
+/** An institution the console manages (never the hidden generation pool), or null. */
+async function institutionOf(id) {
+  const i = await getRow(COL.institutions, id);
+  return i && i.slug !== GLOBAL_POOL_SLUG ? i : null;
+}
+
+/** An account of this institution in this role, or null. */
+async function memberOf(id, institutionId, role) {
+  const u = await getRow(COL.users, id);
+  return u && u.institution_id === institutionId && u.role === role ? u : null;
+}
+
 async function createInstitutionAdmin(institutionId, { email, displayName, password }, institutionName) {
-  const addr = email.toLowerCase().trim();
-  const dupe = await query('SELECT id FROM pa_users WHERE email = $1', [addr]);
-  if (dupe.rows.length) throw conflict('A user with that email already exists');
-  const { rows } = await query(
-    `INSERT INTO pa_users (email, password_hash, display_name, role, must_change_password, institution_id)
-     VALUES ($1, $2, $3, 'admin', true, $4) RETURNING *`,
-    [addr, await hashPassword(password || randomUUID()), displayName || 'Administrator', institutionId],
-  );
-  const link = inviteLink(signInvite({ userId: rows[0].id, email: addr }));
-  const mail = await sendInvite(addr, link, { role: 'an administrator', institution: institutionName });
-  return { admin: rows[0], inviteLink: link, emailed: mail.sent };
+  const admin = await createAccount({
+    email, displayName: displayName || 'Administrator', password, role: 'admin', institutionId,
+  });
+  const link = inviteLink(await createInvite({ userId: admin.id, email: admin.email }));
+  const mail = await sendInvite(admin.email, link, { role: 'an administrator', institution: institutionName });
+  return { admin, inviteLink: link, emailed: mail.sent };
 }
 
 // List institutions with rollup counts.
 router.get('/institutions', asyncHandler(async (_req, res) => {
-  const { rows } = await query(
-    `SELECT i.*,
-        (SELECT COUNT(*)::int FROM pa_users u WHERE u.institution_id = i.id AND u.role = 'admin')   AS admin_count,
-        (SELECT COUNT(*)::int FROM pa_users u WHERE u.institution_id = i.id AND u.role = 'student')  AS student_count,
-        (SELECT COUNT(*)::int FROM pa_items it WHERE it.institution_id = i.id AND it.retired_at IS NULL) AS item_count,
-        (SELECT COUNT(*)::int FROM pa_exams e WHERE e.institution_id = i.id)                          AS exam_count
-       FROM pa_institutions i WHERE i.slug <> $1 ORDER BY i.created_at DESC`,
-    [GLOBAL_POOL_SLUG],
-  );
-  res.json({ institutions: rows.map(shapeInstitution) });
+  const rows = (await queryRows(col(COL.institutions))).filter((i) => i.slug !== GLOBAL_POOL_SLUG).sort(newestFirst);
+  const users = (field, value) => col(COL.users).where('institution_id', '==', field).where('role', '==', value);
+  const counted = await Promise.all(rows.map(async (i) => ({
+    ...i,
+    admin_count: await countOf(users(i.id, 'admin')),
+    student_count: await countOf(users(i.id, 'student')),
+    item_count: await countOf(col(COL.items).where('institution_id', '==', i.id).where('retired_at', '==', null)),
+    exam_count: await countOf(col(COL.exams).where('institution_id', '==', i.id)),
+  })));
+  res.json({ institutions: counted.map(shapeInstitution) });
 }));
 
 // Create an institution, optionally with its first admin in one step.
@@ -67,19 +74,21 @@ const createSchema = z.object({
 router.post('/institutions', asyncHandler(async (req, res) => {
   const d = parseBody(createSchema, req.body);
   const slug = (d.slug && d.slug.trim()) || slugify(d.name);
-  const dupe = await query('SELECT id FROM pa_institutions WHERE slug = $1', [slug]);
-  if (dupe.rows.length) throw conflict('An institution with that slug already exists');
-  const { rows } = await query(
-    'INSERT INTO pa_institutions (name, slug, mode) VALUES ($1, $2, $3) RETURNING *',
-    [d.name, slug, d.mode],
-  );
-  const institution = rows[0];
+  const dupe = await col(COL.institutions).where('slug', '==', slug).limit(1).select().get();
+  if (!dupe.empty) throw conflict('An institution with that slug already exists');
+  const institution = {
+    id: newId(), name: d.name, slug, mode: d.mode, active: true, created_at: now(),
+    llm_api_key_enc: null, llm_key_hint: null, llm_provider: null, llm_model: null,
+    logo_asset_id: null, accent: null, pool_institution_id: null,
+  };
+  const { id, ...fields } = institution;
+  await col(COL.institutions).doc(id).set(fields);
   // New institutions start with no exams: a managed institution's admin creates
   // their own tests; a self-guided one's students start practice themselves.
 
   let result = null;
   if (d.adminEmail) {
-    result = await createInstitutionAdmin(institution.id, { email: d.adminEmail, displayName: d.adminName, password: d.adminPassword }, institution.name);
+    result = await createInstitutionAdmin(id, { email: d.adminEmail, displayName: d.adminName, password: d.adminPassword }, d.name);
   }
   res.status(201).json({
     institution: shapeInstitution({ ...institution, admin_count: result ? 1 : 0, student_count: 0, item_count: 0, exam_count: 0 }),
@@ -95,34 +104,38 @@ router.post('/institutions', asyncHandler(async (req, res) => {
 router.patch('/institutions/:id', asyncHandler(async (req, res) => {
   const d = parseBody(z.object({ name: z.string().trim().min(1).optional(), mode: z.enum(MODES).optional() }), req.body);
   if (d.name === undefined && d.mode === undefined) throw badRequest('Nothing to update');
-  const { rows } = await query(
-    `UPDATE pa_institutions SET name = COALESCE($1, name), mode = COALESCE($2, mode)
-      WHERE id = $3 AND slug <> $4 RETURNING *`,
-    [d.name ?? null, d.mode ?? null, req.params.id, GLOBAL_POOL_SLUG],
-  );
-  if (!rows[0]) throw notFound('institution');
-  res.json({ institution: { id: rows[0].id, name: rows[0].name, mode: rows[0].mode } });
+  const i = await institutionOf(req.params.id);
+  if (!i) throw notFound('institution');
+  const changes = {};
+  if (d.name !== undefined) changes.name = d.name;
+  if (d.mode !== undefined) changes.mode = d.mode;
+  await col(COL.institutions).doc(i.id).update(changes);
+  res.json({ institution: { id: i.id, name: changes.name ?? i.name, mode: changes.mode ?? i.mode } });
 }));
 
 // Deleting an institution deletes everything in it, its questions included,
 // so the one holding insat's question pool (and the generation pool) never is.
 router.delete('/institutions/:id', asyncHandler(async (req, res) => {
-  const { rows } = await query('SELECT slug FROM pa_institutions WHERE id = $1', [req.params.id]);
-  if (!rows[0]) throw notFound('institution');
-  if ([POOL_SLUG, GLOBAL_POOL_SLUG].includes(rows[0].slug)) {
+  const i = await getRow(COL.institutions, req.params.id);
+  if (!i) throw notFound('institution');
+  if ([POOL_SLUG, GLOBAL_POOL_SLUG].includes(i.slug)) {
     throw badRequest("This institution holds insat's question pool, which every institution's tests and practice draw on, so it cannot be deleted.");
   }
-  await query('DELETE FROM pa_institutions WHERE id = $1', [req.params.id]);
+  const members = await col(COL.users).where('institution_id', '==', i.id).select().get();
+  for (const m of members.docs) await deleteAccount(m.id);
+  const items = await col(COL.items).where('institution_id', '==', i.id).select('content_hash').get();
+  await writeAll(items.docs.filter((d) => d.get('content_hash')).map((d) => ['delete', col(COL.itemHashes).doc(`${i.id}_${d.get('content_hash')}`)]));
+  for (const name of [COL.items, COL.sessions, COL.assignments, COL.groups, COL.exams, COL.examFolders, COL.blueprints]) {
+    await deleteWhere(col(name).where('institution_id', '==', i.id));
+  }
+  await col(COL.institutions).doc(i.id).delete();
   res.json({ ok: true });
 }));
 
 // Admins of an institution.
 router.get('/institutions/:id/admins', asyncHandler(async (req, res) => {
-  const { rows } = await query(
-    "SELECT * FROM pa_users WHERE institution_id = $1 AND role = 'admin' ORDER BY created_at DESC",
-    [req.params.id],
-  );
-  res.json({ admins: rows.map(publicUser) });
+  const rows = await queryRows(col(COL.users).where('institution_id', '==', req.params.id).where('role', '==', 'admin'));
+  res.json({ admins: rows.sort(newestFirst).map(publicUser) });
 }));
 
 router.post('/institutions/:id/admins', asyncHandler(async (req, res) => {
@@ -130,9 +143,9 @@ router.post('/institutions/:id/admins', asyncHandler(async (req, res) => {
     z.object({ email: z.string().email(), displayName: z.string().min(1), password: z.string().min(6).optional() }),
     req.body,
   );
-  const i = await query('SELECT id, name FROM pa_institutions WHERE id = $1', [req.params.id]);
-  if (!i.rows.length) throw notFound('institution');
-  const r = await createInstitutionAdmin(req.params.id, d, i.rows[0].name);
+  const i = await institutionOf(req.params.id);
+  if (!i) throw notFound('institution');
+  const r = await createInstitutionAdmin(i.id, d, i.name);
   res.status(201).json({ admin: publicUser(r.admin), inviteLink: r.inviteLink, emailed: r.emailed });
 }));
 
@@ -142,69 +155,43 @@ router.patch('/institutions/:id/admins/:adminId', asyncHandler(async (req, res) 
     z.object({ active: z.boolean().optional(), password: z.string().min(6).optional() }),
     req.body,
   );
-  const sets = [];
-  const params = [];
-  let i = 1;
-  if (d.active !== undefined) { sets.push(`active = $${i++}`); params.push(d.active); }
-  if (d.password !== undefined) {
-    sets.push(`password_hash = $${i++}`); params.push(await hashPassword(d.password));
-    sets.push('must_change_password = true');
-  }
-  if (!sets.length) throw badRequest('Nothing to update');
-  params.push(req.params.adminId, req.params.id);
-  const { rows } = await query(
-    `UPDATE pa_users SET ${sets.join(', ')} WHERE id = $${i++} AND institution_id = $${i} AND role = 'admin' RETURNING *`,
-    params,
-  );
-  if (!rows[0]) throw notFound('admin');
-  res.json({ admin: publicUser(rows[0]) });
+  if (d.active === undefined && d.password === undefined) throw badRequest('Nothing to update');
+  const admin = await memberOf(req.params.adminId, req.params.id, 'admin');
+  if (!admin) throw notFound('admin');
+  if (d.active !== undefined) await setActive(admin.id, d.active);
+  if (d.password !== undefined) await setPassword(admin.id, d.password, { mustChange: true });
+  res.json({ admin: publicUser(await getRow(COL.users, admin.id)) });
 }));
 
 // Remove an admin from an institution.
 router.delete('/institutions/:id/admins/:adminId', asyncHandler(async (req, res) => {
-  const r = await query(
-    "DELETE FROM pa_users WHERE id = $1 AND institution_id = $2 AND role = 'admin'",
-    [req.params.adminId, req.params.id],
-  );
-  if (!r.rowCount) throw notFound('admin');
+  if (!(await memberOf(req.params.adminId, req.params.id, 'admin'))) throw notFound('admin');
+  await deleteAccount(req.params.adminId);
   res.json({ ok: true });
 }));
 
 // Students of an institution - optional ?search= matches name or email.
 router.get('/institutions/:id/students', asyncHandler(async (req, res) => {
-  const search = (req.query.search || '').toString().trim();
-  const params = [req.params.id];
-  let where = "institution_id = $1 AND role = 'student'";
-  if (search) {
-    params.push(`%${search}%`);
-    where += ` AND (display_name ILIKE $2 OR email ILIKE $2)`;
-  }
-  const { rows } = await query(
-    `SELECT * FROM pa_users WHERE ${where} ORDER BY created_at DESC`,
-    params,
-  );
-  res.json({ students: rows.map(publicUser) });
+  const search = (req.query.search || '').toString().trim().toLowerCase();
+  const rows = (await queryRows(col(COL.users).where('institution_id', '==', req.params.id).where('role', '==', 'student')))
+    .filter((u) => !search || String(u.display_name).toLowerCase().includes(search) || String(u.email).toLowerCase().includes(search));
+  res.json({ students: rows.sort(newestFirst).map(publicUser) });
 }));
 
 // Manage a student: deactivate / reactivate.
 router.patch('/institutions/:id/students/:studentId', asyncHandler(async (req, res) => {
   const d = parseBody(z.object({ active: z.boolean().optional() }), req.body);
   if (d.active === undefined) throw badRequest('Nothing to update');
-  const { rows } = await query(
-    `UPDATE pa_users SET active = $1 WHERE id = $2 AND institution_id = $3 AND role = 'student' RETURNING *`,
-    [d.active, req.params.studentId, req.params.id],
-  );
-  if (!rows[0]) throw notFound('student');
-  res.json({ student: publicUser(rows[0]) });
+  const student = await memberOf(req.params.studentId, req.params.id, 'student');
+  if (!student) throw notFound('student');
+  await setActive(student.id, d.active);
+  res.json({ student: publicUser({ ...student, active: d.active }) });
 }));
 
 // Remove a student from an institution.
 router.delete('/institutions/:id/students/:studentId', asyncHandler(async (req, res) => {
-  const r = await query(
-    "DELETE FROM pa_users WHERE id = $1 AND institution_id = $2 AND role = 'student'",
-    [req.params.studentId, req.params.id],
-  );
-  if (!r.rowCount) throw notFound('student');
+  if (!(await memberOf(req.params.studentId, req.params.id, 'student'))) throw notFound('student');
+  await deleteAccount(req.params.studentId);
   res.json({ ok: true });
 }));
 

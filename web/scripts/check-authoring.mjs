@@ -2,9 +2,10 @@
 // their own questions, from an upload or written by AI), driven in a real
 // browser. It runs its own API on :3012, with the AI provider mocked by
 // mock-llm.mjs so no key or bill is needed, and its own build of the client on
-// :5184 against it; the database is the local one (`./start.sh` brings it up).
+// :5184 against it; the database is the local emulators (`./start.sh` brings
+// them up).
 //
-//   From client: npm run check:authoring
+//   From web: npm run check:authoring
 //
 // A managed academy's admin finds that uploads and AI need a key, adds one in
 // Settings, has AI write a test (one draft fails the answer check and is left
@@ -24,16 +25,19 @@ import { createRequire } from 'node:module';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { query, pool } from '../../functions/lib/db.js';
-import { hashPassword } from '../../functions/lib/auth.js';
-import { GLOBAL_POOL_SLUG, POOL_SLUG } from '../../functions/lib/pool.js';
+import {
+  GLOBAL_POOL_SLUG, POOL_SLUG, ask, bankOf, close, institutionBySlug, institutionsNamed, makeAccount, makeInstitution,
+  removeInstitution,
+} from './fixtures.mjs';
 
 const { PDFDocument, StandardFonts } = createRequire(path.resolve('../functions/package.json'))('pdf-lib');
 
 const API_PORT = 3012;
 const CLIENT_PORT = 5184;
-const apiOrigin = `http://localhost:${API_PORT}`;
+const apiUrl = `http://127.0.0.1:${API_PORT}`;
+// The client, which serves the API on its own origin (vite preview's proxy).
 const origin = `http://127.0.0.1:${CLIENT_PORT}`;
+const apiOrigin = `${origin}/api`;
 const logs = path.resolve('../.logs');
 const output = path.join(logs, 'screens/authoring');
 const clientBuild = path.join(logs, 'authoring-client');
@@ -77,7 +81,7 @@ async function open(viewport = DESKTOP) {
   current = page;
   page.on('pageerror', (e) => problems.push(`page error: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error') problems.push(`console: ${m.text().slice(0, 200)}`); });
-  page.on('response', (r) => { if (r.url().startsWith(apiOrigin) && r.status() >= 400) problems.push(`${r.status()} ${r.request().method()} ${r.url().replace(apiOrigin, '')}`); });
+  page.on('response', (r) => { if (r.url().startsWith(apiOrigin) && r.status() >= 400) problems.push(`${r.status()} ${r.request().method()} ${r.url().replace(origin, '')}`); });
   return page;
 }
 
@@ -121,13 +125,9 @@ async function takeIt(page, onModule = async () => {}) {
   throw new Error('the test did not reach its results');
 }
 
-/** Asked from here, so an expected refusal is not counted as a failed call of the page. */
-async function asked(page, method, endpoint, body) {
-  const token = await page.evaluate(() => localStorage.getItem('satify_token'));
-  const r = await fetch(`${apiOrigin}${endpoint}`, {
-    method, headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}),
-  });
-  return r.status;
+/** Asked from here as `who`, so an expected refusal is not counted as a failed call of the page. */
+async function asked(who, method, endpoint, body) {
+  return (await ask(origin, { email: email(who), password }, method, endpoint, body)).status;
 }
 
 /** A two-page PDF standing in for a printed practice test (the mock reads it). */
@@ -142,32 +142,35 @@ async function practicePdf() {
   return file;
 }
 
-async function addUser(role, who, institutionId, name) {
-  await query(
-    `INSERT INTO pa_users (email, password_hash, display_name, role, institution_id, must_change_password)
-     VALUES ($1, $2, $3, $4, $5, false)`,
-    [email(who), await hashPassword(password), name, role, institutionId],
-  );
-}
+const addUser = (role, who, institutionId, name) => makeAccount({ email: email(who), password, role, institutionId, name });
 
 try {
   // ---- A managed academy with an admin and a student, and a self-guided institution's admin.
-  const lakeside = (await query("INSERT INTO pa_institutions (name, slug, mode) VALUES ($1, $2, 'managed') RETURNING id", [academy, `lakeside-${tag}`])).rows[0].id;
-  const open_ = (await query("INSERT INTO pa_institutions (name, slug, mode) VALUES ($1, $2, 'self_guided') RETURNING id", [otherSchool, `open-${tag}`])).rows[0].id;
+  const lakeside = await makeInstitution({ name: academy, slug: `lakeside-${tag}`, mode: 'managed' });
+  const open_ = await makeInstitution({ name: otherSchool, slug: `open-${tag}` });
   await addUser('admin', 'admin', lakeside, 'Riley Admin');
   await addUser('student', 'cam', lakeside, 'Cam Rivera');
   await addUser('admin', 'other', open_, 'Sam Admin');
 
-  // ---- Its own API, with the AI provider mocked, and a client built against it.
-  await serve('api', process.execPath, ['--env-file=.env', '--import', path.resolve('scripts/mock-llm.mjs'), 'index.js'], {
-    cwd: path.resolve('../server'), env: { PORT: String(API_PORT), CLIENT_ORIGIN: origin }, url: `${apiOrigin}/api/health`,
+  // ---- Its own API, with the AI provider mocked, and a client built against
+  // it (in its own mode, so no production setting reaches it) that signs in
+  // against the Auth emulator and reaches the API through vite preview's proxy.
+  await serve('api', process.execPath, ['--import', path.resolve('scripts/mock-llm.mjs'), 'server.js'], {
+    cwd: path.resolve('../functions'),
+    env: {
+      PORT: String(API_PORT), CLIENT_ORIGIN: origin, REQUIRE_INSTITUTION_KEY: 'false',
+      FIRESTORE_EMULATOR_HOST: process.env.FIRESTORE_EMULATOR_HOST, FIREBASE_AUTH_EMULATOR_HOST: process.env.FIREBASE_AUTH_EMULATOR_HOST,
+      FIREBASE_STORAGE_EMULATOR_HOST: process.env.FIREBASE_STORAGE_EMULATOR_HOST, METADATA_SERVER_DETECTION: 'none',
+    },
+    url: `${apiUrl}/api/health`,
   });
   const vite = path.resolve('node_modules/vite/bin/vite.js');
-  execFileSync(process.execPath, [vite, 'build', '--outDir', clientBuild, '--emptyOutDir', '--logLevel', 'error'], {
-    env: { ...process.env, VITE_API_URL: apiOrigin }, stdio: 'inherit',
+  const clientEnv = { ...process.env, VITE_AUTH_EMULATOR_HOST: process.env.FIREBASE_AUTH_EMULATOR_HOST, VITE_API_PROXY: apiUrl };
+  execFileSync(process.execPath, [vite, 'build', '--mode', 'e2e', '--outDir', clientBuild, '--emptyOutDir', '--logLevel', 'error'], {
+    env: clientEnv, stdio: 'inherit',
   });
-  await serve('client', process.execPath, [vite, 'preview', '--outDir', clientBuild, '--port', String(CLIENT_PORT), '--strictPort', '--host', '127.0.0.1'], {
-    url: `${origin}/`,
+  await serve('client', process.execPath, [vite, 'preview', '--mode', 'e2e', '--outDir', clientBuild, '--port', String(CLIENT_PORT), '--strictPort', '--host', '127.0.0.1'], {
+    env: clientEnv, url: `${origin}/`,
   });
   browser = await chromium.launch();
 
@@ -288,16 +291,16 @@ try {
   await capture(admin, 'admin-result');
 
   // ---- Its questions stay in its own bank.
-  const own = (await query('SELECT content_hash, source FROM pa_items WHERE institution_id = $1', [lakeside])).rows;
+  const own = await bankOf(lakeside);
   expect(own.length >= 11, `bank: the academy's bank holds ${own.length} questions, fewer than its test`);
   expect(own.every((r) => ['ai-generated', 'extracted-from-upload', 'manual'].includes(r.source)), 'bank: the academy holds a question it did not make');
-  const leaked = (await query(
-    `SELECT count(*)::int AS n FROM pa_items i JOIN pa_institutions t ON t.id = i.institution_id
-      WHERE t.slug = ANY($1::text[]) AND i.content_hash = ANY($2::text[])`,
-    [[POOL_SLUG, GLOBAL_POOL_SLUG], own.map((r) => r.content_hash)],
-  )).rows[0].n;
+  const hashes = new Set(own.map((r) => r.content_hash));
+  let leaked = 0;
+  for (const slug of [POOL_SLUG, GLOBAL_POOL_SLUG]) {
+    leaked += (await bankOf(await institutionBySlug(slug))).filter((r) => hashes.has(r.content_hash)).length;
+  }
   expect(leaked === 0, `privacy: ${leaked} of the academy's questions reached a shared pool`);
-  expect(await asked(admin, 'GET', '/api/admin/bank/meta') === 200, 'api: a managed academy cannot read its own bank');
+  expect(await asked('admin', 'GET', '/api/admin/bank/meta') === 200, 'api: a managed academy cannot read its own bank');
 
   // ---- A self-guided institution makes no such tests and has no AI settings.
   const other = await open();
@@ -310,7 +313,7 @@ try {
     ['GET', '/api/admin/bank/meta'],
     ['POST', '/api/admin/bank/generate', { section: 'rw', domain: 'craft-structure' }],
   ]) {
-    expect(await asked(other, method, endpoint, body) === 403, `api: a self-guided admin reached ${method} ${endpoint}`);
+    expect(await asked('other', method, endpoint, body) === 403, `api: a self-guided admin reached ${method} ${endpoint}`);
   }
   await other.getByRole('button', { name: 'Settings', exact: true }).first().click();
   await other.getByText('Branding').waitFor();
@@ -330,12 +333,8 @@ try {
   await browser?.close();
   for (const child of children) child.kill();
   for (const name of [academy, otherSchool]) {
-    const { rows } = await query('SELECT id FROM pa_institutions WHERE name = $1', [name]);
-    for (const { id } of rows) {
-      await query('DELETE FROM pa_sessions WHERE institution_id = $1', [id]);
-      await query('DELETE FROM pa_institutions WHERE id = $1', [id]);
-    }
+    for (const id of await institutionsNamed(name)) await removeInstitution(id);
   }
   fs.rmSync(clientBuild, { recursive: true, force: true });
-  await pool.end();
+  await close();
 }

@@ -1,5 +1,5 @@
 // Public landing page - the front door at "/". Marketing surface only: it
-// explains what insat is and sends people to /sign-in. Everything it
+// explains what insat is and sends people to /sign-up or /sign-in. Everything it
 // claims is backed by the real product (blueprints.js structure, scoring.js
 // ranges, the locked-down exam app), so keep copy and code in step.
 
@@ -130,7 +130,7 @@ const STEPS = [
   {
     n: '01',
     title: 'Start with a diagnostic',
-    body: 'Sign in with the account your academy created for you and take a full practice test, or one section, on the real clock.',
+    body: 'Create a free account, or sign in with the one your academy made for you, and take a full practice test, or one section, on the real clock.',
   },
   {
     n: '02',
@@ -186,10 +186,10 @@ export default function Landing() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild className="px-5">
-                <a {...linkProps(ROUTES.signIn)}>Sign in <LuArrowRight /></a>
+                <a {...linkProps(ROUTES.signUp)}>Get started <LuArrowRight /></a>
               </Button>
               <Button size="lg" variant="outline" asChild className="px-5">
-                <a href="#how">How it works</a>
+                <a {...linkProps(ROUTES.signIn)}>Sign in</a>
               </Button>
             </div>
             <div className="mt-10 flex flex-wrap gap-x-10 gap-y-4">
@@ -257,9 +257,9 @@ export default function Landing() {
       <section className="px-4 pb-20 sm:px-6 sm:pb-28">
         <div className="mx-auto max-w-6xl rounded-2xl bg-primary px-6 py-16 text-center text-primary-foreground sm:py-20">
           <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Ready when you are.</h2>
-          <p className="mt-4 text-primary-foreground/70">Students: sign in with the account your academy created for you.</p>
+          <p className="mt-4 text-primary-foreground/70">Create a free account, or sign in with the one your academy made for you.</p>
           <Button size="lg" variant="secondary" asChild className="mt-8 px-5">
-            <a {...linkProps(ROUTES.signIn)}>Sign in <LuArrowRight /></a>
+            <a {...linkProps(ROUTES.signUp)}>Get started <LuArrowRight /></a>
           </Button>
         </div>
       </section>
@@ -269,6 +269,7 @@ export default function Landing() {
         <div className={cn(WRAP, 'flex flex-wrap items-center gap-x-6 gap-y-3 py-8')}>
           <HomeLink><Wordmark size="sm" /></HomeLink>
           <span className="ml-auto text-xs text-muted-foreground">Not affiliated with the College Board.</span>
+          <a {...linkProps(ROUTES.signUp)} className="text-xs text-muted-foreground transition-colors hover:text-foreground">Sign up</a>
           <a {...linkProps(ROUTES.signIn)} className="text-xs text-muted-foreground transition-colors hover:text-foreground">Sign in</a>
         </div>
       </footer>

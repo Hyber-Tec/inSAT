@@ -7,8 +7,9 @@
 // A choice that is a sentence rather than a value is not quoted; the clause
 // is dropped instead.
 //
-//   node --env-file=.env scripts/fix-letter-rationales.js            # report only
-//   node --env-file=.env scripts/fix-letter-rationales.js --apply    # rewrite, keeping a backup
+//   node --env-file-if-exists=.env.local scripts/fix-letter-rationales.js            # report only
+//   node --env-file-if-exists=.env.local scripts/fix-letter-rationales.js --apply    # rewrite, keeping a backup
+// (from functions/; the emulators when FIRESTORE_EMULATOR_HOST is set, production otherwise)
 //
 // Sessions already served keep their own copy of each question, with the
 // choices in that student's order; those copies are rewritten the same way,
@@ -20,11 +21,15 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { query, pool } from '../lib/db.js';
+import { target } from '../lib/firebase.js';
+import { COL, col, docOf, queryRows, writeAll } from '../lib/store.js';
+import { touched } from '../lib/pool.js';
 
 const apply = process.argv.includes('--apply');
 const LETTERS = ['A', 'B', 'C', 'D'];
 const CLAUSE = /,\s*which gives\s+\(?([A-D])\)?\./g;
+// What the clause looks like anywhere in an item's or a form's JSON.
+const NAMES_A_LETTER = /which gives \(?[A-D]\)?\./;
 
 /** The keyed choice as a value to quote, or null when it reads as a sentence. */
 function quotable(choice) {
@@ -34,10 +39,9 @@ function quotable(choice) {
 }
 
 try {
-  const { rows } = await query(
-    `SELECT id, choices, correct_idx, rationale FROM pa_items
-      WHERE answer_type = 'multiple-choice' AND rationale::text ~ 'which gives \\(?[A-D]\\)?\\.'`,
-  );
+  const rows = (await queryRows(col(COL.items)
+    .where('answer_type', '==', 'multiple-choice').select('choices', 'correct_idx', 'rationale')))
+    .filter((r) => NAMES_A_LETTER.test(JSON.stringify(r.rationale)));
   const changes = [];
   for (const r of rows) {
     const key = LETTERS[r.correct_idx];
@@ -55,7 +59,8 @@ try {
     if (changed) changes.push({ id: r.id, before: r.rationale, after: next });
   }
   // Served copies: every question instance in a stored form.
-  const { rows: sessions } = await query("SELECT id, form FROM pa_sessions WHERE form::text ~ 'which gives \\(?[A-D]\\)?\\.'");
+  const sessions = (await queryRows(col(COL.sessions).select('form')))
+    .filter((sess) => NAMES_A_LETTER.test(JSON.stringify(sess.form)));
   const sessionChanges = [];
   for (const sess of sessions) {
     const form = structuredClone(sess.form);
@@ -88,13 +93,14 @@ try {
       items: changes.map(({ id, before }) => ({ id, rationale: before })),
       sessions: sessionChanges.map(({ id, before }) => ({ id, form: before })),
     }, null, 2) + '\n');
-    for (const c of changes) await query('UPDATE pa_items SET rationale = $2::jsonb WHERE id = $1', [c.id, JSON.stringify(c.after)]);
-    for (const c of sessionChanges) await query('UPDATE pa_sessions SET form = $2::jsonb WHERE id = $1', [c.id, JSON.stringify(c.after)]);
+    console.log(`writing to ${target()}`);
+    await writeAll([
+      ...changes.map((c) => ['update', col(COL.items).doc(c.id), { rationale: c.after, ...touched() }]),
+      ...sessionChanges.map((c) => ['update', col(COL.sessions).doc(c.id), docOf(COL.sessions, { form: c.after })]),
+    ]);
     console.log(`rewrote ${changes.length} items and ${sessionChanges.length} sessions; previous text saved to ${backup}`);
   }
 } catch (err) {
   console.error(err.message);
   process.exitCode = 1;
-} finally {
-  await pool.end();
 }

@@ -1,35 +1,29 @@
-// Tiny fetch client for the insat API. Stores the JWT in localStorage
-// and attaches it as a Bearer token. Throws an Error (with .status/.code) on
-// non-2xx responses so callers can show the server's message.
+// Tiny fetch client for the insat API. Attaches the signed-in user's Firebase
+// ID token as a Bearer token (Firebase refreshes it). Throws an Error (with
+// .status/.code) on non-2xx responses so callers can show the server's message.
+//
+// The API is served on the app's own origin (Firebase Hosting rewrites /api/**
+// to the function; Vite proxies it in development). Hosting gives a request 60
+// seconds, which AI can outrun while it reads an upload or writes questions,
+// so those go straight to the function (VITE_API_DIRECT_URL).
 
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3002';
-const TOKEN_KEY = 'satify_token';
+import { auth } from './firebase.js';
 
-let token = null;
-try {
-  token = window.localStorage?.getItem(TOKEN_KEY) || null;
-} catch {
-  token = null;
+const BASE = import.meta.env.VITE_API_URL || '';
+const DIRECT = import.meta.env.VITE_API_DIRECT_URL || BASE;
+const LONG = /^\/api\/admin\/(exams\/(from-upload|from-ai|[^/]+\/questions\/(generate|upload))|bank\/(generate|ingest))$/;
+
+/** The Authorization header for the signed-in user (none when signed out). */
+export async function authHeaders() {
+  const token = await auth.currentUser?.getIdToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
-
-export function setToken(t) {
-  token = t || null;
-  try {
-    if (t) window.localStorage?.setItem(TOKEN_KEY, t);
-    else window.localStorage?.removeItem(TOKEN_KEY);
-  } catch {
-    /* ignore storage failures */
-  }
-}
-
-export const getToken = () => token;
 
 /** Absolute URL for a question figure asset (or null). */
 export const assetUrl = (id) => (id ? `${BASE}/api/assets/${id}` : null);
 
 async function request(method, path, body, isForm) {
-  const headers = {};
-  if (token) headers.Authorization = `Bearer ${token}`;
+  const headers = await authHeaders();
   let payload;
   if (isForm) {
     payload = body; // FormData - let the browser set the boundary
@@ -37,7 +31,7 @@ async function request(method, path, body, isForm) {
     headers['content-type'] = 'application/json';
     payload = JSON.stringify(body);
   }
-  const res = await fetch(`${BASE}${path}`, { method, headers, body: payload });
+  const res = await fetch(`${LONG.test(path) ? DIRECT : BASE}${path}`, { method, headers, body: payload });
   const text = await res.text();
   let data = {};
   try {

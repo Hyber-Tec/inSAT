@@ -1,30 +1,34 @@
-// Real browser + database check. Requires the local API/client and a prepared batch.
-// From client: npm run check:self-guided -- ../exports/verified-practice-2026-09-30
+// Real browser + database check, on the emulators. Requires the local API/client
+// (./start.sh) and a prepared batch.
+// From web: npm run check:self-guided -- ../exports/verified-practice-2026-09-30
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
-import { query, pool } from '../../functions/lib/db.js';
-import { hashPassword } from '../../functions/lib/auth.js';
-import { importTemplateRows } from '../../functions/lib/templateItems.js';
+import {
+  bankOf, call, close, importTemplateRows, institutionBySlug, makeAccount, makeInstitution, removeAccount, removeInstitution, stored,
+} from './fixtures.mjs';
 
 const batchDirectory = path.resolve(process.argv[2] || '../exports/verified-practice-2026-09-30');
 const output = path.resolve(process.env.E2E_OUTPUT || '../.logs/self-guided-e2e');
-const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5174';
-const apiOrigin = process.env.E2E_API_URL || 'http://localhost:3002';
+// The client, which serves the API on its own origin (the Vite proxy).
+const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5180';
+const apiOrigin = `${origin}/api`;
 fs.mkdirSync(output, { recursive: true });
 const users = [], institutions = [], errors = [], evidence = {};
-let browser, page;
+let browser, page, learnerNow;
 
 async function student(institutionId) {
-  const email = `self-guided-${crypto.randomUUID()}@example.test`;
-  const password = crypto.randomBytes(24).toString('base64url');
-  const { rows } = await query("INSERT INTO pa_users(email,password_hash,display_name,role,institution_id,must_change_password) VALUES($1,$2,'Practice check','student',$3,false) RETURNING id", [email, await hashPassword(password), institutionId]);
-  users.push(rows[0].id);
-  return { ...rows[0], email, password };
+  const account = await makeAccount({
+    email: `self-guided-${crypto.randomUUID()}@example.test`, password: crypto.randomBytes(24).toString('base64url'),
+    role: 'student', institutionId, name: 'Practice check',
+  });
+  users.push(account.id);
+  return account;
 }
 async function login(account) {
+  learnerNow = account;
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   page = await context.newPage();
   page.on('pageerror', (err) => errors.push(err.message));
@@ -35,16 +39,8 @@ async function login(account) {
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await page.getByRole('heading', { name: 'Start with a diagnostic test' }).waitFor();
 }
-async function api(endpoint, method = 'GET', body) {
-  return page.evaluate(async ({ url, method, body }) => {
-    const r = await fetch(url, { method, headers: { Authorization: `Bearer ${localStorage.getItem('satify_token')}`, 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}) });
-    if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
-    return r.json();
-  }, { url: `${apiOrigin}/api/student/${endpoint}`, method, body });
-}
-async function stored(id) {
-  return (await query('SELECT * FROM pa_sessions WHERE id=$1', [id])).rows[0];
-}
+/** Ask the API as the student signed in now. */
+const api = (endpoint, method = 'GET', body) => call(origin, learnerNow, method, `/api/student/${endpoint}`, body);
 const served = (s) => s.form.sections.flatMap((sec) => sec.modules.flatMap((m) => m.questions || m.variants[s.routing[sec.kind]]));
 async function startPractice(button) {
   const pending = page.waitForResponse((r) => r.url().endsWith('/api/student/practice') && r.request().method() === 'POST');
@@ -96,8 +92,8 @@ async function completeSkillSet(session, correct = false) {
 }
 
 try {
-  const institution = (await query("SELECT id FROM pa_institutions WHERE slug='satify'")).rows[0];
-  assert.ok(institution, 'the default institution (slug satify) must exist');
+  const institution = { id: await institutionBySlug('satify') };
+  assert.ok(institution.id, 'the default institution (slug satify) must exist');
   browser = await chromium.launch({ headless: true });
   const learner = await student(institution.id);
   await login(learner);
@@ -142,9 +138,8 @@ try {
   const records = fs.readFileSync(path.join(batchDirectory, 'questions.jsonl'), 'utf8').trim().split('\n').map(JSON.parse);
   // Its institution draws on its own bank, which holds the batch alone, not on
   // insat's pool (functions/lib/pool.js).
-  const { rows: fixture } = await query("INSERT INTO pa_institutions(name,slug) VALUES('Temporary practice check',$1) RETURNING id", [`qa-${crypto.randomUUID()}`]);
-  const fixtureId = fixture[0].id; institutions.push(fixtureId);
-  await query('UPDATE pa_institutions SET pool_institution_id = id WHERE id = $1', [fixtureId]);
+  const fixtureId = await makeInstitution({ name: 'Temporary practice check', ownBank: true });
+  institutions.push(fixtureId);
   const imported = await importTemplateRows(records, fixtureId); assert.equal(imported.added, records.length);
   await page.context().close();
   await login(await student(fixtureId));
@@ -157,7 +152,7 @@ try {
   const freshItems = served(fresh);
   assert.equal(freshItems.length, 10);
   const batchHashes = new Set(records.map((r) => r.content_hash));
-  const bank = (await query('SELECT id,content_hash FROM pa_items WHERE institution_id=$1', [fixtureId])).rows;
+  const bank = await bankOf(fixtureId);
   const byId = new Map(bank.map((r) => [r.id, r.content_hash]));
   assert.ok(freshItems.every((q) => batchHashes.has(byId.get(q.itemId))));
   await completeSkillSet(practice, true);
@@ -200,7 +195,7 @@ try {
   throw err;
 } finally {
   await browser?.close();
-  for (const id of users) await query('DELETE FROM pa_users WHERE id=$1', [id]);
-  for (const id of institutions) await query('DELETE FROM pa_institutions WHERE id=$1', [id]);
-  await pool.end();
+  for (const id of users) await removeAccount(id);
+  for (const id of institutions) await removeInstitution(id);
+  await close();
 }

@@ -10,8 +10,8 @@
 // answers for delivery; scoring happens server-side against the stored form.
 
 import crypto from 'node:crypto';
-import { query } from './db.js';
-import { POOL_SOURCES, poolFor } from './pool.js';
+import { COL, col, getMany } from './store.js';
+import { bankRows, poolFor, servable } from './pool.js';
 import { templateRows, templatesIn, importTemplateRows } from './templateItems.js';
 import { domainForSkill } from './taxonomy.js';
 import { lineageOf } from './lineage.js';
@@ -106,16 +106,7 @@ export function instanceFromRow(row) {
 // What the pool holds for one section and domain (and skill).
 async function candidatesFor(pool, kind, domain, skill = null) {
   if (!pool) return [];
-  const { rows } = await query(
-    `SELECT id, section, domain, skill, difficulty, passage, question, choices,
-            correct_idx, answer_type, answer_text, accepted, rationale, figure, asset_id, realism, variant_of
-       FROM pa_items
-      WHERE institution_id = $1 AND section = $2 AND domain = $3 AND retired_at IS NULL
-        AND source = ANY($5::text[])
-        AND ($4::text IS NULL OR skill = $4)`,
-    [pool, kind, domain, skill, POOL_SOURCES],
-  );
-  return rows;
+  return (await servable(pool)).filter((r) => r.section === kind && r.domain === domain && (skill === null || r.skill === skill));
 }
 
 /** Add template-built questions to the pool; the count added. */
@@ -257,6 +248,27 @@ async function buildModuleQuestions(section, moduleSpec, difficulty, ctx) {
 }
 
 /**
+ * What a session's form serves, stored on the session so the questions a
+ * student has met can be read without reading every form: the questions every
+ * attempt sees (`seen_ids`), and each adaptive module's two routes
+ * (`route_ids`, by section).
+ */
+export function seenFields(form) {
+  const always = new Set();
+  const routes = {};
+  for (const s of form?.sections || []) {
+    for (const m of s.modules || []) {
+      for (const q of m.questions || []) if (q.itemId) always.add(q.itemId);
+      if (!m.variants) continue;
+      routes[s.kind] ||= { easy: [], hard: [] };
+      for (const q of m.variants.easy || []) if (q.itemId) routes[s.kind].easy.push(q.itemId);
+      for (const q of m.variants.hard || []) if (q.itemId) routes[s.kind].hard.push(q.itemId);
+    }
+  }
+  return { seen_ids: [...always], route_ids: routes };
+}
+
+/**
  * All bank item ids this student has already been served in prior sessions.
  *
  * An adaptive module holds both of its routes until Module 1 decides which one
@@ -267,28 +279,31 @@ async function buildModuleQuestions(section, moduleSpec, difficulty, ctx) {
 export async function loadSeenItemIds(userId) {
   const seen = new Set();
   if (!userId) return seen;
-  const { rows } = await query('SELECT form, routing FROM pa_sessions WHERE user_id = $1', [userId]);
-  for (const r of rows) {
-    for (const s of r.form?.sections || []) {
-      const route = r.routing?.[s.kind];
-      for (const m of s.modules || []) {
-        const qs = m.questions || [];
-        const vs = !m.variants ? []
-          : route && m.variants[route] ? m.variants[route]
-            : [...(m.variants.easy || []), ...(m.variants.hard || [])];
-        for (const q of [...qs, ...vs]) if (q.itemId) seen.add(q.itemId);
-      }
+  const snap = await col(COL.sessions).where('user_id', '==', userId).select('seen_ids', 'route_ids', 'routing').get();
+  for (const d of snap.docs) {
+    const { seen_ids: always = [], route_ids: routes = {}, routing = {} } = d.data();
+    for (const id of always) seen.add(id);
+    for (const [kind, r] of Object.entries(routes || {})) {
+      const route = routing?.[kind];
+      const ids = route && r[route] ? r[route] : [...(r.easy || []), ...(r.hard || [])];
+      for (const id of ids) seen.add(id);
     }
   }
   return seen;
 }
 
 /** The lineages (a source question and its variants) behind items a student has seen. */
-export async function lineagesOf(itemIds) {
+export async function lineagesOf(itemIds, pool = null) {
   const out = new Set();
   if (!itemIds.size) return out;
-  const { rows } = await query('SELECT id, variant_of FROM pa_items WHERE id = ANY($1::uuid[])', [[...itemIds]]);
-  for (const r of rows) out.add(lineageOf(r));
+  const known = pool ? await bankRows(pool) : new Map();
+  const rest = [];
+  for (const id of itemIds) {
+    const r = known.get(id);
+    if (r) out.add(lineageOf(r));
+    else rest.push(id);
+  }
+  for (const r of (await getMany(COL.items, rest, ['variant_of'])).values()) out.add(lineageOf(r));
   return out;
 }
 
@@ -299,13 +314,14 @@ export async function lineagesOf(itemIds) {
  */
 export async function materializeForm(spec, { userId, institutionId, buildTemplates = true } = {}) {
   const seen = await loadSeenItemIds(userId);
+  const pool = await poolFor(institutionId);
   const ctx = {
-    pool: await poolFor(institutionId),
+    pool,
     exam: spec.exam !== false,
     usedInForm: new Set(),
     seen,
     usedLineage: new Set(),
-    seenLineage: await lineagesOf(seen),
+    seenLineage: await lineagesOf(seen, pool),
     buildTemplates,
     notes: [],
   };

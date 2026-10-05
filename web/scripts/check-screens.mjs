@@ -1,11 +1,11 @@
 // Every screen of the app, photographed as a student, an admin and the
 // platform owner see it, on a desktop and on a phone, for a visual review.
-// Requires the local API and client (`./start.sh`).
+// Requires the local API and client (`./start.sh`), on the emulators.
 //
-//   From client: npm run check:screens [-- --label before]
+//   From web: npm run check:screens [-- --label before]
 //
 // Temporary accounts in the default institution (a student, an admin) and a
-// temporary superadmin walk through the landing page, sign-in, an invite, the
+// temporary superadmin walk through the landing page, sign-in and sign-up, an invite, the
 // dashboard, a practice set in the test runner (passage, choices, cross-out,
 // navigator, calculator, reference sheet, dragging a tool window), its results
 // and answer review, the account menu, and the admin and platform consoles,
@@ -17,16 +17,17 @@ import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { query, pool } from '../../functions/lib/db.js';
-import { hashPassword } from '../../functions/lib/auth.js';
-import { signInvite } from '../../functions/lib/invite.js';
+import {
+  ask, call, close, institutionBySlug, inviteToken, makeAccount, removeAccount,
+} from './fixtures.mjs';
 
 const arg = (name, fallback = null) => {
   const i = process.argv.indexOf(`--${name}`);
   return i < 0 ? fallback : process.argv[i + 1];
 };
-const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5174';
-const apiOrigin = process.env.E2E_API_URL || 'http://localhost:3002';
+// The client, which serves the API on its own origin (the Vite proxy).
+const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5180';
+const apiOrigin = `${origin}/api`;
 const output = path.resolve(`../.logs/screens/${arg('label', 'latest')}`);
 fs.rmSync(output, { recursive: true, force: true });
 fs.mkdirSync(output, { recursive: true });
@@ -40,15 +41,12 @@ let browser;
 let current; // the page open now, photographed if a step fails
 
 async function account(role, institutionId, name) {
-  const email = `screens-${role}-${crypto.randomUUID()}@example.test`;
-  const password = crypto.randomBytes(18).toString('base64url');
-  const { rows } = await query(
-    `INSERT INTO pa_users(email,password_hash,display_name,role,institution_id,must_change_password)
-     VALUES($1,$2,$3,$4,$5,false) RETURNING id`,
-    [email, await hashPassword(password), name, role, institutionId],
-  );
-  users.push(rows[0].id);
-  return { id: rows[0].id, email, password, name };
+  const made = await makeAccount({
+    email: `screens-${role}-${crypto.randomUUID()}@example.test`, password: crypto.randomBytes(18).toString('base64url'),
+    role, institutionId, name,
+  });
+  users.push(made.id);
+  return made;
 }
 
 async function open(viewport = DESKTOP) {
@@ -57,7 +55,7 @@ async function open(viewport = DESKTOP) {
   current = page;
   page.on('pageerror', (e) => problems.push(`page error: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error') problems.push(`console: ${m.text().slice(0, 200)}`); });
-  page.on('response', (r) => { if (r.url().startsWith(apiOrigin) && r.status() >= 400) problems.push(`${r.status()} ${r.request().method()} ${r.url().replace(apiOrigin, '')}`); });
+  page.on('response', (r) => { if (r.url().startsWith(apiOrigin) && r.status() >= 400) problems.push(`${r.status()} ${r.request().method()} ${r.url().replace(origin, '')}`); });
   return page;
 }
 
@@ -79,16 +77,11 @@ async function signIn(page, who) {
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
 }
 
-async function api(page, endpoint, method = 'GET', body) {
-  return page.evaluate(async ({ url, method, body }) => {
-    const r = await fetch(url, { method, headers: { Authorization: `Bearer ${localStorage.getItem('satify_token')}`, 'content-type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}) });
-    if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
-    return r.json();
-  }, { url: `${apiOrigin}${endpoint}`, method, body });
-}
+/** Ask the API as an account. */
+const api = (who, endpoint, method = 'GET', body) => call(origin, who, method, endpoint, body);
 
 try {
-  const satify = (await query("SELECT id FROM pa_institutions WHERE slug='satify'")).rows[0].id;
+  const satify = await institutionBySlug('satify');
   const learner = await account('student', satify, 'Riley Chen');
   const admin = await account('admin', satify, 'Morgan Admin');
   const owner = await account('superadmin', null, 'Platform Owner');
@@ -103,10 +96,13 @@ try {
     await page.goto(`${origin}/sign-in`);
     await page.locator('input[type=email]').waitFor();
     await capture(page, `sign-in-${tag}`);
+    await page.goto(`${origin}/sign-up`);
+    await page.getByRole('button', { name: 'Create account' }).waitFor();
+    await capture(page, `sign-up-${tag}`);
     // The logo leads home from every page: here, the landing page.
     await page.getByRole('link', { name: 'insat home', exact: true }).click();
     await page.getByRole('heading', { name: /Practice that feels/ }).waitFor();
-    await page.goto(`${origin}/?invite=${encodeURIComponent(signInvite({ userId: learner.id, email: learner.email }))}`);
+    await page.goto(`${origin}/?invite=${encodeURIComponent(await inviteToken(learner))}`);
     await page.getByRole('button', { name: /Set password/ }).waitFor();
     await capture(page, `invite-${tag}`);
     await page.getByRole('link', { name: 'insat home', exact: true }).click();
@@ -123,7 +119,7 @@ try {
     await page.getByRole('button', { name: 'Go to sign in' }).click();
     await page.locator('input[type=email]').waitFor();
     if (new URL(page.url()).pathname !== '/sign-in') problems.push(`invite: "Go to sign in" opened ${page.url()}`);
-    await page.goto(`${origin}/?invite=${encodeURIComponent(signInvite({ userId: invitee.id, email: invitee.email }))}`);
+    await page.goto(`${origin}/?invite=${encodeURIComponent(await inviteToken(invitee))}`);
     const fresh = crypto.randomBytes(12).toString('base64url');
     await page.getByLabel('New password').fill(fresh);
     await page.getByLabel('Confirm password').fill(fresh);
@@ -164,9 +160,9 @@ try {
   await page.keyboard.press('Escape');
 
   // A practice set of one RW and one math skill: the runner in both layouts.
-  const profile = await api(page, '/api/student/profile');
+  const profile = await api(learner, '/api/student/profile');
   const pick = (section) => profile.skills.find((s) => s.section === section && s.ready > 0)?.skill;
-  const set = await api(page, '/api/student/practice', 'POST', { mode: 'skills', skills: [pick('rw'), pick('math')] });
+  const set = await api(learner, '/api/student/practice', 'POST', { mode: 'skills', skills: [pick('rw'), pick('math')] });
   await page.reload();
   await page.getByRole('button', { name: /Resume/ }).first().click();
   await page.getByRole('heading', { name: set.form.sections[0].name, exact: true }).waitFor();
@@ -257,7 +253,7 @@ try {
   await page.getByRole('link', { name: 'insat home', exact: true }).click();
   await page.getByRole('heading', { name: 'Take a practice test' }).waitFor();
   // A set left in progress, to show Resume and Discard.
-  await api(page, '/api/student/practice', 'POST', { mode: 'skills', skills: [pick('math')] });
+  await api(learner, '/api/student/practice', 'POST', { mode: 'skills', skills: [pick('math')] });
   await page.reload();
   await page.getByRole('button', { name: /Discard/ }).first().waitFor();
   await capture(page, 'student-dashboard-history-desktop');
@@ -280,20 +276,21 @@ try {
     for (let i = 0; i < 20 && await locator.count() !== want; i += 1) await page.waitForTimeout(100);
     return locator.count();
   };
-  const counted = answered(await api(page, '/api/student/profile'));
+  const counted = answered(await api(learner, '/api/student/profile'));
   const finished = await cards('Review').count();
   await discard(cards('Review').first(), 'Its results still count toward your skill map');
   if (await settled(cards('Review'), finished - 1) !== finished - 1) problems.push('discard: a finished practice set stayed on the list');
-  if (answered(await api(page, '/api/student/profile')) !== counted) problems.push('discard: a discarded finished set stopped counting in the skill profile');
+  if (answered(await api(learner, '/api/student/profile')) !== counted) problems.push('discard: a discarded finished set stopped counting in the skill profile');
   const unfinished = await cards('Resume').count();
   await discard(cards('Resume').first(), 'and the answers in it will be removed');
   if (await settled(cards('Resume'), unfinished - 1) !== unfinished - 1) problems.push('discard: an unfinished practice set stayed on the list');
-  if ((await api(page, '/api/student/practice')).practice.length !== 0) problems.push('discard: the practice list still has discarded sets');
-  // A malformed id is a bad request, not a server error (asked from here, so
-  // the expected 400 is not counted as a failed call of the page).
-  const token = await page.evaluate(() => localStorage.getItem('satify_token'));
-  const malformed = await fetch(`${apiOrigin}/api/student/practice/not-an-id`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
-  if (malformed.status !== 400) problems.push(`api: a malformed id answered ${malformed.status}, not 400`);
+  if ((await api(learner, '/api/student/practice')).practice.length !== 0) problems.push('discard: the practice list still has discarded sets');
+  // An id that names nothing is not found, not a server error (asked from
+  // here, so the expected 404 is not counted as a failed call of the page).
+  for (const id of ['not-an-id', '__x__', 'a/b']) {
+    const malformed = await ask(origin, learner, 'DELETE', `/api/student/practice/${encodeURIComponent(id)}`);
+    if (malformed.status !== 404) problems.push(`api: the id ${id} answered ${malformed.status}, not 404`);
+  }
   // Signing out from the menu lands on sign-in; back in with the password
   // changed above.
   await page.getByRole('button', { name: 'Account menu' }).click();
@@ -362,9 +359,6 @@ try {
   process.exitCode = 1;
 } finally {
   await browser?.close();
-  for (const id of users) {
-    await query('DELETE FROM pa_sessions WHERE user_id=$1', [id]).catch(() => {});
-    await query('DELETE FROM pa_users WHERE id=$1', [id]);
-  }
-  await pool.end();
+  for (const id of users) await removeAccount(id);
+  await close();
 }

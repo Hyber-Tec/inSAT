@@ -99,7 +99,7 @@ async function postJson(url, { headers, body, label }) {
     try {
       res = await fetch(url, { method: 'POST', headers, body });
     } catch (err) {
-      if (attempt >= MAX_ATTEMPTS) throw apiError(`Could not reach ${label}: ${err.message}`, 502);
+      if (attempt >= MAX_ATTEMPTS) throw apiError(`Could not reach the AI service: ${err.message}`, 502);
       await sleep(500 * 2 ** (attempt - 1));
       continue;
     }
@@ -117,7 +117,7 @@ async function postJson(url, { headers, body, label }) {
     // 401/403 are almost always a bad/absent key - surface as a 400 to the admin.
     const badKey = res.status === 401 || res.status === 403;
     throw apiError(
-      badKey ? `${label} rejected the API key - check the key in Settings.` : `${label} ${res.status}: ${errBody.slice(0, 200)}`,
+      badKey ? 'The AI service rejected the API key - check the key in Settings.' : `The AI service answered ${res.status}: ${errBody.slice(0, 200)}`,
       badKey ? 400 : 502,
     );
   }

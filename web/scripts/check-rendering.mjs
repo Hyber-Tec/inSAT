@@ -1,7 +1,7 @@
 // How questions actually look to a student, checked in a real browser.
-// Requires the local API and client (`./start.sh`).
+// Requires the local API and client (`./start.sh`), on the emulators.
 //
-//   From client:
+//   From web:
 //   npm run check:rendering -- --items <id,id,...>   # through the real UI: a practice set, the review
 //   npm run check:rendering -- --items <id,...> --phone  # the same on a phone-sized screen
 //   npm run check:rendering -- --audit [--institution satify] [--limit N]
@@ -26,16 +26,17 @@ import { chromium } from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { query, pool } from '../../functions/lib/db.js';
-import { hashPassword } from '../../functions/lib/auth.js';
-import { importRows } from '../../functions/lib/items.js';
+import {
+  COL, bankOf, call, close, getMany, importRows, institutionBySlug, makeAccount, makeInstitution, removeAccount,
+  removeInstitution, sessionsOf,
+} from './fixtures.mjs';
 
 const arg = (name, fallback = null) => {
   const i = process.argv.indexOf(`--${name}`);
   return i < 0 ? fallback : process.argv[i + 1];
 };
-const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5174';
-const apiOrigin = process.env.E2E_API_URL || 'http://localhost:3002';
+// The client, which serves the API on its own origin (the Vite proxy).
+const origin = process.env.E2E_CLIENT_URL || 'http://127.0.0.1:5180';
 const output = path.resolve(process.env.E2E_OUTPUT || '../.logs/rendering');
 fs.mkdirSync(output, { recursive: true });
 
@@ -180,13 +181,10 @@ function summarize(found, total) {
 async function audit(browser, { fixturesOnly = false } = {}) {
   const slug = arg('institution', 'satify');
   const limit = Number(arg('limit', '0')) || null;
-  const { rows } = fixturesOnly ? { rows: [] } : await query(
-    `SELECT id, question, passage, choices, rationale FROM pa_items
-      WHERE institution_id = (SELECT id FROM pa_institutions WHERE slug = $1)
-        AND retired_at IS NULL AND source <> 'reference'
-      ORDER BY id ${limit ? `LIMIT ${limit}` : ''}`,
-    [slug],
-  );
+  const rows = fixturesOnly ? [] : (await bankOf(await institutionBySlug(slug)))
+    .filter((r) => !r.retired_at && r.source !== 'reference')
+    .sort((a, b) => (a.id < b.id ? -1 : 1))
+    .slice(0, limit || undefined);
   const page = await (await browser.newContext({ viewport: { width: 900, height: 900 } })).newPage();
   const pageErrors = [];
   page.on('pageerror', (e) => pageErrors.push(e.message));
@@ -219,16 +217,21 @@ async function throughUi(browser, ids) {
   const institutions = [];
   const users = [];
   try {
-    const { rows: items } = await query('SELECT * FROM pa_items WHERE id = ANY($1::uuid[])', [ids]);
+    const items = [...(await getMany(COL.items, ids)).values()];
     if (!items.length) throw new Error('no such items');
-    const inst = (await query("INSERT INTO pa_institutions(name,slug) VALUES('Temporary rendering check',$1) RETURNING id", [`qa-${crypto.randomUUID()}`])).rows[0].id;
+    // Its institution draws on its own bank, which holds these items alone, not
+    // on insat's pool (functions/lib/pool.js).
+    const inst = await makeInstitution({ name: 'Temporary rendering check', ownBank: true });
     institutions.push(inst);
     await importRows(items.map((r) => ({ ...r, variant_of: null })), inst, { nearDuplicates: 'allow' });
     // The copies have their own ids: follow them by content.
-    const copies = new Map((await query('SELECT id, content_hash FROM pa_items WHERE institution_id = $1', [inst])).rows.map((r) => [r.id, items.find((it) => it.content_hash === r.content_hash)?.id]));
-    const email = `render-${crypto.randomUUID()}@example.test`;
-    const password = crypto.randomBytes(24).toString('base64url');
-    users.push((await query("INSERT INTO pa_users(email,password_hash,display_name,role,institution_id,must_change_password) VALUES($1,$2,'Rendering check','student',$3,false) RETURNING id", [email, await hashPassword(password), inst])).rows[0].id);
+    const copies = new Map((await bankOf(inst)).map((r) => [r.id, items.find((it) => it.content_hash === r.content_hash)?.id]));
+    const student = await makeAccount({
+      email: `render-${crypto.randomUUID()}@example.test`, password: crypto.randomBytes(24).toString('base64url'),
+      role: 'student', institutionId: inst, name: 'Rendering check',
+    });
+    const { email, password } = student;
+    users.push(student.id);
     const page = await (await browser.newContext({ viewport: phone ? { width: 390, height: 844 } : { width: 1200, height: 900 }, deviceScaleFactor: 2 })).newPage();
     await page.goto(`${origin}/sign-in`);
     await page.locator('input[type=email]').fill(email);
@@ -237,13 +240,10 @@ async function throughUi(browser, ids) {
     await page.getByRole('heading', { name: 'Start with a diagnostic test' }).waitFor();
     // A set of exactly these items' skills, submitted unanswered.
     const skills = [...new Set(items.map((r) => r.skill))];
-    await page.evaluate(async ({ url, skills }) => {
-      const r = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${localStorage.getItem('satify_token')}`, 'content-type': 'application/json' }, body: JSON.stringify({ mode: 'skills', skills }) });
-      if (!r.ok) throw new Error(await r.text());
-    }, { url: `${apiOrigin}/api/student/practice`, skills });
+    await call(origin, student, 'POST', '/api/student/practice', { mode: 'skills', skills });
     await page.reload();
     await page.getByRole('button', { name: /Resume|Continue/ }).first().click();
-    const session = (await query('SELECT id, form FROM pa_sessions WHERE user_id = $1 ORDER BY started_at DESC LIMIT 1', [users[0]])).rows[0];
+    const [session] = await sessionsOf(student.id);
     for (const section of session.form.sections) {
       await page.getByRole('button', { name: 'Start', exact: true }).click();
       // The runner opens on the first question; the last one carries the submit button.
@@ -303,8 +303,8 @@ async function throughUi(browser, ids) {
     for (const f of found.slice(0, 10)) console.log(`  ${f.key}: ${f.problem}: ${JSON.stringify(f.text.slice(0, 120))}`);
     return found.length === 0;
   } finally {
-    for (const id of users) await query('DELETE FROM pa_users WHERE id=$1', [id]);
-    for (const id of institutions) await query('DELETE FROM pa_institutions WHERE id=$1', [id]);
+    for (const id of users) await removeAccount(id);
+    for (const id of institutions) await removeInstitution(id);
   }
 }
 
@@ -317,6 +317,6 @@ try {
   ok = ids ? await throughUi(browser, ids.split(',')) : await audit(browser, { fixturesOnly: process.argv.includes('--fixtures') });
 } finally {
   await browser?.close();
-  await pool.end();
+  await close();
 }
 process.exitCode = ok ? 0 : 1;

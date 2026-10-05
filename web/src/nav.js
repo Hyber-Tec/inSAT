@@ -1,14 +1,14 @@
 // Path routing for the signed-out marketing surface. The signed-in app is a
 // role-based state machine (see App.jsx), so this only needs to tell the
-// landing page, the sign-in page and an invite link (/?invite=) apart and keep
-// the URL honest - real URLs mean /sign-in is linkable, refreshable, and works
-// with the back button. Change the URL only through navigate(), so the app
-// hears of it.
-// Render already rewrites every path to index.html (see render.yaml).
+// landing page, the sign-in and sign-up pages and an invite link (/?invite=)
+// apart and keep the URL honest - real URLs mean /sign-in is linkable,
+// refreshable, and works with the back button. Change the URL only through
+// navigate(), so the app hears of it.
+// Firebase Hosting serves index.html for every path (firebase.json).
 
 import { useEffect, useState } from 'react';
 
-export const ROUTES = { home: '/', signIn: '/sign-in' };
+export const ROUTES = { home: '/', signIn: '/sign-in', signUp: '/sign-up' };
 
 /** Back to the top of the page, gliding unless the reader asked for less motion. */
 export function scrollToTop() {

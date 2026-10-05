@@ -5,15 +5,20 @@
 // an instance of it is appended to the form. Used by the routes that make a
 // test from an upload or with AI and that add questions to one.
 
-import { query } from './db.js';
+import { COL, col, docOf, getRow } from './store.js';
 import { instanceFromRow } from './assembly.js';
-import { insertItem, isBankable } from './items.js';
+import { findByHash, insertItem, isBankable } from './items.js';
 
 const KIND_ORDER = { rw: 0, math: 1 };
 
-// The columns instanceFromRow needs off a pa_items row.
-const ITEM_COLS =
-  'id, section, domain, skill, difficulty, passage, question, choices, correct_idx, answer_type, answer_text, accepted, rationale, figure, asset_id';
+/** A custom test of this institution (its row, form parsed), or null. */
+export async function fixedExam(examId, institutionId) {
+  const exam = await getRow(COL.exams, examId);
+  return exam && exam.institution_id === institutionId && exam.kind === 'fixed' ? exam : null;
+}
+
+/** Store a custom test's edited form. */
+export const saveForm = (examId, form) => col(COL.exams).doc(examId).update(docOf(COL.exams, { form }));
 
 export const emptyFixedForm = () => ({
   sections: [],
@@ -78,12 +83,9 @@ function pruneEmpty(form) {
  * institution.
  */
 export async function addRowsToExam(examId, institutionId, rows, { module = null } = {}) {
-  const examRes = await query(
-    "SELECT form FROM pa_exams WHERE id = $1 AND institution_id = $2 AND kind = 'fixed'",
-    [examId, institutionId],
-  );
-  if (!examRes.rows[0]) return null;
-  const form = examRes.rows[0].form || emptyFixedForm();
+  const exam = await fixedExam(examId, institutionId);
+  if (!exam) return null;
+  const form = exam.form || emptyFixedForm();
   if (!Array.isArray(form.sections)) form.sections = [];
 
   const inForm = existingItemIds(form);
@@ -91,22 +93,17 @@ export async function addRowsToExam(examId, institutionId, rows, { module = null
   let appended = 0;
   for (const row of rows) {
     if (!isBankable(row)) continue;
-    const result = await insertItem(row, institutionId, { nearDuplicates: 'allow' });
+    let item = null;
+    const result = await insertItem(row, institutionId, { nearDuplicates: 'allow', onAdded: (r) => { item = r; } });
     if (result === 'added') added += 1;
-    const { rows: found } = await query(
-      `SELECT ${ITEM_COLS} FROM pa_items WHERE institution_id = $1 AND content_hash = $2`,
-      [institutionId, row.content_hash],
-    );
-    if (found[0] && !inForm.has(found[0].id)) {
-      appendInstance(form, instanceFromRow(found[0]), module || row.module || 1);
-      inForm.add(found[0].id);
+    else item = await findByHash(institutionId, row.content_hash);
+    if (item && !inForm.has(item.id)) {
+      appendInstance(form, instanceFromRow(item), module || row.module || 1);
+      inForm.add(item.id);
       appended += 1;
     }
   }
-  await query(
-    'UPDATE pa_exams SET form = $1::jsonb WHERE id = $2 AND institution_id = $3',
-    [JSON.stringify(form), examId, institutionId],
-  );
+  await saveForm(examId, form);
   return { added, appended };
 }
 
@@ -117,12 +114,9 @@ export async function addRowsToExam(examId, institutionId, rows, { module = null
  */
 export async function moveQuestionsToModule(examId, institutionId, qids, targetModule) {
   const ordinal = Number(targetModule) === 2 ? 2 : 1;
-  const examRes = await query(
-    "SELECT form FROM pa_exams WHERE id = $1 AND institution_id = $2 AND kind = 'fixed'",
-    [examId, institutionId],
-  );
-  if (!examRes.rows[0] || !examRes.rows[0].form) return null;
-  const form = examRes.rows[0].form;
+  const exam = await fixedExam(examId, institutionId);
+  if (!exam || !exam.form) return null;
+  const form = exam.form;
   const wanted = new Set(qids);
 
   // Pull the matching questions out of wherever they currently sit.
@@ -142,16 +136,9 @@ export async function moveQuestionsToModule(examId, institutionId, qids, targetM
   for (const instance of pulled) appendInstance(form, instance, ordinal);
   pruneEmpty(form);
 
-  await query(
-    'UPDATE pa_exams SET form = $1::jsonb WHERE id = $2 AND institution_id = $3',
-    [JSON.stringify(form), examId, institutionId],
-  );
+  await saveForm(examId, form);
   return { moved: pulled.length };
 }
-
-/** SQL for the number of questions in the form of the pa_exams row `alias`. */
-export const formCountSql = (alias) =>
-  `(SELECT count(*)::int FROM jsonb_path_query(${alias}.form, '$.sections[*].modules[*].questions[*]'))`;
 
 /** The sections a custom test has questions in, in order ('rw', 'math'). */
 export const formSections = (form) => (form?.sections || [])

@@ -5,7 +5,7 @@
 // in pa_items shape, ready to import. This replaces the old external satGen
 // service - generation now lives inside the testing app.
 
-import { query } from './db.js';
+import { COL, col, queryRows } from './store.js';
 import { complete, parseJson } from './llm.js';
 import { contentHash } from './items.js';
 import { gridMatch } from './session.js';
@@ -36,22 +36,16 @@ const SECTION_LABEL = { rw: 'Reading and Writing', math: 'Math' };
 // flagged during transcription.
 export async function exemplars(kind, domain, k = 3, { difficulty = null, skill = null } = {}) {
   const pool = await globalPoolId();
-  const { rows } = await query(
-    `SELECT passage, question, choices, correct_idx, answer_type, answer_text, skill, rationale
-       FROM pa_items
-      WHERE institution_id = $1 AND section = $2 AND domain = $3 AND retired_at IS NULL
-        AND asset_id IS NULL
-        AND NOT EXISTS (
-          SELECT 1 FROM jsonb_array_elements_text(COALESCE(rationale->'flags', '[]'::jsonb)) f
-           WHERE f LIKE 'key-%')
-      ORDER BY (source = 'reference') DESC,
-               (skill = $5) DESC,
-               (difficulty = $6) DESC,
-               random()
-      LIMIT $4`,
-    [pool, kind, domain, k, skill || '', difficulty || ''],
-  );
-  return rows;
+  const rows = (await queryRows(col(COL.items)
+    .where('institution_id', '==', pool).where('section', '==', kind).where('domain', '==', domain)
+    .where('retired_at', '==', null)
+    .select('passage', 'question', 'choices', 'correct_idx', 'answer_type', 'answer_text', 'skill', 'difficulty', 'rationale', 'source', 'asset_id')))
+    .filter((r) => !r.asset_id && !(r.rationale?.flags || []).some((f) => String(f).startsWith('key-')));
+  // Reference first, then the same skill, then the same difficulty; random among equals.
+  const rank = (r) => [r.source === 'reference' ? 0 : 1, r.skill === (skill || '') ? 0 : 1, r.difficulty === (difficulty || '') ? 0 : 1, Math.random()];
+  const keyed = rows.map((r) => [rank(r), r]);
+  keyed.sort(([a], [b]) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2] || a[3] - b[3]);
+  return keyed.slice(0, k).map(([, r]) => r);
 }
 
 // How much of an example's explanation to show: enough for its depth and tone.

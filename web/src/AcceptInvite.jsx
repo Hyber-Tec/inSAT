@@ -2,8 +2,8 @@
 // password, and is signed straight in.
 
 import React, { useState, useEffect } from 'react';
-import { api, setToken } from './api.js';
-import { useAuth } from './auth.jsx';
+import { api } from './api.js';
+import { authMessage, useAuth } from './auth.jsx';
 import { HomeLink, Wordmark, ErrorNote, Loading } from './ui.jsx';
 import { ROUTES, navigate } from './nav.js';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 
 export default function AcceptInvite({ token }) {
-  const { setUser } = useAuth();
+  const { login } = useAuth();
   const [info, setInfo] = useState(null); // null=loading, {valid,email,name,role}
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -38,11 +38,10 @@ export default function AcceptInvite({ token }) {
     if (password !== confirm) { setError('Passwords do not match.'); return; }
     setBusy(true); setError(null);
     try {
-      const { token: jwt, user } = await api.post('/api/auth/accept-invite', { token, password });
-      setToken(jwt);
+      const { email } = await api.post('/api/auth/accept-invite', { token, password });
+      await login(email, password);
       navigate(ROUTES.home, { replace: true });
-      setUser(user);
-    } catch (err) { setError(err.message); setBusy(false); }
+    } catch (err) { setError(authMessage(err)); setBusy(false); }
   };
 
   return (

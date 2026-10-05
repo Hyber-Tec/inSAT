@@ -10,9 +10,10 @@
 // their variants and template questions, so model-written questions added to
 // it are never served; fill it from the templates alone (--rw 0).
 //
-// Run:
-//   node --env-file=.env functions/scripts/topup-pool.js --math 40 --rw 25
-//   node --env-file=.env functions/scripts/topup-pool.js --rw 25 --dry-run
+// Run (from functions/; the emulators when FIRESTORE_EMULATOR_HOST is set,
+// production otherwise):
+//   node --env-file-if-exists=.env.local scripts/topup-pool.js --math 40 --rw 25
+//   node --env-file-if-exists=.env.local scripts/topup-pool.js --rw 25 --dry-run
 //
 // Flags:
 //   --math N        target items per math domain x difficulty   (default 30)
@@ -29,7 +30,8 @@
 // Reading & Writing is filled per skill, not just per domain: practice aimed at
 // a student's weakest skill needs items of that skill to draw from.
 
-import { query, pool } from '../lib/db.js';
+import { target } from '../lib/firebase.js';
+import { COL, col, queryRows } from '../lib/store.js';
 import { DOMAINS, SKILLS } from '../lib/taxonomy.js';
 import { globalPoolId, ensureGlobalPool } from '../lib/pool.js';
 import { MATH_TEMPLATES } from '../lib/templates/math.js';
@@ -58,29 +60,26 @@ const dryRun = flag('dry-run');
 async function targetInstitution() {
   const slug = arg('institution', '');
   if (!slug) { await ensureGlobalPool(); return { id: await globalPoolId(), label: 'global pool' }; }
-  const { rows } = await query('SELECT id, name FROM pa_institutions WHERE slug = $1', [slug]);
-  if (!rows[0]) throw new Error(`No institution with slug "${slug}"`);
+  const [found] = await queryRows(col(COL.institutions).where('slug', '==', slug).limit(1));
+  if (!found) throw new Error(`No institution with slug "${slug}"`);
   // The institution's own key when it has one (Settings), else the platform key.
-  return { id: rows[0].id, label: rows[0].name };
+  return { id: found.id, label: found.name };
 }
 
 async function counts(institutionId) {
   // Reference items are never served on an exam, so they must not count toward
   // the target -- otherwise an imported bank makes every cell look full while
   // the servable bank is still empty.
-  const { rows } = await query(
-    `SELECT section, domain, skill, difficulty, source <> 'template' AS written, COUNT(*)::int AS n
-       FROM pa_items
-      WHERE institution_id = $1 AND retired_at IS NULL AND source <> 'reference'
-      GROUP BY section, domain, skill, difficulty, source <> 'template'`,
-    [institutionId],
-  );
+  const rows = (await queryRows(col(COL.items)
+    .where('institution_id', '==', institutionId).where('retired_at', '==', null)
+    .select('section', 'domain', 'skill', 'difficulty', 'source')))
+    .filter((r) => r.source !== 'reference');
   const map = new Map();
-  const add = (key, n) => map.set(key, (map.get(key) || 0) + n);
+  const add = (key) => map.set(key, (map.get(key) || 0) + 1);
   for (const r of rows) {
-    add(`${r.section}|${r.domain}|${r.difficulty}`, r.n);
-    add(`${r.section}|${r.domain}|${r.skill}|${r.difficulty}`, r.n);
-    if (r.written) add(`${r.section}|${r.domain}|${r.skill}|${r.difficulty}|written`, r.n);
+    add(`${r.section}|${r.domain}|${r.difficulty}`);
+    add(`${r.section}|${r.domain}|${r.skill}|${r.difficulty}`);
+    if (r.source !== 'template') add(`${r.section}|${r.domain}|${r.skill}|${r.difficulty}|written`);
   }
   return map;
 }
@@ -180,6 +179,7 @@ async function main() {
 
   if (dryRun) { console.log('\n--dry-run: nothing generated.'); return; }
   if (!gaps.length) { console.log('\nNothing to do.'); return; }
+  console.log(`\nwriting to ${target()}`);
 
   // Math: free, instant, no model involved.
   let mathAdded = 0;
@@ -244,5 +244,4 @@ async function main() {
 }
 
 main()
-  .catch((err) => { console.error(`\nFailed: ${err.message}`); process.exitCode = 1; })
-  .finally(() => pool.end?.());
+  .catch((err) => { console.error(`\nFailed: ${err.message}`); process.exitCode = 1; });

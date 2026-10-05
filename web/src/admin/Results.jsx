@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { api, assetUrl, getToken } from '../api.js';
+import { api, assetUrl, authHeaders } from '../api.js';
 import { EmptyState, ErrorNote, Loading, Meter, StatusBadge } from '../ui.jsx';
 import { SectionHead, Stat, useConfirm } from './shared.jsx';
 import { categoryLabel } from '../../taxonomy.js';
@@ -296,7 +296,7 @@ function ResultsAnalytics() {
   const exportCsv = async () => {
     setBusy(true);
     try {
-      const res = await fetch(`${api.base}/api/admin/results.csv`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const res = await fetch(`${api.base}/api/admin/results.csv`, { headers: await authHeaders() });
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');

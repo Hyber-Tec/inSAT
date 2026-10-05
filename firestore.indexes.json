@@ -1,0 +1,40 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "institution_id", "order": "ASCENDING" },
+        { "fieldPath": "updated_at", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "sessions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "institution_id", "order": "ASCENDING" },
+        { "fieldPath": "started_at", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    { "collectionGroup": "items", "fieldPath": "passage", "indexes": [] },
+    { "collectionGroup": "items", "fieldPath": "question", "indexes": [] },
+    { "collectionGroup": "items", "fieldPath": "choices", "indexes": [] },
+    { "collectionGroup": "items", "fieldPath": "rationale", "indexes": [] },
+    { "collectionGroup": "items", "fieldPath": "figure", "indexes": [] },
+    { "collectionGroup": "items", "fieldPath": "accepted", "indexes": [] },
+    { "collectionGroup": "items", "fieldPath": "answer_text", "indexes": [] },
+    { "collectionGroup": "items", "fieldPath": "simhash", "indexes": [] },
+    { "collectionGroup": "sessions", "fieldPath": "form", "indexes": [] },
+    { "collectionGroup": "sessions", "fieldPath": "state", "indexes": [] },
+    { "collectionGroup": "sessions", "fieldPath": "routing", "indexes": [] },
+    { "collectionGroup": "sessions", "fieldPath": "practice", "indexes": [] },
+    { "collectionGroup": "sessions", "fieldPath": "responses", "indexes": [] },
+    { "collectionGroup": "sessions", "fieldPath": "seen_ids", "indexes": [] },
+    { "collectionGroup": "sessions", "fieldPath": "route_ids", "indexes": [] },
+    { "collectionGroup": "exams", "fieldPath": "form", "indexes": [] },
+    { "collectionGroup": "blueprints", "fieldPath": "spec", "indexes": [] },
+    { "collectionGroup": "assignments", "fieldPath": "practice", "indexes": [] }
+  ]
+}

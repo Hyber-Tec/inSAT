@@ -16,16 +16,19 @@ anything that fails, and imports the finished questions into the bank.
   images, the job files and the results written so far.
 - A shell (to run `node`), file read and write, and the ability to look at
   PNG images. If your tool cannot look at images, see "Without images" below.
-- The app's Postgres database running. From the repo root:
-  `docker compose up -d postgres` (or `./start.sh`, which starts the whole app).
-- The server's packages installed: `cd functions && npm install`, once.
+- The app's database: the Firebase emulators running (`./start.sh` from the
+  repo root starts them with the whole app) and `FIRESTORE_EMULATOR_HOST`,
+  `FIREBASE_AUTH_EMULATOR_HOST` and `FIREBASE_STORAGE_EMULATOR_HOST` set as in
+  `functions/.env.example`; or production, with Application Default
+  Credentials (README, "Admin scripts and their target").
+- The API's packages installed: `cd functions && npm install`, once.
 
 ## The loop
 
 1. From `functions/`, run the cut command:
 
    ```
-   node --env-file=.env scripts/import-classmarker.js ../private-data/SAT/extracted/classmarker/questions.jsonl --institution satify --jobs --limit 100 --job-size 20 --skip-categories 211,226,212,229,238,228,231,225,215,237,230,219,234,135,233,218,232,217,166,222,209,207,240,0
+   node --env-file-if-exists=.env.local scripts/import-classmarker.js ../private-data/SAT/extracted/classmarker/questions.jsonl --institution satify --jobs --limit 100 --job-size 20 --skip-categories 211,226,212,229,238,228,231,225,215,237,230,219,234,135,233,218,232,217,166,222,209,207,240,0
    ```
 
    It takes in every finished job's results, imports every question that is
@@ -104,9 +107,10 @@ a question's text are left out on purpose.
 
 ## If something goes wrong
 
-- `Missing required env var: DATABASE_URL`: run from `functions/` with
-  `--env-file=.env`.
-- `ECONNREFUSED` on port 5434: the database is not running. Start it as above.
+- The script says it writes to production when you meant the emulators: set
+  the three emulator variables (above), or put them in `functions/.env.local`.
+- `ECONNREFUSED` on port 8090: the Firestore emulator is not running. Start it
+  as above.
 - A job keeps coming back: its results file was never written. Do it again. To
   have a job cut afresh instead, delete its job file.
 

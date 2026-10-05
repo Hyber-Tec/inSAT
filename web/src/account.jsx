@@ -1,9 +1,11 @@
 // The signed-in person's corner, the same in every role's app: their avatar
 // opens a menu with who they are, account settings and sign out. Account
-// settings shows the account and changes its password, which also clears the
-// "must reset" an admin can set.
+// settings shows the account and changes its password (Firebase Auth, after
+// the current one is confirmed), which also clears the "must reset" an admin
+// can set. An account that signs in with Google only has no password here.
 
 import React, { useState } from 'react';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { LuChevronsUpDown, LuCircleCheck, LuLogOut, LuSettings } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,7 +18,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { api } from './api.js';
-import { useAuth } from './auth.jsx';
+import { authMessage, useAuth } from './auth.jsx';
+import { auth } from './firebase.js';
 import { ErrorNote } from './ui.jsx';
 
 const initialsOf = (user) => (user?.displayName || user?.email || '?')
@@ -83,16 +86,23 @@ function AccountSettings({ user, onClose }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [changed, setChanged] = useState(false);
+  const account = auth.currentUser;
+  const hasPassword = Boolean(account?.providerData.some((p) => p.providerId === 'password'));
 
   const save = async (e) => {
     e.preventDefault();
     if (fresh !== repeat) { setError('The new passwords do not match.'); return; }
     setBusy(true); setError(null); setChanged(false);
     try {
-      await api.post('/api/auth/change-password', { currentPassword: current, newPassword: fresh });
+      await reauthenticateWithCredential(account, EmailAuthProvider.credential(account.email, current));
+      await updatePassword(account, fresh);
+      await api.post('/api/auth/password-changed');
       setCurrent(''); setFresh(''); setRepeat('');
       setChanged(true);
-    } catch (err) { setError(err.message); } finally { setBusy(false); }
+    } catch (err) {
+      setError(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password'
+        ? 'Current password is incorrect' : authMessage(err));
+    } finally { setBusy(false); }
   };
 
   return (
@@ -116,34 +126,38 @@ function AccountSettings({ user, onClose }) {
           )}
         </dl>
 
-        <form onSubmit={save} className="grid gap-4">
-          <div className="text-sm font-medium">Change password</div>
-          <div className="grid gap-2">
-            <Label htmlFor="current-password">Current password</Label>
-            <Input id="current-password" type="password" value={current} autoComplete="current-password" required
-              onChange={(e) => setCurrent(e.target.value)} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="new-password">New password</Label>
-            <Input id="new-password" type="password" value={fresh} autoComplete="new-password" required minLength={6}
-              onChange={(e) => setFresh(e.target.value)} placeholder="At least 6 characters" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="repeat-password">Confirm new password</Label>
-            <Input id="repeat-password" type="password" value={repeat} autoComplete="new-password" required
-              onChange={(e) => setRepeat(e.target.value)} />
-          </div>
-          <ErrorNote>{error}</ErrorNote>
-          {changed && (
-            <p className="flex items-center gap-1.5 text-sm text-emerald-700"><LuCircleCheck className="size-4" /> Your password was changed.</p>
-          )}
-          <DialogFooter>
-            <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Close</Button>
-            <Button type="submit" disabled={busy || !current || fresh.length < 6 || !repeat}>
-              {busy && <Spinner />} Change password
-            </Button>
-          </DialogFooter>
-        </form>
+        {!hasPassword ? (
+          <p className="text-sm text-muted-foreground">You sign in with Google, so there is no insat password to change.</p>
+        ) : (
+          <form onSubmit={save} className="grid gap-4">
+            <div className="text-sm font-medium">Change password</div>
+            <div className="grid gap-2">
+              <Label htmlFor="current-password">Current password</Label>
+              <Input id="current-password" type="password" value={current} autoComplete="current-password" required
+                onChange={(e) => setCurrent(e.target.value)} />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="new-password">New password</Label>
+              <Input id="new-password" type="password" value={fresh} autoComplete="new-password" required minLength={6}
+                onChange={(e) => setFresh(e.target.value)} placeholder="At least 6 characters" />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="repeat-password">Confirm new password</Label>
+              <Input id="repeat-password" type="password" value={repeat} autoComplete="new-password" required
+                onChange={(e) => setRepeat(e.target.value)} />
+            </div>
+            <ErrorNote>{error}</ErrorNote>
+            {changed && (
+              <p className="flex items-center gap-1.5 text-sm text-emerald-700"><LuCircleCheck className="size-4" /> Your password was changed.</p>
+            )}
+            <DialogFooter>
+              <Button type="button" variant="outline" disabled={busy} onClick={onClose}>Close</Button>
+              <Button type="submit" disabled={busy || !current || fresh.length < 6 || !repeat}>
+                {busy && <Spinner />} Change password
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
