@@ -1,0 +1,17 @@
+# The owner approves every change to what everyone shares: the rules, CI, the
+# Firebase project's config and its database and storage rules, the
+# dependencies, and the UI kit (CLAUDE.md).
+/CLAUDE.md                     @goochoi913
+/.github/                      @goochoi913
+/firebase.json                 @goochoi913
+/.firebaserc                   @goochoi913
+/firestore.rules               @goochoi913
+/firestore.indexes.json        @goochoi913
+/storage.rules                 @goochoi913
+/functions/.env.insat-hyber    @goochoi913
+/functions/package.json        @goochoi913
+/functions/package-lock.json   @goochoi913
+/web/package.json              @goochoi913
+/web/package-lock.json         @goochoi913
+/web/.env.production           @goochoi913
+/web/src/components/ui/        @goochoi913
