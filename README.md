@@ -195,9 +195,10 @@ assembly can add math template questions to the default institution's bank durin
 
 ### Variations of the bank's own questions
 
-`lib/variation/` makes new questions from the questions already in an
-institution's bank, without a model: it reads a question, solves it, and
-writes the same question with new numbers. Every variant keeps its source's
+`lib/variation/` makes new questions from the math already in an
+institution's bank, its original and official questions alike (the College
+Board's own become the most exam-like variants), without a model: it reads a
+question, solves it, and writes the same question with new numbers. Every variant keeps its source's
 wording, structure and difficulty, gets wrong answers built from named
 mistakes and a worked explanation, and is checked again before it is kept.
 

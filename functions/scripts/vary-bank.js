@@ -7,14 +7,14 @@
 // From functions/; the emulators when FIRESTORE_EMULATOR_HOST is set,
 // production otherwise.
 //
-// Every original math question without a figure is read by the engine. It is
-// used only when the engine understands it: every piece of math parses, the
-// question matches a form the engine knows, and solving it exactly gives the
-// source's own key. Each understood question yields up to --per-source
-// variants: the same wording and structure with new numbers, re-solved,
-// given wrong answers from named mistakes and a worked explanation, and then
-// checked again independently from the rendered text. The batch is written
-// out for review first:
+// Every original or official math question without a figure is read by the
+// engine. It is used only when the engine understands it: every piece of math
+// parses, the question matches a form the engine knows, and solving it
+// exactly gives the source's own key. Each understood question yields up to
+// --per-source variants: the same wording and structure with new numbers,
+// re-solved, given wrong answers from named mistakes and a worked
+// explanation, and then checked again independently from the rendered text.
+// The batch is written out for review first:
 //
 //   questions.jsonl   the variants, with their source and classification
 //   coverage.json/md  what the engine understood, by skill and by source
@@ -68,16 +68,17 @@ async function main() {
   if (!institution) throw new Error(`Unknown institution: ${slug}`);
   const inst = institution.id;
 
-  // The bank, read once: its original math questions are the sources, its
-  // variants are what a rerun tops up or syncs, and every hash it holds is a
-  // question not to make again.
+  // The bank, read once: its original and official math questions are the
+  // sources (the College Board's own carry the top realism rating, which their
+  // variants keep), its variants are what a rerun tops up or syncs, and every
+  // hash it holds is a question not to make again.
   const bank = await queryRows(col(COL.items).where('institution_id', '==', inst).select(
     'section', 'source', 'variant_of', 'retired_at', 'asset_id', 'figure', 'domain', 'skill', 'difficulty',
     'question', 'choices', 'correct_idx', 'answer_type', 'answer_text', 'accepted', 'realism', 'rationale', 'content_hash',
   ));
   const dashes = /-{3,}/;
   const sources = bank
-    .filter((r) => r.section === 'math' && r.source === 'original' && !r.variant_of && !r.retired_at && !r.asset_id && !r.figure
+    .filter((r) => r.section === 'math' && ['original', 'official'].includes(r.source) && !r.variant_of && !r.retired_at && !r.asset_id && !r.figure
       && (onlySkill === null || r.skill === onlySkill) && (r.realism ?? 4) >= minRealism
       && !dashes.test(r.question) && !dashes.test(JSON.stringify(r.choices)))
     .sort((a, b) => (a.skill < b.skill ? -1 : a.skill > b.skill ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
