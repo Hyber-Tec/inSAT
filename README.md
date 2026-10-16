@@ -230,7 +230,9 @@ reproducing the source's own key:
   millimeters in a centimeter), and a key built from three or more numbers
   needs corroboration from the source's explanation or its distractors. Keys
   that depend on rounding are left alone. Variants re-render the source's own
-  explanations with the new numbers.
+  explanations with the new numbers, and a word problem whose explanation of
+  the key does not carry over is not varied: the computation alone is right
+  but explains nothing a student missed.
 
 The batch lands in `../exports/variants-<date>/`: `questions.jsonl` (each
 variant with its source and verification), `coverage.md` (what was understood,
