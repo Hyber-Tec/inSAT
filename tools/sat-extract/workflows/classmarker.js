@@ -17,14 +17,14 @@ export const meta = {
 // for all its jobs because the next cut needs their results: a question moves
 // from transcription to the blind check to explanations one round at a time.
 
-const SERVER = '/Users/br0k3r/workspace/vantedge/satify/server'
+const SERVER = '/Users/br0k3r/workspace/vantedge/satify/functions'
 const INPUT = '/Users/br0k3r/workspace/vantedge/satify/private-data/SAT/extracted/classmarker/questions.jsonl'
 const A = args || {}
 const PER_PASS = A.perPass || 300
 const JOB_SIZE = A.jobSize || 20
 const ROUNDS = A.rounds || 40
 const SKIP = A.skip ? ` --skip-categories ${A.skip}` : ''
-const CUT = `cd ${SERVER} && node --env-file=.env scripts/import-classmarker.js ${INPUT} --institution satify --jobs --limit ${PER_PASS} --job-size ${JOB_SIZE}${SKIP}`
+const CUT = `cd ${SERVER} && node --env-file-if-exists=.env.local scripts/import-classmarker.js ${INPUT} --institution satify --jobs --limit ${PER_PASS} --job-size ${JOB_SIZE}${SKIP}`
 const CUT_SCHEMA = {
   type: 'object',
   properties: {
