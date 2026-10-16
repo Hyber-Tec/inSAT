@@ -467,15 +467,12 @@ export function buildWord(model, values, r, item) {
     }
     return articles(splice(e.text, edits));
   };
-  let correct = model.explanations.correct ? rerender(model.explanations.correct) : null;
-  if (!correct) {
-    if (!work) return { reason: 'no explanation for an answer with several numbers' };
-    // A computation leaning on several constants the question never states
-    // ("90 - 78 * 180 / 360") is right but explains nothing.
-    const unstated = [...atomsOf(keyLits[0].f)].filter((i) => model.atoms[i].constant).length;
-    if (unstated > 1) return { reason: 'no natural explanation for the key' };
-    correct = `Using the numbers in the question, ${m(work)}.`;
-  }
+  // The source's own explanation of the key, re-rendered with the new numbers.
+  // Without it a variant could show only the computation ("10 + 6 * 2 * 6 =
+  // 82" for g(0), where f(0) = 72 is the step a student missed), which is
+  // right but explains nothing, so the variant is not made.
+  const correct = model.explanations.correct ? rerender(model.explanations.correct) : null;
+  if (!correct) return { reason: "the source's explanation does not carry over" };
   // The corrected route, when the key is one computation; an equation or
   // expression key is shown by the explanation of the correct answer instead.
   const fix = work ? ` The correct calculation is ${m(work)}.` : '';

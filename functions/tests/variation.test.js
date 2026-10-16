@@ -181,7 +181,8 @@ const word = (question, choices, correctIdx, rationale = {}) => ({ ...mc(questio
 const wgrid = (question, answer, rationale = {}) => ({ ...grid(question, answer), rationale });
 
 test('a word problem binds its key and distractors to formulas of its numbers and varies them', () => {
-  const gym = word('A gym charges a one-time fee of $40 plus $15 per month. What is the total cost of a membership lasting 12 months?', ['$220', '$180', '$55', '$660'], 0);
+  const gym = word('A gym charges a one-time fee of $40 plus $15 per month. What is the total cost of a membership lasting 12 months?', ['$220', '$180', '$55', '$660'], 0,
+    { correct: 'The membership costs the $40 fee plus $15 for each of the 12 months: 40 + 15 × 12 = 220 dollars.' });
   const u = understand(gym);
   assert.ok(u.ok && u.kind === 'word', u.reason);
   const out = vary(u, { count: 3, seed: 4 });
@@ -194,10 +195,23 @@ test('a word problem binds its key and distractors to formulas of its numbers an
   }
 });
 
+test('a word problem is varied only with its own explanation, re-rendered', () => {
+  // The computation alone (40 + 15 * 12 = 220) is right but explains nothing a
+  // student missed, so without the source's explanation no variant is made.
+  const bare = understand(word('A gym charges a one-time fee of $40 plus $15 per month. What is the total cost of a membership lasting 12 months?', ['$220', '$180', '$55', '$660'], 0));
+  assert.ok(bare.ok, bare.reason);
+  const out = vary(bare, { count: 3, seed: 4 });
+  assert.equal(out.variants.length, 0);
+  assert.ok(out.rejected["the source's explanation does not carry over"], JSON.stringify(out.rejected));
+});
+
 test('facts of the world never vary: stated conversions and numbers inside a stated formula', () => {
-  const conversion = wgrid('A trail is 12 miles long. How long is the trail in kilometers? (Use 1 mile = 1.6 kilometers.)', '19.2');
-  const mm = wgrid('A snail moves 650 millimeters per minute. If there are 10 millimeters in a centimeter, how many centimeters does it move in 7 minutes?', '455');
-  const law = wgrid('The function f(x) = 180(x - 2) gives the sum of the interior angles, in degrees, of a polygon with x sides. What is the sum of the interior angles of a polygon with 9 sides?', '1260');
+  const conversion = wgrid('A trail is 12 miles long. How long is the trail in kilometers? (Use 1 mile = 1.6 kilometers.)', '19.2',
+    { correct: 'Each mile is 1.6 kilometers, so the trail is 12 × 1.6 = 19.2 kilometers long.' });
+  const mm = wgrid('A snail moves 650 millimeters per minute. If there are 10 millimeters in a centimeter, how many centimeters does it move in 7 minutes?', '455',
+    { correct: 'In 7 minutes the snail moves 650 × 7 = 4,550 millimeters, which is 4,550 ÷ 10 = 455 centimeters.' });
+  const law = wgrid('The function f(x) = 180(x - 2) gives the sum of the interior angles, in degrees, of a polygon with x sides. What is the sum of the interior angles of a polygon with 9 sides?', '1260',
+    { correct: 'Substituting 9 for x gives 180(9 - 2) = 180(7) = 1,260 degrees.' });
   for (const [item, keep] of [[conversion, /1 mile = 1\.6 kilometers/], [mm, /10 millimeters in a centimeter/], [law, /f\(x\) = 180\(x - 2\)/]]) {
     const u = understand(item);
     assert.ok(u.ok, `${item.question}: ${u.reason}`);
@@ -218,18 +232,24 @@ test('percent is a unit: a percent is never added to a plain number', () => {
   // 231 / (1 + 10) is 21 only because the increase happens to be 10%. With
   // percent as a unit that reading is no formula, and the engine finds the
   // real one, 231p / (100 + p), written with each number once.
-  const growth = understand(wgrid('After a 10% increase, a school has 231 students. How many more students does it have than before the increase?', '21'));
+  const growth = understand(wgrid('After a 10% increase, a school has 231 students. How many more students does it have than before the increase?', '21',
+    { correct: 'Before the increase the school had 231 ÷ 1.1 = 210 students, so it has 231 - 210 = 21 more.' }));
   assert.ok(growth.ok, growth.reason);
-  for (const v of vary(growth, { count: 3, seed: 6 }).variants) {
+  const { variants } = vary(growth, { count: 3, seed: 6 });
+  assert.ok(variants.length);
+  for (const v of variants) {
     const [p, total] = [...v.question.matchAll(/(\d+)/g)].map((m) => Number(m[1]));
     assert.equal(Number(v.answerText), (total * p) / (100 + p), v.question);
   }
 });
 
 test('percents carry a unit: 380% of n is 38 gives n = 38 * 100 / 380', () => {
-  const u = understand(word('If 380% of n is 38, what is the value of n?', ['10', '144.4', '3.8', '38'], 0));
+  const u = understand(word('If 380% of n is 38, what is the value of n?', ['10', '144.4', '3.8', '38'], 0,
+    { correct: 'Since 380% of n is 38, 3.8n = 38, so n = 38 ÷ 3.8 = 10.' }));
   assert.ok(u.ok, u.reason);
-  for (const v of vary(u, { count: 3, seed: 2 }).variants) {
+  const { variants } = vary(u, { count: 3, seed: 2 });
+  assert.ok(variants.length);
+  for (const v of variants) {
     const [p, whole] = [...v.question.matchAll(/(\d+)/g)].map((m) => Number(m[1]));
     assert.equal(Number(v.choices[v.correctIdx].replace(/,/g, '')), (whole * 100) / p, v.question);
   }
