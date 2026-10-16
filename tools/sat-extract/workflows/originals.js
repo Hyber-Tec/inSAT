@@ -9,7 +9,7 @@ export const meta = {
 }
 
 const TOOLS = '/Users/br0k3r/workspace/vantedge/satify/tools/sat-extract'
-const SERVER = '/Users/br0k3r/workspace/vantedge/satify/server'
+const SERVER = '/Users/br0k3r/workspace/vantedge/satify/functions'
 const DATA = '/Users/br0k3r/workspace/vantedge/satify/private-data/SAT/extracted'
 const OUT = `${DATA}/out/original`
 const JOBS = `${DATA}/jobs`
@@ -135,7 +135,7 @@ Files:
    mv ${OUT}/${name}.blind-01.jsonl ${OUT}/${name}.verify-01.jsonl
 4. Build and import:
    cd ${TOOLS} && python3 build.py original
-   cd ${SERVER} && node --env-file=.env scripts/import-dataset.js ${DATA}/dataset original --institution satify
+   cd ${SERVER} && node --env-file-if-exists=.env.local scripts/import-dataset.js ${DATA}/dataset original --institution satify
    The build prints a line for ${name} and, under it, each dropped question with its reason. A question dropped as malformed means an edit broke it: fix it and run both commands again.
 5. Return the build line for ${name}, the kept and dropped counts from it, the indices you edited and the indices you dropped.`
 }

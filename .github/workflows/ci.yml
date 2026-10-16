@@ -57,6 +57,7 @@ jobs:
       - run: npm run check:scoring
       - run: npm run check:practice
       - run: npm run check:verification
+      - run: npm run check:official
       - run: npm run check:variation
       - run: npm run check:text-repair
       - run: npm run check:assistant

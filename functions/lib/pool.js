@@ -2,18 +2,20 @@
 // them.
 //
 // insat's question pool is the bank of the platform's own institution (slug
-// 'satify'): questions from real tests, their variants (lib/variation) and the
-// math templates' questions. Every institution's tests and practice draw from
-// it, whatever its mode, so a new academy has the whole pool from its first
-// day. Only those three sources are the pool. (A check that needs a bank of
-// known questions points its throwaway institution's pool_institution_id at
-// itself; nothing in the app sets it.)
+// 'satify'): questions written for it and the academy's own ('original'), the
+// official math questions of the College Board bank and practice tests
+// ('official', lib/official.js), their variants (lib/variation) and the math
+// templates' questions. Every institution's tests and practice draw from it,
+// whatever its mode, so a new academy has the whole pool from its first day.
+// Only those four sources are the pool. (A check that needs a bank of known
+// questions points its throwaway institution's pool_institution_id at itself;
+// nothing in the app sets it.)
 //
 // The generation pool is a hidden institution holding the examples AI
-// generation imitates: the reference questions (the College Board bank and
-// practice tests, never served) and a copy of insat's pool, which
-// syncGlobalPool() keeps current. It is never shown as a tenant in the
-// superadmin console.
+// generation imitates: the reference questions (the whole College Board bank
+// and the practice tests, as transcribed; never served from there) and a copy
+// of insat's pool, which syncGlobalPool() keeps current. It is never shown as a
+// tenant in the superadmin console.
 //
 // What a managed academy uploads or writes with AI for its own tests stays in
 // its own bank, private: it is served only in those tests and never enters
@@ -28,7 +30,7 @@ import { COL, col, newId, now, queryRows, rowOf, writeAll } from './store.js';
 import { DEFAULT_BLUEPRINTS } from './blueprints.js';
 
 export const POOL_SLUG = 'satify';
-export const POOL_SOURCES = ['original', 'variant', 'template'];
+export const POOL_SOURCES = ['original', 'official', 'variant', 'template'];
 export const GLOBAL_POOL_SLUG = '__global_pool__';
 
 /** The field every write to an item sets, so the banks' caches see it. */

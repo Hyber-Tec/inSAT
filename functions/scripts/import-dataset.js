@@ -24,6 +24,13 @@
 //         dataset: a question the dataset dropped or rewrote is retired (a
 //         served question may sit in a student's history, so never deleted),
 //         and one the dataset carries again comes back.
+// The College Board bank and the practice tests are served as well: given
+// --institution, cb or dsat puts its math questions into that bank as
+// source='official', exam-like (realism 5), each explanation in the bank's
+// shape (lib/official.js; a question whose explanation cannot be, because it
+// names choices by letter, stays reference material). Reading and Writing
+// stays reference: its explanations compare the choices by letter throughout.
+// --replace syncs as for originals. Import cb before dsat here too.
 //
 // Run (from functions/; the emulators when FIRESTORE_EMULATOR_HOST is set,
 // production otherwise):
@@ -31,6 +38,8 @@
 //   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" cb --replace
 //   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" dsat --replace
 //   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" original --institution satify --replace
+//   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" cb --institution satify --replace
+//   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" dsat --institution satify --replace
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -40,6 +49,7 @@ import { globalPoolId, ensureGlobalPool, touched } from '../lib/pool.js';
 import { contentHash, hashRef, importRows } from '../lib/items.js';
 import { repairItemText } from '../lib/textRepair.js';
 import { DOMAINS, canonicalSkill } from '../lib/taxonomy.js';
+import { officialRationale } from '../lib/official.js';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 const args = process.argv.slice(2);
@@ -49,7 +59,10 @@ const positional = args.filter((a, i) => !a.startsWith('--') && args[i - 1] !== 
 const [datasetDir, collection] = positional;
 const dryRun = args.includes('--dry-run');
 const replace = args.includes('--replace');
-const servable = collection === 'original';
+// Official questions: the College Board bank or a practice test served from an institution's bank.
+const official = Boolean(institutionSlug) && (collection === 'cb' || collection === 'dsat');
+const servable = collection === 'original' || official;
+const SOURCE = official ? 'official' : servable ? 'original' : 'reference';
 
 function readJsonl(file) {
   return fs.readFileSync(file, 'utf8').split('\n').filter((l) => l.trim()).map((l) => JSON.parse(l));
@@ -82,11 +95,14 @@ function toRow(q) {
     // teach generation the same flaw.
     if ((q.flags || []).some((f) => f.startsWith('ambiguous'))) return { skip: 'ambiguous as printed' };
   }
+  if (official && q.section !== 'math') return { skip: 'Reading and Writing (explanations compare choices by letter): stays reference' };
   const isGrid = q.answer_type === 'grid-in';
   const correctIdx = LETTERS.indexOf(String(q.answer || '').trim());
   if (!isGrid && (correctIdx < 0 || (q.choices || []).length !== 4)) return { skip: 'malformed multiple choice' };
   if (!isGrid && new Set(q.choices.map((c) => String(c).trim())).size !== 4) return { skip: 'two choices are the same (source error)' };
   if (isGrid && !String(q.answer || '').trim()) return { skip: 'grid-in without an answer' };
+  const shaped = official ? officialRationale(q) : null;
+  if (shaped && !shaped.rationale) return { skip: `${shaped.why}: stays reference` };
 
   const passage = q.section === 'rw' ? (q.passage || null) : null;
   const choices = isGrid ? [] : q.choices;
@@ -107,7 +123,7 @@ function toRow(q) {
       accepted: isGrid ? (q.accepted || []) : null,
       // flags travel with the item so a reviewer can see what the transcription noted
       rationale: {
-        ...(servable ? originalRationale(q) : { correct: q.rationale || '' }),
+        ...(official ? shaped.rationale : servable ? originalRationale(q) : { correct: q.rationale || '' }),
         ...ORIGIN[collection](q),
         flags: q.flags || [],
         // An explanation the source did not print, written to its style (see
@@ -116,10 +132,13 @@ function toRow(q) {
       },
       figure: figures.length ? { figures } : null,
       png: q.figure_asset ? fs.readFileSync(path.join(datasetDir, q.figure_asset)) : null,
-      source: servable ? 'original' : 'reference',
-      // reference: the source's own key, re-solved during transcription;
-      // original: the writer's key, confirmed by a blind solve
+      source: SOURCE,
+      // reference and official: the source's own key, re-solved during
+      // transcription; original: the writer's key, confirmed by a blind solve
       verified: true,
+      // The real test's own questions read most like it (a full test draws
+      // the most exam-like first, lib/assembly.js).
+      ...(official ? { realism: 5 } : {}),
     },
   };
 }
@@ -130,26 +149,27 @@ async function targetInstitution() {
     await ensureGlobalPool();
     return { id: await globalPoolId(), label: 'the global pool' };
   }
-  if (!institutionSlug) throw new Error('original questions are served to students: name the bank with --institution <slug>');
+  if (!institutionSlug) throw new Error(`${SOURCE} questions are served to students: name the bank with --institution <slug>`);
   const [found] = await queryRows(col(COL.institutions).where('slug', '==', institutionSlug).limit(1));
   if (!found) throw new Error(`No institution with slug "${institutionSlug}"`);
   return { id: found.id, label: `the ${found.name} bank` };
 }
 
 /**
- * Bring a bank's original questions in line with the dataset. A served row may
- * be in a student's history by id, so a question the dataset no longer carries
- * is retired rather than deleted, and one it carries again is restored. Only
- * the dataset's own rows (marked by ORIGIN.original) are compared: the bank's
- * other original questions, such as an academy's ClassMarker pool, are not
- * the dataset's to retire.
+ * Bring a bank's served questions from this collection in line with the
+ * dataset. A served row may be in a student's history by id, so a question the
+ * dataset no longer carries is retired rather than deleted, and one it carries
+ * again is restored. Only the collection's own rows (marked by its ORIGIN) are
+ * compared: the bank's other questions, such as an academy's ClassMarker pool
+ * among the originals, are not the dataset's to retire.
  */
-async function syncOriginals(institutionId, rows) {
+async function syncServed(institutionId, rows) {
   const wanted = new Set(rows.map((r) => r.content_hash));
+  const marker = Object.keys(ORIGIN[collection]({}))[0];
   const have = (await queryRows(col(COL.items)
-    .where('institution_id', '==', institutionId).where('source', '==', 'original')
+    .where('institution_id', '==', institutionId).where('source', '==', SOURCE)
     .select('content_hash', 'retired_at', 'rationale')))
-    .filter((item) => item.rationale && 'original' in item.rationale);
+    .filter((item) => item.rationale && marker in item.rationale);
   const writes = [];
   let retired = 0;
   let restored = 0;
@@ -194,7 +214,7 @@ async function main() {
   const target = await targetInstitution();
   console.log(`\nwriting to ${writingTo()}`);
   if (replace && servable) {
-    await syncOriginals(target.id, rows);
+    await syncServed(target.id, rows);
   } else if (replace) {
     // Reference rows are never served, so no session or exam points at them;
     // their figure assets, and their place in the bank, go with them.
@@ -218,7 +238,7 @@ async function main() {
   // tests reuse bank items) stays as the bank's version with its official
   // labels. Originals go through it too: a servable bank should stay varied.
   const result = await importRows(rows, target.id, { nearDuplicates: collection === 'cb' ? 'allow' : 'reject' });
-  console.log(`\nimported into ${target.label} as ${servable ? 'servable questions' : 'reference material'}:`);
+  console.log(`\nimported into ${target.label} as ${official ? 'servable official questions' : servable ? 'servable questions' : 'reference material'}:`);
   console.log(`  added           ${result.added}`);
   console.log(`  duplicate       ${result.duplicates}`);
   console.log(`  near-duplicate  ${result.nearDuplicates}`);
