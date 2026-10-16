@@ -180,7 +180,10 @@ const stable = (v) => JSON.stringify(v, (_k, x) => (x && typeof x === 'object' &
  * to retire.
  */
 async function syncServed(institutionId, rows) {
-  const wanted = new Map(rows.map((r) => [r.content_hash, r]));
+  // A question the dataset holds twice (the bank repeats two, explained
+  // differently) is compared with its first copy, the one the import keeps.
+  const wanted = new Map();
+  for (const r of rows) if (!wanted.has(r.content_hash)) wanted.set(r.content_hash, r);
   const marker = Object.keys(ORIGIN[collection]({}))[0];
   const have = (await queryRows(col(COL.items)
     .where('institution_id', '==', institutionId).where('source', '==', SOURCE)
