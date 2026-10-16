@@ -106,10 +106,10 @@ outside the Functions emulator (the browser checks use it).
 
 insat's question pool is the bank of the default institution (insat, slug
 `satify`), and every institution's tests and practice draw on it. It is filled
-by the original-question import, the official math questions of the College
-Board bank and practice tests, and the math templates (see below); math can be
-served from the first test, Reading and Writing once the originals are
-imported.
+by the original-question import, the official questions of the College Board
+bank and practice tests, and the math templates (see below); math can be
+served from the first test, Reading and Writing once the originals or the
+official questions are imported.
 
 **Admin scripts and their target.** Everything under `functions/scripts/` runs
 with `node --env-file-if-exists=.env.local` (or its `npm run` name) and writes
@@ -285,8 +285,8 @@ and in stored sessions: report first, `--apply` to repair (with a backup).
 ### Reference material and official questions
 
 The College Board question bank and the full-length practice tests import as
-**reference** material, which generation learns from, and their math is also
-served to students as **official** questions (below).
+**reference** material, which generation learns from, and are also served to
+students as **official** questions (below).
 
 Turning the source PDFs into questions is an offline step in
 [`tools/sat-extract/`](tools/sat-extract/README.md). Reading & Writing is
@@ -310,30 +310,41 @@ questions whose key disagrees with the independent solution are held back.
 
 Anything with `source='reference'` is excluded from `candidatesFor()` in
 `assembly.js` and therefore never appears on a student's exam. It is preferred
-by `exemplars()` in `generate.js`, same skill and difficulty first, so it
-shapes what the model writes and anchors the difficulty labels.
+by `exemplars()` in `generate.js` (with the official questions copied into the
+generation pool): the same skill first, then the College Board's own before
+imitations, then the same difficulty, so it shapes what the model writes and
+anchors the difficulty labels.
 
 **Official questions.** Given `--institution`, the same import serves the
-math of the bank and the practice tests from that institution's bank instead,
-as `source='official'` (one of the pool's sources, `lib/pool.js`):
+questions of the bank and the practice tests from that institution's bank
+instead, as `source='official'` (one of the pool's sources, `lib/pool.js`):
 
 ```bash
 node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/SAT/extracted/dataset" cb --institution satify --replace
 node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/SAT/extracted/dataset" dsat --institution satify --replace
 ```
 
-They are the real test's own questions, so they carry the top realism rating
-(a full test draws them first) and fill the hard math the pool otherwise
-lacks. Their explanations name choices by letter ("Choice B is correct",
+Not every practice test is the College Board's. The transcribed set holds its
+own practice tests, whose questions it also publishes in the bank, and
+third-party "Digital SAT" series written to imitate them. The import tells
+them apart by how many of a test's questions the bank holds word for word
+(tests 8-13 and 17 hold 92-98% of theirs, the others 0-17%) and rates every
+bank and practice-test question, reference or official, by how closely it
+reads like the current exam: the College Board's own 5, a third party's 4. A
+full test draws the highest first, a skill set takes it first among questions
+of the same fit (`lib/assembly.js`), and generation imitates it first.
+`--replace` brings the ratings of questions already in a bank in line.
+
+Their explanations name choices by letter ("Choice B is correct",
 "Choices A, C, and D are incorrect and ..."), and choices are shuffled for
 every student, so `lib/official.js` puts each in the bank's shape: the right
 answer's explanation, and each wrong choice's beside it. A question whose
 explanation still names a choice by letter, or follows no official shape,
-stays reference material (about 90% of hard math converts; `npm run
-check:official` tests the shapes). Reading and Writing stays reference: its
-explanations compare the choices by letter throughout. These are College
-Board's and publishers' questions: serving them was decided for the math on
-2026-10-16, and Reading and Writing stays on the reference side of that line.
+stays reference material (`npm run check:official` tests the shapes). Nearly
+all of the bank converts, Reading and Writing included (3,086 of its 3,266
+questions); the third-party tests' explanations keep the shape less often
+(1,666 of 2,540). These are the College Board's and publishers' questions:
+serving them was decided on 2026-10-16.
 
 ### Original questions
 

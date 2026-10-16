@@ -1,11 +1,12 @@
 // Official explanations put in the bank's shape (lib/official.js): the right
 // answer's explanation and each wrong choice's, with no choice named by its
 // letter, since choices are shuffled for every student; and the shapes that
-// cannot be, which keep their question reference material.
+// cannot be, which keep their question reference material. Also which practice
+// tests are the College Board's own, and how each question is rated.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { officialRationale } from '../lib/official.js';
+import { collegeBoardTests, officialRationale, officialRealism } from '../lib/official.js';
 
 const mc = (rationale, answer = 'B') => officialRationale({ answer_type: 'multiple-choice', answer, rationale });
 
@@ -72,4 +73,34 @@ test('an explanation that disagrees with the key, or has another shape, is not s
   assert.match(mc('The slope is 2, so the line rises.').why, /right answer not found/);
   assert.match(mc('').why, /no explanation/);
   assert.match(mc('Choice B is correct.', '').why, /no answer key/);
+});
+
+test('a Reading and Writing explanation takes the same shape', () => {
+  const { rationale } = mc([
+    'Choice A is the best answer. Text 1 states that the root\'s "rise to popularity was slow," and Text 2 also describes its "slow adoption."',
+    'Choice B is incorrect. This isn\'t something that either text claims. Choice C is incorrect. Neither text mentions the climate. Choice D is incorrect. Neither text describes how the root is cooked.',
+  ].join('\n\n'), 'A');
+  assert.equal(rationale.correct, 'Text 1 states that the root\'s "rise to popularity was slow," and Text 2 also describes its "slow adoption."');
+  assert.equal(rationale.B, 'This choice is incorrect. This isn\'t something that either text claims.');
+  assert.equal(rationale.C, 'This choice is incorrect. Neither text mentions the climate.');
+  assert.equal(rationale.D, 'This choice is incorrect. Neither text describes how the root is cooked.');
+});
+
+test('a practice test most of whose questions the bank holds is the College Board\'s own', () => {
+  const q = (test, question, choices = ['1', '2', '3', '4']) => ({ test, section: 'math', question, choices });
+  const bank = [q(null, 'What is 2 + 2?'), q(null, 'What is  3 + 3 ?'), q(null, 'Solve 2x = 8.')];
+  const tests = [
+    // The bank's questions, as transcribed again: spacing and case aside.
+    q(8, 'what is 2 + 2?'), q(8, 'What is 3 + 3?'), q(8, 'Solve 2x = 8.'), q(8, 'A question of its own.'),
+    // A third party's: one bank question among its own.
+    q(14, 'What is 2 + 2?'), q(14, 'Another question.'), q(14, 'And another.'),
+  ];
+  assert.deepEqual([...collegeBoardTests(tests, bank)], [8]);
+});
+
+test('the College Board\'s own questions are rated above a third party\'s', () => {
+  const own = new Set([8]);
+  assert.equal(officialRealism('cb', {}, own), 5);
+  assert.equal(officialRealism('dsat', { test: 8 }, own), 5);
+  assert.equal(officialRealism('dsat', { test: 14 }, own), 4);
 });

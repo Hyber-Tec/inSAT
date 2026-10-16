@@ -11,6 +11,7 @@ const {
   mastery, level, practiceDifficulty, perSkillFor, skillsSpec, sectionSpec, practiceTitle,
 } = await import('../lib/practice.js');
 const { FULL_SAT_SPEC } = await import('../lib/blueprints.js');
+const { realismCost, TEMPLATE_BIAS } = await import('../lib/assembly.js');
 
 let passed = 0;
 const check = (what, fn) => {
@@ -94,6 +95,23 @@ check('titles', () => {
   assert.equal(practiceTitle('skills', ['Circles']), 'Skill practice: Circles');
   assert.equal(practiceTitle('skills', ['Circles', 'Percentages']), 'Skill practice: 2 skills');
   assert.equal(practiceTitle('skills', ['Circles'], 'hard'), 'Skill practice: Circles (hard)');
+});
+
+check('a practice set takes the College Board\'s own questions first, without trading away the difficulty', () => {
+  const own = { realism: 5 };
+  const imitation = { realism: 4 };
+  const unrated = {};
+  const template = { rationale: { template: 'ps-residual' } };
+  for (const exam of [false, true]) {
+    assert.ok(realismCost(own, exam) < realismCost(imitation, exam), 'the College Board\'s own before an imitation');
+    assert.equal(realismCost(unrated, exam), realismCost(imitation, exam), 'an unrated question counts as an imitation');
+    assert.ok(realismCost(imitation, exam) < realismCost(template, exam), 'templates last');
+  }
+  // A step away from the wanted difficulty costs 1 in a draw: in practice, a
+  // template of the right difficulty, handicap included, still goes first.
+  assert.ok(realismCost(template, false) + TEMPLATE_BIAS < 1);
+  // An exam measures: there, how exam-like a question is outweighs that.
+  assert.ok(realismCost(imitation, true) > 1);
 });
 
 if (!process.exitCode) console.log(`${passed} practice checks pass`);
