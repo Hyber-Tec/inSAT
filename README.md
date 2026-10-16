@@ -137,7 +137,7 @@ Batches API at half the per-token price, then through the same verification and
 duplicate gates as everything else. Both checks run without a database:
 
 ```bash
-npm run check:templates     # all 29 templates x 300 seeds, answers re-derived independently
+npm run check:templates     # all 34 templates x 300 seeds, answers re-derived independently
 npm run check:similarity    # measures the near-duplicate thresholds
 npm run check:scoring       # grid-in scoring against the accepted-answer lists
 npm run check:practice      # mastery levels and practice specs

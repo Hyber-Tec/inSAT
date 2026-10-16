@@ -112,8 +112,8 @@ const PYTHAG = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [9, 12, 15], [8, 15, 17], [7
 
 // Contexts for a line of best fit y = mx + b: what x and y measure, the range
 // of slopes (in tenths), intercepts and x-values that keep the predictions
-// realistic, and the two questions such a line answers. `change` lists the
-// larger x-value first.
+// realistic, the two questions such a line answers, and one data point in
+// words (`point`, its x-value first). `change` lists the larger x-value first.
 const BEST_FIT = [
   {
     setup: 'A teacher recorded the number of hours \\(x\\) that each student in a class spent studying for a test and the student\'s score \\(y\\), in points, on the test.',
@@ -123,6 +123,7 @@ const BEST_FIT = [
     one: 'hour', many: 'hours', what: 'score', unit: 'points',
     change: (hi, lo) => `how many more points is the predicted score for a student who studied ${hi} hours than for a student who studied ${lo} hours?`,
     reverse: (y) => `a student who studied for how many hours would have a predicted score of ${y} points?`,
+    point: (x, y) => `One student studied ${x} hours and scored ${y} points.`,
   },
   {
     setup: 'A forester measured the age \\(x\\), in years, and the height \\(y\\), in feet, of each of 40 pine trees in a forest.',
@@ -132,6 +133,7 @@ const BEST_FIT = [
     one: 'year', many: 'years', what: 'height', unit: 'feet',
     change: (hi, lo) => `how many feet taller is the predicted height of ${an(hi)} ${hi}-year-old tree than that of ${an(lo)} ${lo}-year-old tree?`,
     reverse: (y) => `at what age, in years, would a tree have a predicted height of ${y} feet?`,
+    point: (x, y) => `One tree is ${x} years old and ${y} feet tall.`,
   },
   {
     setup: 'A restaurant recorded the distance \\(x\\), in miles, and the time \\(y\\), in minutes, of each of its deliveries during one week.',
@@ -141,6 +143,7 @@ const BEST_FIT = [
     one: 'mile', many: 'miles', what: 'delivery time', unit: 'minutes',
     change: (hi, lo) => `how many minutes longer is the predicted time for ${an(hi)} ${hi}-mile delivery than for ${an(lo)} ${lo}-mile delivery?`,
     reverse: (y) => `what is the distance, in miles, of a delivery with a predicted time of ${y} minutes?`,
+    point: (x, y) => `One delivery was ${x} miles long and took ${y} minutes.`,
   },
   {
     setup: 'A restaurant manager recorded the number of employees \\(x\\) working each shift and the number of orders \\(y\\) completed during that shift.',
@@ -150,6 +153,8 @@ const BEST_FIT = [
     one: 'employee', many: 'employees', what: 'number of orders', unit: 'orders',
     change: (hi, lo) => `how many more orders are predicted for a shift with ${hi} employees than for a shift with ${lo} employees?`,
     reverse: (y) => `how many employees would be working a shift for which ${y} completed orders are predicted?`,
+    point: (x, y) => `During one shift, ${x} employees completed ${y} orders.`,
+    counted: true, // a count of orders needs no unit after it
   },
 ];
 
@@ -230,6 +235,115 @@ const STUDIES = [
     people: 'adults', from: 'adults over 65 who live in a large city', pop: 'adults over 65 who live in the city',
     treat: 'do puzzles for 30 minutes a day', ing: 'doing puzzles for 30 minutes a day',
     result: 'scored significantly higher on a memory test', effect: 'higher memory test scores', measure: 'memory test scores',
+  },
+];
+
+// Two-way tables for conditional probability: three groups by two outcomes,
+// counts only (no totals). Each column's label, in lowercase, is part of its
+// `given` clause ("who read a book in the past month"), and each group's label
+// of its own clauses, so a question names exactly one of each. `one`/`many`
+// place one person or a count of them in a group, `oneNot`/`manyNot` outside
+// it.
+const TWO_WAY = [
+  {
+    people: 'adults', person: 'adult', who: 'who',
+    survey: 'A survey asked adults whether they had read a book in the past month. The table shows the responses by age group.',
+    head: 'Age group', rows: ['18 to 34', '35 to 54', '55 or older'],
+    cols: ['Read a book', 'Did not read a book'],
+    given: ['read a book in the past month', 'did not read a book in the past month'],
+    one: (g) => `is in the ${g} age group`, oneNot: (g) => `is not in the ${g} age group`,
+    many: (g) => `are in the ${g} age group`, manyNot: (g) => `are not in the ${g} age group`,
+  },
+  {
+    people: 'students', person: 'student', who: 'who',
+    survey: 'A high school asked its students how they usually get to school. The table shows the responses by grade.',
+    head: 'Grade', rows: ['Grade 10', 'Grade 11', 'Grade 12'],
+    cols: ['Walk or bike', 'Car or bus'],
+    given: ['usually walk or bike to school', 'usually ride to school in a car or bus'],
+    one: (g) => `is in ${g.toLowerCase()}`, oneNot: (g) => `is not in ${g.toLowerCase()}`,
+    many: (g) => `are in ${g.toLowerCase()}`, manyNot: (g) => `are not in ${g.toLowerCase()}`,
+  },
+  {
+    people: 'plants', person: 'plant', who: 'that',
+    survey: 'A botanist grew plants under three levels of light and recorded whether each plant flowered. The table shows the results.',
+    head: 'Light', rows: ['Low light', 'Medium light', 'High light'],
+    cols: ['Flowered', 'Did not flower'],
+    given: ['flowered', 'did not flower'],
+    one: (g) => `was grown in ${g.toLowerCase()}`, oneNot: (g) => `was not grown in ${g.toLowerCase()}`,
+    many: (g) => `were grown in ${g.toLowerCase()}`, manyNot: (g) => `were not grown in ${g.toLowerCase()}`,
+  },
+  {
+    people: 'residents', person: 'resident', who: 'who',
+    survey: 'A city asked residents of its three districts whether they support a proposed park. The table shows the responses.',
+    head: 'District', rows: ['North', 'Central', 'South'],
+    cols: ['Support', 'Oppose'],
+    given: ['support the proposed park', 'oppose the proposed park'],
+    one: (g) => `lives in the ${g} district`, oneNot: (g) => `does not live in the ${g} district`,
+    many: (g) => `live in the ${g} district`, manyNot: (g) => `do not live in the ${g} district`,
+  },
+];
+
+// Two populations, a random sample from each, and the same question asked of
+// both: `of` names the members of one place, `does` what was asked about them.
+const TWO_SURVEYS = [
+  { places: ['Northfield', 'Southport'], of: (p) => `adult residents of ${p}`, does: 'would use a new recycling center' },
+  { places: ['Lakeside High School', 'Ridgeview High School'], of: (p) => `students at ${p}`, does: 'eat breakfast every school day' },
+  { places: ['Maple County', 'Cedar County'], of: (p) => `households in ${p}`, does: 'have at least one pet' },
+  { places: ['Store A', 'Store B'], of: (p) => `customers of ${p}`, does: 'would join a rewards program' },
+];
+
+// Studies of participants drawn from one part of a larger population, so a
+// result reaches no further than that part: `whole` is the larger population,
+// `from` the part as first named, `part` the same part referred back to; the
+// rest as in STUDIES.
+const SCOPED_STUDIES = [
+  {
+    people: 'students', whole: 'students at the school',
+    from: 'the ninth graders at a large high school', part: "the school's ninth graders",
+    treat: 'study with a flashcard app', ing: 'studying with a flashcard app',
+    result: 'earned significantly higher quiz scores', effect: 'higher quiz scores',
+  },
+  {
+    people: 'employees', whole: 'employees of the company',
+    from: 'the employees in the sales department of a large company', part: "the employees in the company's sales department",
+    treat: 'work at a standing desk', ing: 'working at a standing desk',
+    result: 'reported significantly less back pain', effect: 'less back pain',
+  },
+  {
+    people: 'residents', whole: 'adults who live in the city',
+    from: 'the residents over 60 of a large city', part: "the city's residents over 60",
+    treat: 'drink a cup of green tea every day', ing: 'drinking a cup of green tea every day',
+    result: 'had significantly lower blood pressure', effect: 'lower blood pressure',
+  },
+  {
+    people: 'members', whole: 'members of the gym chain',
+    from: 'the members who joined a large gym chain in the past year', part: 'the members who joined the gym chain in the past year',
+    treat: 'do a 10-minute stretching routine before each workout', ing: 'doing a 10-minute stretching routine before each workout',
+    result: 'reported significantly fewer injuries', effect: 'fewer injuries',
+  },
+];
+
+// Limits that a count must stay under: at most L in all, with F already used
+// and n items of a each, leaving room for whole items of b each. Each question
+// states the numbers in the order L, F, n, a, b, and no others.
+const CAPACITY = [
+  {
+    ranges: { L: [40, 80, 50], F: [150, 250], n: [3, 12], a: [40, 90], b: [50, 120] },
+    unit: 'pounds', thing: 'crates', items: 'boxes',
+    fixed: (F) => `the worker's ${F} pounds`, amount: (x) => `${commas(x)} pounds`,
+    text: ({ L, F, n, a, b }) => `A freight elevator can carry at most ${commas(L)} pounds. A worker who weighs ${F} pounds is riding in the elevator with ${n} boxes that weigh ${a} pounds each. What is the greatest number of crates weighing ${b} pounds each that can also be loaded into the elevator?`,
+  },
+  {
+    ranges: { L: [18, 60, 50], F: [300, 800], n: [2, 6], a: [20, 60], b: [12, 35] },
+    unit: 'dollars', thing: 'student tickets', items: 'adult tickets',
+    fixed: (F) => `the $${F} for the bus`, amount: (x) => `$${commas(x)}`,
+    text: ({ L, F, n, a, b }) => `A club has at most $${commas(L)} to spend on a trip. Renting a bus costs $${F}, and the club will buy ${n} adult tickets for $${a} each. Student tickets cost $${b} each. What is the greatest number of student tickets the club can buy?`,
+  },
+  {
+    ranges: { L: [50, 200, 100], F: [100, 400], n: [5, 30], a: [80, 300], b: [25, 150] },
+    unit: 'kilograms', thing: 'boxes', items: 'crates',
+    fixed: (F) => `the ${F}-kilogram pallet`, amount: (x) => `${commas(x)} kilograms`,
+    text: ({ L, F, n, a, b }) => `A shipping container can hold at most ${commas(L)} kilograms of cargo. It already holds ${an(F)} ${F}-kilogram pallet and ${n} crates that weigh ${a} kilograms each. What is the greatest number of ${b}-kilogram boxes that can be added?`,
   },
 ];
 
@@ -1152,6 +1266,192 @@ export const MATH_TEMPLATES = [
         set,
         `Because \\(DE\\) is parallel to \\(BC\\), triangle \\(ADE\\) is similar to triangle \\(ABC\\) with scale factor \\(\\frac{AB}{AD} = ${ratio(ab, ad)}\\). Areas scale by the square of the scale factor, so triangle \\(ABC\\) has area ${scaled}, and quadrilateral \\(DBCE\\) has area \\(${whole} - ${small} = ${quad}\\).`,
       );
+    },
+  },
+  {
+    id: 'ps-two-way-probability',
+    domain: 'problem-solving',
+    skill: 'Probability and conditional probability',
+    topic: 'Conditional probability from a two-way table',
+    difficulty: 'hard',
+    build(r) {
+      const t = r.pick(TWO_WAY);
+      const cells = t.rows.map(() => t.cols.map(() => r.int(6, 48)));
+      const c = r.int(0, 1); // the condition: one of the outcomes
+      const g = r.int(0, 2); // the group asked about
+      const not = r.chance(0.4); // asked about those outside the group
+      const col = cells.reduce((s, row) => s + row[c], 0);
+      const all = cells.flat().reduce((s, v) => s + v, 0);
+      const inGroup = cells[g][0] + cells[g][1];
+      const cell = cells[g][c];
+      const hit = not ? col - cell : cell;
+      const group = t.rows[g];
+      const among = `${t.people} ${t.who} ${t.given[c]}`;
+      const f = (n, d) => `\\(\\frac{${n}}{${d}}\\)`;
+      const fix = `Of the ${col} ${among}, ${hit} ${not ? t.manyNot(group) : t.many(group)}, so the probability is ${f(hit, col)}.`;
+      const wrong = not
+        ? [
+          [cell, col, `This is the probability that the ${t.person} ${t.one(group)}, the opposite of what is asked. ${fix}`],
+          [hit, all, `This divides by all ${all} ${t.people} in the table. The ${t.person} is chosen from the ${col} ${among}. ${fix}`],
+          [all - inGroup, all, `This counts every one of the ${all} ${t.people} that ${t.manyNot(group)}, not only those ${t.who} ${t.given[c]}. ${fix}`],
+        ]
+        : [
+          [hit, all, `This divides by all ${all} ${t.people} in the table. The ${t.person} is chosen from the ${col} ${among}. ${fix}`],
+          [hit, inGroup, `This divides by the ${inGroup} ${t.people} ${t.who} ${t.many(group)}, which reverses the condition. ${fix}`],
+          [col, all, `This is the fraction of all ${all} ${t.people} ${t.who} ${t.given[c]}. The question asks how many of those ${col} ${t.many(group)}. ${fix}`],
+        ];
+      // Four different values, so exactly one choice is right.
+      if (new Set([hit / col, ...wrong.map(([n, d]) => n / d)]).size !== 4) return null;
+      const set = choiceSet(r, f(hit, col), wrong.map(([n, d, why]) => [f(n, d), why]));
+      const table = [`${t.head} | ${t.cols.join(' | ')}`, ...t.rows.map((row, i) => `${row} | ${cells[i].join(' | ')}`)].join('\n');
+      const sum = `\\(${cells.map((row) => row[c]).join(' + ')} = ${col}\\)`;
+      return mc(
+        `${t.survey}\n\n${table}\n\nIf one of the ${among} is selected at random, what is the probability that the ${t.person} ${not ? t.oneNot(group) : t.one(group)}?`,
+        set,
+        `The ${t.person} is chosen from the ${among}, so the denominator is the total of the "${t.cols[c]}" column: ${sum}. Of those ${col}, ${hit} ${not ? `${t.manyNot(group)} (\\(${col} - ${cell} = ${hit}\\))` : t.many(group)}. The probability is ${f(hit, col)}.`,
+      );
+    },
+  },
+  {
+    id: 'ps-margin-compare',
+    domain: 'problem-solving',
+    skill: 'Inference from sample statistics and margin of error',
+    topic: 'Comparing two estimates with margins of error',
+    difficulty: 'hard',
+    build(r) {
+      const sv = r.pick(TWO_SURVEYS);
+      const [X, Y] = r.shuffle(sv.places);
+      const [n1, n2] = [r.int(3, 12) * 100, r.int(3, 12) * 100];
+      const [e1, e2] = [r.int(2, 6), r.int(2, 6)];
+      const p1 = r.int(25, 75);
+      // The plausible ranges overlap half the time; they never just touch.
+      const overlap = r.chance(0.5);
+      const gap = overlap ? r.int(1, e1 + e2 - 1) : r.int(e1 + e2 + 1, e1 + e2 + 12);
+      const p2 = p1 + (r.chance(0.5) ? gap : -gap);
+      if (p2 < 5 || p2 > 95) return null;
+      const [hi, lo] = p1 > p2 ? [[X, p1, e1], [Y, p2, e2]] : [[Y, p2, e2], [X, p1, e1]];
+      const range = ([place, p, e]) => `${p - e}% to ${p + e}% for ${place}`;
+      const ranges = `The plausible percentages are ${range(hi)} and ${range(lo)}`;
+      const greater = (a, b) => `A greater percentage of all ${sv.of(a)} than of all ${sv.of(b)} ${sv.does}.`;
+      const same = `It is plausible that the same percentage of all ${sv.of(X)} as of all ${sv.of(Y)} ${sv.does}.`;
+      const exact = `The percentage for all ${sv.of(hi[0])} is exactly ${gap} percentage points greater than the percentage for all ${sv.of(lo[0])}.`;
+      const exactWhy = `This treats the sample percentages as the percentages for everyone. Each is only an estimate with a margin of error, so the exact difference is not known. ${ranges}.`;
+      const set = overlap
+        ? choiceSet(r, same, [
+          [greater(hi[0], lo[0]), `This treats the difference between the sample percentages, ${hi[1]}% and ${lo[1]}%, as certain. ${ranges}, and these ranges overlap, so the two percentages may be the same.`],
+          [greater(lo[0], hi[0]), `This reverses the samples: ${hi[0]}'s sample had the greater percentage. In any case, ${ranges.charAt(0).toLowerCase()}${ranges.slice(1)}, and these ranges overlap, so the two percentages may be the same.`],
+          [exact, exactWhy],
+        ])
+        : choiceSet(r, greater(hi[0], lo[0]), [
+          [same, `This would need the plausible ranges to overlap. ${ranges}, so every plausible value for ${hi[0]} is greater than every plausible value for ${lo[0]}.`],
+          [greater(lo[0], hi[0]), `This reverses the result. ${ranges}, so every plausible value for ${hi[0]} is greater than every plausible value for ${lo[0]}.`],
+          [exact, exactWhy],
+        ]);
+      return mc(
+        `Researchers selected a random sample of ${n1} ${sv.of(X)} and a separate random sample of ${n2} ${sv.of(Y)}. Of those sampled from ${X}, ${p1}% said they ${sv.does}, with a margin of error of ${e1} percentage points. Of those sampled from ${Y}, ${p2}% said they ${sv.does}, with a margin of error of ${e2} percentage points. Which of the following is the most appropriate conclusion?`,
+        set,
+        `Each margin of error gives a range of plausible values for the whole population. ${ranges}. ${overlap
+          ? 'These ranges overlap, so the two percentages could be the same, even though the sample percentages differ.'
+          : `These ranges do not overlap, so the percentage for all ${sv.of(hi[0])} is greater.`}`,
+      );
+    },
+  },
+  {
+    id: 'ps-study-scope',
+    domain: 'problem-solving',
+    skill: 'Evaluating statistical claims: Observational studies and experiments',
+    topic: 'How far a study\'s conclusion reaches',
+    difficulty: 'hard',
+    build(r) {
+      const st = r.pick(SCOPED_STUDIES);
+      const sampled = r.chance(0.5); // a random sample of the part, or volunteers from it
+      const assigned = r.chance(0.5); // groups assigned at random, or chosen by the participants
+      const n = r.pick([120, 150, 200, 240, 300, 400]);
+      const weeks = r.int(4, 12);
+      const Ing = cap(st.ing);
+      const among = { whole: `all ${st.whole}`, part: `all of ${st.part}`, participants: 'the participants' };
+      const text = (cause, scope) => (cause
+        ? `${Ing} causes ${st.effect} among ${among[scope]}.`
+        : `${Ing} is associated with ${st.effect} among ${among[scope]}, but a cause-and-effect relationship cannot be concluded.`);
+      const scope = sampled ? 'part' : 'participants';
+      const reach = sampled
+        ? `The participants were selected at random from ${st.part}, so the result can be generalized to all of them, but no further.`
+        : `The participants were volunteers, not a random sample, so the result cannot be generalized beyond them.`;
+      const cause = assigned
+        ? `They were randomly assigned to groups, so the study supports the conclusion that ${st.ing} causes ${st.effect}.`
+        : `They chose for themselves whether to ${st.treat}, so the study shows an association but cannot establish cause and effect.`;
+      const set = choiceSet(r, text(assigned, scope), [
+        // The trap: the right claim, stretched to the whole population.
+        [text(assigned, 'whole'), `This extends the result to all ${st.whole}. ${reach}`],
+        [text(!assigned, scope), assigned
+          ? `This says only that ${st.ing} is associated with ${st.effect}. ${cause}`
+          : `This claims that ${st.ing} causes ${st.effect}. ${cause}`],
+        [text(assigned, sampled ? 'participants' : 'part'), sampled
+          ? `This limits the result to the participants. ${reach}`
+          : `This generalizes the result to all of ${st.part}. ${reach}`],
+      ]);
+      const sample = sampled
+        ? `A researcher selected ${n} ${st.people} at random from ${st.from}.`
+        : `A researcher enrolled ${n} volunteers from ${st.from}.`;
+      const groups = assigned
+        ? `The researcher randomly assigned half of the participants to ${st.treat} for ${weeks} weeks and the other half not to.`
+        : `The researcher asked each participant whether they ${st.treat} and followed all of them for ${weeks} weeks.`;
+      const outcome = `At the end of the study, the participants who ${assigned ? 'were assigned to' : 'said they'} ${st.treat} ${st.result}, on average, than the other participants.`;
+      return mc(`${sample} ${groups} ${outcome} Which of the following is the most appropriate conclusion from this study?`, set, `${reach} ${cause}`);
+    },
+  },
+  {
+    id: 'ps-residual',
+    domain: 'problem-solving',
+    skill: 'Two-variable data: Models and scatterplots',
+    topic: 'Actual and predicted values',
+    difficulty: 'hard',
+    build(r) {
+      const sc = r.pick(BEST_FIT);
+      const m10 = r.pick(sc.slopes);
+      const b = r.int(...sc.intercepts);
+      const m = m10 / 10;
+      const x0 = r.int(...sc.xs);
+      if ((m10 * x0) % 10 !== 0) return null; // a whole-number prediction
+      const pred = (m10 * x0) / 10 + b;
+      const d = (r.chance(0.5) ? 1 : -1) * r.int(2, 15);
+      const y0 = pred + d;
+      if (y0 <= 0) return null;
+      const fix = `The line predicts \\(${m}(${x0}) + ${b} = ${pred}\\), so the actual minus the predicted is \\(${y0} - ${pred} = ${d}\\).`;
+      const set = choiceSet(r, d, [
+        [-d, `This subtracts the actual ${sc.what} from the predicted one. ${fix}`],
+        [pred, `This is the ${sc.what} the line predicts, not the difference between the actual and predicted values. ${fix}`],
+        [y0 - (m10 * x0) / 10, `This leaves the \\(y\\)-intercept, ${b}, out of the prediction. ${fix}`],
+      ]);
+      return mc(
+        `${sc.setup} A line of best fit for the data is \\(y = ${m}x + ${b}\\). ${sc.point(x0, y0)} What is the actual ${sc.what} minus the ${sc.what} predicted by the line of best fit${sc.counted ? '' : `, in ${sc.unit}`}?`,
+        set,
+        `The line of best fit predicts \\(${m}(${x0}) + ${b} = ${pred}\\) ${sc.unit} for ${x0} ${sc.many}. The actual ${sc.what} was ${y0}, so the actual minus the predicted is \\(${y0} - ${pred} = ${d}\\) ${sc.unit}. A positive difference means the actual value is above the line; a negative one, below it.`,
+      );
+    },
+  },
+  {
+    id: 'alg-inequality-max',
+    domain: 'algebra',
+    skill: 'Linear inequalities in one or two variables',
+    topic: 'The greatest whole number under a limit',
+    difficulty: 'hard',
+    build(r) {
+      const cx = r.pick(CAPACITY);
+      const [lo, hi, step] = cx.ranges.L;
+      const L = r.int(lo, hi) * step;
+      const v = { L, F: r.int(...cx.ranges.F), n: r.int(...cx.ranges.n), a: r.int(...cx.ranges.a), b: r.int(...cx.ranges.b) };
+      const room = L - v.F - v.n * v.a;
+      const k = Math.floor(room / v.b);
+      if (room % v.b === 0 || k < 3) return null; // rounding must matter, and some must fit
+      const used = (x) => v.F + v.n * v.a + x * v.b;
+      const solve = `The total must be at most ${cx.amount(L)}: \\(${v.F} + ${v.n}(${v.a}) + ${v.b}x \\le ${L}\\), so \\(${v.b}x \\le ${room}\\) and \\(x \\le ${ratio(room, v.b)}\\). The greatest whole number that satisfies this is ${k}.`;
+      const set = choiceSet(r, k, [
+        [k + 1, `This rounds \\(${ratio(room, v.b)}\\) up. ${k + 1} ${cx.thing} would bring the total to ${cx.amount(used(k + 1))}, more than the limit of ${cx.amount(L)}. ${solve}`],
+        [Math.floor((L - v.n * v.a) / v.b), `This leaves out ${cx.fixed(v.F)}. ${solve}`],
+        [Math.floor((L - v.F) / v.b), `This leaves out the ${v.n} ${cx.items} at ${cx.amount(v.a)} each. ${solve}`],
+      ]);
+      return mc(cx.text(v), set, solve);
     },
   },
 ];

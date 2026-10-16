@@ -255,6 +255,73 @@ const SOLVERS = {
     const scale = (Number(ad[1]) + Number(db[1])) / Number(ad[1]);
     return String(Number(area[1]) * scale * scale - Number(area[1]));
   },
+  'ps-two-way-probability'(item) {
+    const lines = item.question.split('\n');
+    const table = lines.filter((l) => l.includes(' | ')).map((l) => l.split(' | ').map((c) => c.trim()));
+    const ask = lines.at(-1).toLowerCase().match(/^if one of the \w+ (?:who|that) (.+?) is selected at random, what is the probability that the \w+ (.+)\?$/);
+    if (table.length !== 4 || !ask) return null;
+    const [head, ...body] = table;
+    // The condition's column is the longest label it holds ("did not read a
+    // book" holds "read a book"); the group is the row its label names.
+    const col = head.slice(1).map((label, i) => [label.toLowerCase(), i])
+      .sort((u, v) => v[0].length - u[0].length).find(([label]) => ask[1].includes(label));
+    const row = body.findIndex((cells) => ask[2].includes(cells[0].toLowerCase()));
+    if (!col || row < 0) return null;
+    const counts = body.map((cells) => cells.slice(1).map(Number));
+    const total = counts.reduce((s, cells) => s + cells[col[1]], 0);
+    const hit = /\bnot\b/.test(ask[2]) ? total - counts[row][col[1]] : counts[row][col[1]];
+    return item.choices.flatMap((c, i) => {
+      const f = String(c).match(/\\frac\{(\d+)\}\{(\d+)\}/);
+      return f && Number(f[1]) * total === hit * Number(f[2]) ? [i] : [];
+    });
+  },
+  'ps-margin-compare'(item) {
+    const said = [...item.question.matchAll(/Of those sampled from (.+?), (\d+)% said .*?margin of error of (\d+) percentage points/g)];
+    if (said.length !== 2) return null;
+    const [[, A, pa, ea], [, B, pb, eb]] = said.map((m) => [m[0], m[1], Number(m[2]), Number(m[3])]);
+    // Ranges of plausible values that overlap allow the two percentages to be
+    // equal; apart, the higher one is greater. An exact difference is never known.
+    const overlap = Math.abs(pa - pb) <= ea + eb;
+    const higher = pa > pb ? A : B;
+    return item.choices.flatMap((c, i) => {
+      if (/^It is plausible that the same percentage/.test(c)) return overlap ? [i] : [];
+      if (/^A greater percentage of all /.test(c)) {
+        const first = [A, B].map((p) => [p, c.indexOf(p)]).filter(([, at]) => at >= 0).sort((u, v) => u[1] - v[1])[0]?.[0];
+        return !overlap && first === higher ? [i] : [];
+      }
+      return [];
+    });
+  },
+  'ps-study-scope'(item) {
+    const q = item.question;
+    const sampled = /selected \d+ \w+ at random from /.test(q);
+    const volunteers = /enrolled \d+ volunteers from /.test(q);
+    const assigned = /randomly assigned/.test(q);
+    const selfChosen = /asked each participant whether they/.test(q);
+    if (sampled === volunteers || assigned === selfChosen) return null;
+    // Random assignment supports cause and effect; a random sample reaches the
+    // group it was drawn from ("all of ..."), never the larger population
+    // ("all ..."), and volunteers reach only themselves.
+    const scope = sampled ? 'part' : 'participants';
+    return item.choices.flatMap((c, i) => {
+      const cause = /\bcauses\b/.test(c) && !/cannot be concluded/.test(c);
+      const reach = /among the participants\b/.test(c) ? 'participants' : /among all of /.test(c) ? 'part' : 'whole';
+      return cause === assigned && reach === scope ? [i] : [];
+    });
+  },
+  'ps-residual'(item) {
+    const m = item.question.match(/\\\(y = (\d+(?:\.\d+)?)x \+ (\d+)\\\)\. (.*?) What is the actual/s);
+    if (!m) return null;
+    const [x, y] = [...m[3].matchAll(/\d+(?:\.\d+)?/g)].map((v) => Number(v[0]));
+    return x === undefined || y === undefined ? null : String(y - (Number(m[1]) * x + Number(m[2])));
+  },
+  'alg-inequality-max'(item) {
+    // The limit, what is already used, then n items of a each, then the size of what is counted.
+    const nums = [...item.question.replace(/(\d),(\d)/g, '$1$2').matchAll(/\d+/g)].map((v) => Number(v[0]));
+    if (nums.length !== 5) return null;
+    const [L, F, n, a, b] = nums;
+    return String(Math.floor((L - F - n * a) / b));
+  },
 };
 
 function independent(t, seed, item) {
