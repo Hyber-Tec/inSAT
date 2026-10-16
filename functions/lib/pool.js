@@ -3,7 +3,7 @@
 //
 // insat's question pool is the bank of the platform's own institution (slug
 // 'satify'): questions written for it and the academy's own ('original'), the
-// official math questions of the College Board bank and practice tests
+// official questions of the College Board bank and practice tests
 // ('official', lib/official.js), their variants (lib/variation) and the math
 // templates' questions. Every institution's tests and practice draw from it,
 // whatever its mode, so a new academy has the whole pool from its first day.

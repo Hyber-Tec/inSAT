@@ -25,12 +25,18 @@
 //         served question may sit in a student's history, so never deleted),
 //         and one the dataset carries again comes back.
 // The College Board bank and the practice tests are served as well: given
-// --institution, cb or dsat puts its math questions into that bank as
-// source='official', exam-like (realism 5), each explanation in the bank's
-// shape (lib/official.js; a question whose explanation cannot be, because it
-// names choices by letter, stays reference material). Reading and Writing
-// stays reference: its explanations compare the choices by letter throughout.
-// --replace syncs as for originals. Import cb before dsat here too.
+// --institution, cb or dsat puts its questions into that bank as
+// source='official', each explanation in the bank's shape (lib/official.js; a
+// question whose explanation cannot be, because it names choices by letter,
+// stays reference material). --replace syncs as for originals. Import cb
+// before dsat here too.
+// Every bank and practice-test question, reference or official, is rated by
+// how closely it reads like the current exam: the College Board's own (the
+// bank, and a practice test most of whose questions the bank holds) 5, a
+// third-party practice test's 4. A full test draws the highest first, a
+// practice set leans the same way (lib/assembly.js), and generation imitates
+// the highest first (lib/generate.js). --replace brings the rating of rows
+// already in a bank in line too.
 //
 // Run (from functions/; the emulators when FIRESTORE_EMULATOR_HOST is set,
 // production otherwise):
@@ -49,7 +55,7 @@ import { globalPoolId, ensureGlobalPool, touched } from '../lib/pool.js';
 import { contentHash, hashRef, importRows } from '../lib/items.js';
 import { repairItemText } from '../lib/textRepair.js';
 import { DOMAINS, canonicalSkill } from '../lib/taxonomy.js';
-import { officialRationale } from '../lib/official.js';
+import { collegeBoardTests, officialRationale, officialRealism } from '../lib/official.js';
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 const args = process.argv.slice(2);
@@ -85,8 +91,11 @@ function originalRationale(q) {
   return out;
 }
 
-/** One dataset question -> an item row, or a reason it cannot be one. */
-function toRow(q) {
+/**
+ * One dataset question -> an item row, or a reason it cannot be one.
+ * `ownTests`: the practice tests that are the College Board's own.
+ */
+function toRow(q, ownTests) {
   if (!DOMAINS[q.section]?.includes(q.domain)) return { skip: `unknown domain ${q.domain}` };
   if (collection === 'dsat') {
     if (!q.answer) return { skip: 'no answer key' };
@@ -95,7 +104,6 @@ function toRow(q) {
     // teach generation the same flaw.
     if ((q.flags || []).some((f) => f.startsWith('ambiguous'))) return { skip: 'ambiguous as printed' };
   }
-  if (official && q.section !== 'math') return { skip: 'Reading and Writing (explanations compare choices by letter): stays reference' };
   const isGrid = q.answer_type === 'grid-in';
   const correctIdx = LETTERS.indexOf(String(q.answer || '').trim());
   if (!isGrid && (correctIdx < 0 || (q.choices || []).length !== 4)) return { skip: 'malformed multiple choice' };
@@ -136,9 +144,7 @@ function toRow(q) {
       // reference and official: the source's own key, re-solved during
       // transcription; original: the writer's key, confirmed by a blind solve
       verified: true,
-      // The real test's own questions read most like it (a full test draws
-      // the most exam-like first, lib/assembly.js).
-      ...(official ? { realism: 5 } : {}),
+      ...(collection === 'original' ? {} : { realism: officialRealism(collection, q, ownTests) }),
     },
   };
 }
@@ -155,35 +161,69 @@ async function targetInstitution() {
   return { id: found.id, label: `the ${found.name} bank` };
 }
 
+// What a student reads of a question, which a sync brings in line with the dataset.
+const TEXT_FIELDS = ['passage', 'question', 'choices', 'rationale'];
+// A value as text with its object keys in order, to compare stored and dataset rows.
+const stable = (v) => JSON.stringify(v, (_k, x) => (x && typeof x === 'object' && !Array.isArray(x)
+  ? Object.fromEntries(Object.keys(x).sort().map((k) => [k, x[k]]))
+  : x));
+
 /**
  * Bring a bank's served questions from this collection in line with the
  * dataset. A served row may be in a student's history by id, so a question the
  * dataset no longer carries is retired rather than deleted, and one it carries
- * again is restored. Only the collection's own rows (marked by its ORIGIN) are
- * compared: the bank's other questions, such as an academy's ClassMarker pool
- * among the originals, are not the dataset's to retire.
+ * again is restored; one the dataset now rates differently takes the new
+ * rating, and one it now sets differently (a fix the content hash cannot see,
+ * such as a verse line break) takes the new text. Only the collection's own
+ * rows (marked by its ORIGIN) are compared: the bank's other questions, such
+ * as an academy's ClassMarker pool among the originals, are not the dataset's
+ * to retire.
  */
 async function syncServed(institutionId, rows) {
-  const wanted = new Set(rows.map((r) => r.content_hash));
+  const wanted = new Map(rows.map((r) => [r.content_hash, r]));
   const marker = Object.keys(ORIGIN[collection]({}))[0];
   const have = (await queryRows(col(COL.items)
     .where('institution_id', '==', institutionId).where('source', '==', SOURCE)
-    .select('content_hash', 'retired_at', 'rationale')))
+    .select('content_hash', 'retired_at', 'realism', ...TEXT_FIELDS)))
     .filter((item) => item.rationale && marker in item.rationale);
   const writes = [];
   let retired = 0;
   let restored = 0;
+  let rerated = 0;
+  let refreshed = 0;
   for (const item of have) {
-    if (wanted.has(item.content_hash) && item.retired_at) {
+    const row = wanted.get(item.content_hash);
+    const changes = {};
+    if (row && item.retired_at) {
       restored += 1;
-      writes.push(['update', col(COL.items).doc(item.id), { retired_at: null, ...touched() }]);
-    } else if (!wanted.has(item.content_hash) && !item.retired_at) {
+      changes.retired_at = null;
+    } else if (!row && !item.retired_at) {
       retired += 1;
-      writes.push(['update', col(COL.items).doc(item.id), { retired_at: new Date(), ...touched() }]);
+      changes.retired_at = new Date();
     }
+    if (row && 'realism' in row && (item.realism ?? null) !== row.realism) {
+      rerated += 1;
+      changes.realism = row.realism;
+    }
+    const reset = row ? TEXT_FIELDS.filter((f) => stable(item[f] ?? null) !== stable(row[f] ?? null)) : [];
+    if (reset.length) {
+      refreshed += 1;
+      for (const f of reset) changes[f] = row[f];
+    }
+    if (Object.keys(changes).length) writes.push(['update', col(COL.items).doc(item.id), { ...changes, ...touched() }]);
   }
   await writeAll(writes);
-  console.log(`\nsynced with the dataset: retired ${retired}, restored ${restored}`);
+  console.log(`\nsynced with the dataset: retired ${retired}, restored ${restored}, re-rated ${rerated}, text refreshed ${refreshed}`);
+}
+
+/** The practice tests that are the College Board's own, judged against the bank beside them in the dataset. */
+function ownPracticeTests(tests) {
+  const bankFile = path.join(datasetDir, 'cb.jsonl');
+  if (!fs.existsSync(bankFile)) {
+    console.warn(`No ${bankFile} to judge the practice tests by: each is rated as a third party's.`);
+    return new Set();
+  }
+  return collegeBoardTests(tests, readJsonl(bankFile).map(repairItemText));
 }
 
 async function main() {
@@ -196,16 +236,19 @@ async function main() {
   // Transcribers write JSON by hand: what a student reads is repaired where
   // they damaged it before anything is checked (lib/textRepair.js).
   const questions = readJsonl(file).map(repairItemText);
+  const ownTests = collection === 'dsat' ? ownPracticeTests(questions) : new Set();
   const rows = [];
   const skipped = {};
   for (const q of questions) {
-    const { row, skip } = toRow(q);
+    const { row, skip } = toRow(q, ownTests);
     if (skip) { skipped[skip] = (skipped[skip] || 0) + 1; continue; }
     rows.push(row);
   }
   const count = (pred) => rows.filter(pred).length;
   console.log(`${questions.length} questions in ${file}`);
+  if (collection === 'dsat') console.log(`  the College Board's own tests: ${[...ownTests].sort((a, b) => a - b).join(', ') || 'none'}`);
   console.log(`  importable   ${rows.length}  (rw ${count((r) => r.section === 'rw')}, math ${count((r) => r.section === 'math')})`);
+  if (collection !== 'original') console.log(`  realism      ${count((r) => r.realism === 5)} at 5 (the College Board's own), ${count((r) => r.realism === 4)} at 4`);
   console.log(`  with figure  ${count((r) => r.png)}`);
   console.log(`  grid-in      ${count((r) => r.answer_type === 'grid-in')}`);
   for (const [why, n] of Object.entries(skipped)) console.log(`  skipped      ${n}  (${why})`);

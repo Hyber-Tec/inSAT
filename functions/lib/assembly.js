@@ -44,14 +44,20 @@ const SKILL_SPREAD = 1.5;
 // a small handicap, so a question written in the SAT's style (an original or a
 // variant of one) of the wanted difficulty goes first and templates fill in.
 const TEMPLATE_SPREAD = 1.5;
-const TEMPLATE_BIAS = 0.5;
+export const TEMPLATE_BIAS = 0.5;
 // An exam (a full practice test, or any form but a skill set) draws the
 // questions that read most like the real SAT first: each step down the realism
 // scale costs as much as a skill already drawn once, so a template, formulaic by
 // construction, comes last and serves only when nothing more exam-like is left
-// for this student. A skill set takes the wider mix, for volume.
-const REALISM_WEIGHT = 1.5;
+// for this student. A skill set leans the same way among questions that fit
+// equally well: its whole realism range, template handicap included, costs
+// less than a step away from the wanted difficulty, so it practises at the
+// right level first and, at that level, takes the College Board's own
+// questions before imitations of them and templates last.
+const REALISM_WEIGHT = { exam: 1.5, practice: 0.1 };
 const realismOf = (r) => (r.rationale?.template ? 1 : r.realism ?? 4);
+/** What a question's distance from the real SAT adds to its cost in a draw. */
+export const realismCost = (r, exam) => (5 - realismOf(r)) * REALISM_WEIGHT[exam ? 'exam' : 'practice'];
 // A variant (lib/variation) is its source question with new numbers, so a
 // question and its variants form one lineage. A form never holds two of one
 // lineage, and a lineage the student has already met costs extra, so fresh
@@ -147,7 +153,7 @@ async function pickItems({ pool, kind, domain, skill = null, n, difficulty, stri
         const tpl = r.rationale?.template;
         const score = (perSkill.get(r.skill) || 0) * SKILL_SPREAD + rank(r.difficulty)
           + (tpl ? (perTemplate.get(tpl) || 0) * TEMPLATE_SPREAD + TEMPLATE_BIAS : 0)
-          + (exam ? (5 - realismOf(r)) * REALISM_WEIGHT : 0)
+          + realismCost(r, exam)
           + (seenLineage.has(lineageOf(r)) ? LINEAGE_SEEN[exam ? 'exam' : 'practice'] : 0);
         if (score < bestScore) { best = i; bestScore = score; }
       });

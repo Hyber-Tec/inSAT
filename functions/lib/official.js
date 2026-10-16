@@ -12,8 +12,41 @@
 // for several choices at once going to each. An explanation that still names a
 // choice by letter, or does not follow the official shape, is not converted:
 // its question stays reference material, never served with a wrong letter.
+//
+// Not every practice test is the College Board's own. The transcribed tests
+// are its practice tests, whose questions it also publishes in the question
+// bank, and third-party "Digital SAT" series written to imitate them. A test
+// most of whose questions the bank holds word for word is the College Board's
+// (in the transcribed set, tests 8-13 and 17 hold 92-98% of theirs there, the
+// others 0-17%). Its questions are the current exam's own and read most like
+// it (realism 5); a third-party test's read like a good imitation (4).
 
 const LETTERS = ['A', 'B', 'C', 'D'];
+
+// How a question reads when telling whether two transcriptions are the same
+// question: case, spacing and punctuation aside.
+const plain = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '').trim();
+const sameQuestion = (q) => [q.question, ...(q.choices || []), q.section === 'rw' ? q.passage : ''].map(plain).join('|');
+
+/**
+ * The practice tests that are the College Board's own: those most of whose
+ * questions (`tests`, each with its `test` number) the question bank (`bank`)
+ * holds word for word.
+ */
+export function collegeBoardTests(tests, bank) {
+  const inBank = new Set(bank.map(sameQuestion));
+  const share = new Map();
+  for (const q of tests) {
+    const s = share.get(q.test) || { all: 0, inBank: 0 };
+    s.all += 1;
+    if (inBank.has(sameQuestion(q))) s.inBank += 1;
+    share.set(q.test, s);
+  }
+  return new Set([...share].filter(([, s]) => s.inBank / s.all > 0.5).map(([test]) => test));
+}
+
+/** How much a question from the bank (`cb`) or a practice test (`dsat`) reads like the current exam. */
+export const officialRealism = (collection, q, ownTests) => (collection === 'cb' || ownTests.has(q.test) ? 5 : 4);
 
 // A choice named by its letter: "choice B", "Choices A and C", "option D", "(B)".
 export const LETTER_REF = /\b(?:[Cc]hoices?|[Oo]ptions?|[Aa]nswers?)\s*\(?[A-D]\b|\([A-D]\)/;

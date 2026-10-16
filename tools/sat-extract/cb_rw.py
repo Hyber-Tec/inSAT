@@ -206,15 +206,17 @@ def collect(q, doc, zones_by_page=None):
 VERSE_SHORTFALL = 100.0  # a line ending this far before the right margin was broken on purpose
 
 
-def paragraphs(lines):
+def paragraphs(lines, right):
     """Group lines into paragraphs by gaps, bullets, labels and indentation.
 
     Inside a paragraph, wrapped lines are joined with a space, except that a
-    line ending well short of the right margin was broken on purpose (verse,
-    an address, a list), so it keeps its line break."""
+    line ending well short of the right margin (`right`, the page's text
+    width) was broken on purpose (verse, an address, a list), so it keeps its
+    line break. The margin is the whole question's: measured on a poem's own
+    lines, a long verse line would pass for a full one and be joined to the
+    next."""
     paras = []
     prev = None
-    right = max((l['x1'] for l in lines), default=590.0)
     for ln in lines:
         t = clean(ln['text'])
         if not t or t in ('<u></u>',):
@@ -277,7 +279,8 @@ def parse(q, doc, zones_by_page=None):
     if len(choices) != 4:
         return None, f'{len(choices)} choices found'
 
-    paras = paragraphs(pre)
+    right = max((l['x1'] for l in lines), default=590.0)
+    paras = paragraphs(pre, right)
     if not paras:
         return None, 'no question text'
     stem = paras[-1]['text']
@@ -289,7 +292,7 @@ def parse(q, doc, zones_by_page=None):
         answer = after or (texts[i_correct + 1] if i_correct + 1 < len(texts) else '')
     rat_lines = lines[i_rat + 1:i_diff if i_diff is not None else len(lines)]
     # Inside a rationale every hard break starts a new paragraph.
-    rationale = '\n\n'.join(p['text'] for p in paragraphs(rat_lines))
+    rationale = '\n\n'.join(p['text'] for p in paragraphs(rat_lines, right))
     rationale = re.sub(r'(?<!\n)\n(?!\n)', '\n\n', rationale)
 
     rec = {
