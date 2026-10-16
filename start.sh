@@ -79,9 +79,9 @@ cat <<EOF
 
   insat is up
   ───────────────────
-  Web app    → http://localhost:5180          (sign up or sign in here)
-  API        → http://localhost:5180/api/health
-  Emulators  → http://localhost:4010          (accounts, Firestore, Storage)
+  Web app    → http://127.0.0.1:5180          (sign up or sign in here)
+  API        → http://127.0.0.1:5180/api/health
+  Emulators  → http://127.0.0.1:4010          (accounts, Firestore, Storage)
 
   Make an account on the sign-up page. "Continue with Google" offers the Auth
   emulator's test accounts; a Google sign-in with an address in

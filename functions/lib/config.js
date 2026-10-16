@@ -27,6 +27,11 @@ export const config = {
   extractModel: process.env.EXTRACT_MODEL || process.env.GEN_MODEL || 'sonnet',
   extractConcurrency: Math.max(1, Number(process.env.EXTRACT_CONCURRENCY) || 6),
   extractChunkPages: Math.max(1, Number(process.env.EXTRACT_CHUNK_PAGES) || 4),
+  // The AI assistant (routes/assistant.js): its model on Anthropic (an
+  // academy's own model choice wins, as for every task), and how many
+  // messages one person can send it in a day (UTC).
+  chatModel: process.env.CHAT_MODEL || 'sonnet',
+  assistantDailyLimit: Math.max(1, Number(process.env.ASSISTANT_DAILY_LIMIT) || 50),
   // Platform-wide Anthropic key - the fallback when an institution hasn't set
   // its own. Not bound in production (REQUIRE_INSTITUTION_KEY is true there);
   // the offline scripts read it from functions/.env.local.

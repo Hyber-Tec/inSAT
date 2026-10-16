@@ -14,8 +14,8 @@
 // test, timed at the SAT's pace. The student takes it and sees the number
 // correct, not a scaled score, and so does the admin. Asked directly: the
 // academy's questions stay in its own bank (never insat's pool or the
-// generation pool), and a self-guided institution's admin can neither make
-// such a test nor set an AI key, and sees no AI settings. Every screen is
+// generation pool), and a self-guided institution's admin cannot make such
+// a test (the AI key it can set runs only its AI assistant). Every screen is
 // checked for page errors, failed API calls and content wider than a phone;
 // screenshots go to .logs/screens/authoring/. Everything it made is removed.
 
@@ -302,14 +302,13 @@ try {
   expect(leaked === 0, `privacy: ${leaked} of the academy's questions reached a shared pool`);
   expect(await asked('admin', 'GET', '/api/admin/bank/meta') === 200, 'api: a managed academy cannot read its own bank');
 
-  // ---- A self-guided institution makes no such tests and has no AI settings.
+  // ---- A self-guided institution makes no such tests: its AI key is for the AI assistant alone.
   const other = await open();
   await signIn(other, email('other'));
   await other.getByRole('button', { name: 'Add student' }).waitFor();
   for (const [method, endpoint, body] of [
     ['POST', '/api/admin/exams/from-ai', { title: 'x', section: 'rw', domain: 'craft-structure', n: 1 }],
     ['POST', '/api/admin/exams/from-upload'],
-    ['GET', '/api/admin/settings/llm-key'],
     ['GET', '/api/admin/bank/meta'],
     ['POST', '/api/admin/bank/generate', { section: 'rw', domain: 'craft-structure' }],
   ]) {
@@ -317,7 +316,9 @@ try {
   }
   await other.getByRole('button', { name: 'Settings', exact: true }).first().click();
   await other.getByText('Branding').waitFor();
-  expect(!(await other.getByText('AI provider & API key').count()), 'admin: a self-guided institution shows AI settings');
+  expect(await asked('other', 'GET', '/api/admin/settings/llm-key') === 200, 'api: a self-guided admin cannot see the AI key for the assistant');
+  await other.getByText('Powers the AI assistant your students and staff can ask.', { exact: false }).waitFor();
+  expect(!(await other.getByText('making tests from uploads', { exact: false }).count()), 'admin: a self-guided institution is told its key makes tests');
   await capture(other, 'self-guided-settings');
 
   console.log(`${shot} screens in ${output}`);

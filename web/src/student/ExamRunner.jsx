@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Spinner } from '@/components/ui/spinner';
 import { api, assetUrl } from '../api.js';
 import { MathText } from '../MathText.jsx';
+import { useAssistantHidden } from '../assistant/assistant.jsx';
 import { MathCalculator, Reference, formatTime, LETTERS } from './tools.jsx';
 
 const moduleQuestions = (form, secIdx, modIdx, routing) => {
@@ -35,6 +36,9 @@ export default function ExamRunner({ session, onFinished, onExit }) {
   // record, which exist for exams an instructor assigned.
   const proctored = session.kind !== 'practice';
   const skillSet = session.practice?.mode === 'skills';
+  // No AI help while a test or practice set is being taken (the API refuses
+  // it too while an assigned test is in progress).
+  useAssistantHidden();
 
   const [secIdx, setSecIdx] = useState(initialState.position?.secIdx ?? 0);
   const [modIdx, setModIdx] = useState(initialState.position?.modIdx ?? 0);

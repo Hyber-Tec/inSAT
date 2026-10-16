@@ -1,20 +1,22 @@
-// Institution settings: branding, and for a managed academy its own AI
-// provider and API key, which reading uploads and writing questions for its
-// custom tests run on (a self-guided institution serves insat's question pool
-// alone, so it has no AI to configure). The key is encrypted at rest and never
+// Institution settings: the academy's own AI provider and API key, whether
+// its students can use the AI assistant, and its branding. Every academy's
+// AI assistant runs on its key; a managed academy's custom tests (reading
+// uploads, writing questions) do too. The key is encrypted at rest and never
 // shown again (only a "…last4" hint). The provider (Anthropic, OpenAI, Gemini,
 // xAI/Grok, DeepSeek) and an optional model id are chosen here.
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { LuCircleCheck, LuCloudUpload, LuImage, LuKeyRound, LuPalette, LuTrash2 } from 'react-icons/lu';
+import { LuCircleCheck, LuCloudUpload, LuImage, LuKeyRound, LuPalette, LuSparkles, LuTrash2 } from 'react-icons/lu';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Spinner } from '@/components/ui/spinner';
+import { Switch } from '@/components/ui/switch';
 import { api, assetUrl } from '../api.js';
 import { useAuth } from '../auth.jsx';
+import { useAssistantRefresh } from '../assistant/assistant.jsx';
 import { ConfirmDialog, ErrorNote, Loading, SectionHeading, StatusBadge } from '../ui.jsx';
 
 // The theme's own primary (mist 700), shown when no brand color is set.
@@ -104,7 +106,22 @@ function BrandingCard() {
   );
 }
 
-function AiKeyCard() {
+// What the key is for, by how the academy runs.
+const KEY_USES = {
+  managed: {
+    description: 'Powers the AI assistant, and making tests from uploads or with AI. Billed to you.',
+    off: 'This platform requires each academy to use its own key: the AI assistant and tests from uploads or AI stay off until you add one.',
+    removed: 'The AI assistant and making tests from uploads or with AI fall back to the platform key, or stop until you add a key again. Tests already made stay.',
+  },
+  self_guided: {
+    description: 'Powers the AI assistant your students and staff can ask. Billed to you.',
+    off: 'This platform requires each academy to use its own key: the AI assistant stays off until you add one.',
+    removed: 'The AI assistant falls back to the platform key, or stops until you add a key again.',
+  },
+};
+
+function AiKeyCard({ managed, onChange }) {
+  const uses = KEY_USES[managed ? 'managed' : 'self_guided'];
   const [status, setStatus] = useState(null);
   const [provider, setProvider] = useState('anthropic');
   const [model, setModel] = useState('');
@@ -137,12 +154,13 @@ function AiKeyCard() {
       setApiKey('');
       setSavedAt(Date.now());
       load();
+      onChange();
     } catch (e) { setError(e.message); } finally { setBusy(false); }
   };
 
   const remove = async () => {
     setBusy(true); setError(null);
-    try { await api.del('/api/admin/settings/llm-key'); setProvider('anthropic'); setModel(''); load(); }
+    try { await api.del('/api/admin/settings/llm-key'); setProvider('anthropic'); setModel(''); load(); onChange(); }
     catch (e) { setError(e.message); throw e; } finally { setBusy(false); }
   };
 
@@ -152,7 +170,7 @@ function AiKeyCard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-semibold"><LuKeyRound className="size-4" /> AI provider &amp; API key</CardTitle>
           <CardDescription>
-            Used only when your academy makes tests from uploads or with AI, and billed to you. Get a key at {sel?.console || 'your provider’s console'}.
+            {uses.description} Get a key at {sel?.console || 'your provider’s console'}.
           </CardDescription>
           {status && (
             <CardAction>
@@ -214,7 +232,7 @@ function AiKeyCard() {
 
               {status.requireOwnKey && !status.configured && (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-800">
-                  This platform requires each academy to use its own key: tests from uploads or AI stay off until you add one.
+                  {uses.off}
                 </div>
               )}
             </>
@@ -225,7 +243,7 @@ function AiKeyCard() {
       {confirmingRemove && (
         <ConfirmDialog
           title="Remove API key?"
-          body="Making tests from uploads or with AI falls back to the platform key, or stops until you add a key again. Tests already made stay."
+          body={uses.removed}
           confirmLabel="Remove key"
           danger
           onCancel={() => setConfirmingRemove(false)}
@@ -236,9 +254,77 @@ function AiKeyCard() {
   );
 }
 
+/** Whether the academy's students can ask the AI assistant (its admins always can, once a key is set). */
+function AssistantCard({ version }) {
+  const [s, setS] = useState(null); // { students, ready, dailyLimit }
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const refreshAssistant = useAssistantRefresh();
+
+  const load = useCallback(async () => {
+    try { setS(await api.get('/api/admin/settings/assistant')); } catch (e) { setError(e.message); }
+  }, []);
+  useEffect(() => { load(); }, [load, version]);
+
+  const toggle = async (students) => {
+    setBusy(true); setError(null);
+    setS((x) => ({ ...x, students }));
+    try { await api.put('/api/admin/settings/assistant', { students }); }
+    catch (e) { setError(e.message); setS((x) => ({ ...x, students: !students })); }
+    finally { setBusy(false); }
+    refreshAssistant();
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 font-semibold"><LuSparkles className="size-4" /> AI assistant</CardTitle>
+        <CardDescription>
+          Your students and staff can ask AI about what is on their screen: a question they are reviewing, their results, or how to do something in insat. It is off while a student is taking a test.
+        </CardDescription>
+        {s && (
+          <CardAction>
+            {s.ready ? <StatusBadge tone="success">On</StatusBadge> : <StatusBadge tone="warning">Needs an AI key</StatusBadge>}
+          </CardAction>
+        )}
+      </CardHeader>
+      <CardContent className="gap-4">
+        <ErrorNote>{error}</ErrorNote>
+        {s === null ? (
+          !error && <Loading className="py-6" />
+        ) : (
+          <>
+            <div className="flex items-center justify-between gap-4 rounded-lg border px-3.5 py-3">
+              <div className="grid gap-1">
+                <Label htmlFor="assistant-students">Students can ask AI</Label>
+                <p className="text-xs text-muted-foreground">
+                  {s.students ? 'On for everyone in your academy.' : 'Only you and your staff can ask it.'}
+                </p>
+              </div>
+              <Switch id="assistant-students" checked={s.students} onCheckedChange={toggle} disabled={busy} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {s.ready
+                ? `Each person can send it up to ${s.dailyLimit} messages a day, on your AI key.`
+                : 'Add your AI key above to turn it on.'}
+            </p>
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function Settings({ mode }) {
   const { user } = useAuth();
+  const refreshAssistant = useAssistantRefresh();
   const managed = mode === 'managed';
+  // A key saved or removed changes what the assistant can do.
+  const [keyVersion, setKeyVersion] = useState(0);
+  const keyChanged = () => {
+    setKeyVersion((n) => n + 1);
+    refreshAssistant();
+  };
   return (
     <div className="max-w-2xl space-y-6">
       <SectionHeading
@@ -246,10 +332,11 @@ export default function Settings({ mode }) {
         eyebrow={user?.institutionName || 'Institution'}
         title="Settings"
         description={managed
-          ? 'Your AI key, for making tests from uploads or with AI, and how insat looks to your students.'
-          : 'How insat looks to your students and staff.'}
+          ? 'Your AI key, for the AI assistant and for making tests from uploads or with AI, and how insat looks to your students.'
+          : 'Your AI key, for the AI assistant, and how insat looks to your students and staff.'}
       />
-      {managed && <AiKeyCard />}
+      <AiKeyCard managed={managed} onChange={keyChanged} />
+      <AssistantCard version={keyVersion} />
       <BrandingCard />
     </div>
   );

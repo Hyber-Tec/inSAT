@@ -9,14 +9,16 @@ import { COL, col, getRow } from '../lib/store.js';
 import { ensureProfile, requireAuth, verifyRequest } from '../lib/auth.js';
 import { setPassword } from '../lib/accounts.js';
 import { readInvite, spendInvite } from '../lib/invite.js';
+import { access } from '../lib/assistant.js';
 import { asyncHandler, parseBody, badRequest, forbidden } from '../lib/http.js';
 
 const router = Router();
 
 /** A user row with what the client shows of their institution: its name, its
- *  branding, and whether it is self-guided or managed. */
-export async function withInstitution(u) {
-  const i = u?.institution_id ? await getRow(COL.institutions, u.institution_id) : null;
+ *  branding, and whether it is self-guided or managed. `institution` is its
+ *  row when the caller has it already. */
+export async function withInstitution(u, institution) {
+  const i = institution !== undefined ? institution : u?.institution_id ? await getRow(COL.institutions, u.institution_id) : null;
   return {
     ...u,
     institution_name: i?.name ?? null,
@@ -46,12 +48,16 @@ export function publicUser(u) {
 }
 
 // The signed-in account. Its first call makes the profile: a new sign-up is a
-// student of insat's own academy.
+// student of insat's own academy. `assistant`: whether the app offers it the
+// AI assistant (lib/assistant.js).
 router.get('/me', asyncHandler(async (req, res) => {
   const claims = await verifyRequest(req);
   const profile = await ensureProfile(claims);
   if (profile.active === false) throw forbidden('This account is deactivated. Contact your administrator.');
-  res.json({ user: publicUser(await withInstitution(profile)) });
+  const institution = profile.institution_id ? await getRow(COL.institutions, profile.institution_id) : null;
+  res.json({
+    user: { ...publicUser(await withInstitution(profile, institution)), assistant: access(profile.role, institution).shown },
+  });
 }));
 
 // The browser changed the password (Firebase Auth); the admin's "must reset"

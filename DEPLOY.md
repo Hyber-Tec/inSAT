@@ -34,7 +34,9 @@ https://insatprep.web.app ── Firebase Hosting (web/dist, site "insatprep")
 Non-secret runtime config is `functions/.env.insat-hyber` (committed):
 `CLIENT_ORIGIN`, `SUPERADMIN_EMAILS` (the platform owners: a verified sign-in
 with one of them is the superadmin), `REQUIRE_INSTITUTION_KEY=true` (academies
-bring their own AI key), `MAIL_FROM`.
+bring their own AI key), `MAIL_FROM`. Optional there: `CHAT_MODEL` and
+`ASSISTANT_DAILY_LIMIT`, the AI assistant's model on Anthropic and each
+person's messages to it a day (`sonnet` and 50 unless set).
 
 ## Deploy
 
@@ -66,8 +68,10 @@ Logs: `firebase functions:log` or the Cloud console (Cloud Run > api > Logs).
 2. **New institution** + its first admin: a temporary password (shown once)
    or an invite link to send them.
 3. The **academy admin** signs in, adds students (a starting password, or an
-   invite link) and, for a managed academy, pastes its own AI key in
-   **Settings** to make tests from uploads or with AI.
+   invite link) and pastes its own AI key in **Settings**: it runs the AI
+   assistant, and for a managed academy making tests from uploads or with AI.
+   insat's own academy is no different: one of its admins adds insat's key in
+   its Settings to give self-guided students the assistant.
 4. **Students** sign in at the same URL. Anyone else can sign up and practise
    as a student of insat's own academy.
 

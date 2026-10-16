@@ -1,13 +1,22 @@
-// A stand-in for the AI provider, for check-authoring.mjs only. Loaded into a
-// throwaway API process (node --import), it answers that process's calls to
-// Anthropic's Messages API the way a model would, so making tests from uploads
-// and with AI runs end to end without a key or a bill. It tells the three jobs
-// apart by their prompts (functions/lib/ingest.js, functions/lib/generate.js):
-// reading questions out of a file, writing questions, and solving them again
-// to check each answer. Every third question it writes is solved to a
-// different answer, so a draft that fails the check is seen to be left out.
-// Any other request goes out as usual.
+// A stand-in for the AI provider, for the browser checks that use AI
+// (check-authoring.mjs, check-assistant.mjs). Loaded into a throwaway API
+// process (node --import), it answers that process's calls to Anthropic's
+// Messages API the way a model would, so making tests from uploads and with
+// AI, and the AI assistant, run end to end without a key or a bill. It tells
+// the jobs apart by their prompts (functions/lib/ingest.js,
+// functions/lib/generate.js): reading questions out of a file, writing
+// questions, and solving them again to check each answer. Every third
+// question it writes is solved to a different answer, so a draft that fails
+// the check is seen to be left out. A streamed request is the assistant's
+// chat (functions/routes/assistant.js): the answer says back what it was sent
+// (the screen's name and first lines, the question, how many figures), with a
+// formula and a list for the page to render, streamed in small pieces (slowly
+// when the question asks for it, so it can be stopped). With MOCK_LLM_RECORD
+// set to a file, each chat request is written to it as a line of JSON (the
+// system prompt, the screen, the question, the figures), for a check to read
+// what the AI was sent. Any other request goes out as usual.
 
+import fs from 'node:fs';
 import { DOMAIN_LABEL, SKILLS } from '../../functions/lib/taxonomy.js';
 
 const MESSAGES_API = 'https://api.anthropic.com/v1/messages';
@@ -124,10 +133,75 @@ function read(prompt) {
   return rows;
 }
 
+/** The newest message's parts (text and images). */
+const lastParts = (body) => {
+  const { content } = body.messages.at(-1);
+  return typeof content === 'string' ? [{ type: 'text', text: content }] : content;
+};
+const textOf = (parts) => parts.filter((p) => p.type === 'text').map((p) => p.text).join('\n');
+
+/** The assistant's answer to a conversation: what it was sent, said back. */
+function chatAnswer(body) {
+  const parts = lastParts(body);
+  const text = textOf(parts);
+  const images = parts.filter((p) => p.type === 'image');
+  const figures = images.length;
+  const screen = /<screen>\n([\s\S]*?)\n<\/screen>/.exec(text)?.[1] || '';
+  const title = /^Screen: (.*)$/m.exec(screen)?.[1] || 'no screen';
+  const seen = screen.split('\n').slice(1).map((l) => l.trim()).filter((l) => l && !l.startsWith('[')).slice(0, 2).join(' / ');
+  const question = text.replace(/<screen>[\s\S]*?<\/screen>\s*/, '').trim();
+  if (process.env.MOCK_LLM_RECORD) {
+    fs.appendFileSync(process.env.MOCK_LLM_RECORD, `${JSON.stringify({
+      system: body.system, title, screen, question, history: body.messages.length - 1,
+      figures: images.map((i) => ({ media: i.source?.media_type, bytes: Buffer.from(i.source?.data || '', 'base64').length })),
+    })}\n`);
+  }
+  return [
+    `You asked: "${question}"`,
+    '',
+    `I can see **${title}**${seen ? `: ${seen}` : ''}.${figures ? ` It has ${figures} ${figures === 1 ? 'figure' : 'figures'}.` : ''}`,
+    '',
+    'Here is the idea, with \\(\\frac{3}{4} + x^2\\) worked out:',
+    '',
+    '\\[ y = 2x + 1 \\]',
+    '',
+    `- Earlier messages in this chat: ${body.messages.length - 1}`,
+    '- A price of $5 stays a price.',
+  ].join('\n');
+}
+
+/** An SSE stream of a Messages API answer, in pieces (stopped when the request is). */
+function chatStream(body, signal) {
+  const answer = chatAnswer(body);
+  const slow = /slowly/i.test(textOf(lastParts(body)).replace(/<screen>[\s\S]*?<\/screen>/, ''));
+  const events = [
+    ['message_start', { type: 'message_start', message: { id: 'msg_mock', role: 'assistant', content: [] } }],
+    ['content_block_start', { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } }],
+    ...answer.match(/[\s\S]{1,12}/g).map((text) => ['content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text } }]),
+    ['content_block_stop', { type: 'content_block_stop', index: 0 }],
+    ['message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn' } }],
+    ['message_stop', { type: 'message_stop' }],
+  ];
+  const encoder = new TextEncoder();
+  let i = 0;
+  return new ReadableStream({
+    async pull(controller) {
+      await new Promise((r) => setTimeout(r, slow ? 250 : 12));
+      if (signal?.aborted) return controller.error(new DOMException('The operation was aborted.', 'AbortError'));
+      if (i >= events.length) return controller.close();
+      const [event, data] = events[i++];
+      controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
+    },
+  });
+}
+
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, init = {}) => {
   if (String(url) !== MESSAGES_API) return realFetch(url, init);
   const body = JSON.parse(init.body);
+  if (body.stream) {
+    return new Response(chatStream(body, init.signal), { status: 200, headers: { 'content-type': 'text/event-stream' } });
+  }
   const content = body.messages[0].content;
   const prompt = typeof content === 'string' ? content : content.filter((c) => c.type === 'text').map((c) => c.text).join('\n');
   const answer = /Extract EVERY complete SAT question/.test(prompt) ? read(prompt)

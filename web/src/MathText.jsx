@@ -432,6 +432,16 @@ const typeset = (t) => t.replace(UNARY_MINUS, '$1\u2212').replace(UNARY_MINUS_VA
 const DIGIT_GROUPS = /(?<![\d.])[1-9]\d{0,2}(?:,\d{3})+(?!\d)/g;
 const mathTex = (t) => growParens(t.replace(DIGIT_GROUPS, (m) => m.replace(/,/g, '{,}')).replace(/(?<!\\)[%$]/g, '\\$&'));
 
+/**
+ * One formula of LaTeX as KaTeX HTML, set as every formula in the app is
+ * (display style, grown parentheses), for text that marks its own math (the
+ * AI assistant's answers). Null when KaTeX cannot set it.
+ */
+export function texToHtml(tex, display = false) {
+  const t = mathTex(String(tex).trim());
+  return renderTex(display ? t : `\\displaystyle ${t}`, display);
+}
+
 // Math is set in display style, where a fraction is tall: parentheses around
 // one grow with it, as the SAT sets them, 5(\frac{y}{2}+5) becoming
 // 5{\left(\frac{y}{2}+5\right)}. Braced, the grown pair is an ordinary atom,

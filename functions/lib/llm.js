@@ -1,12 +1,14 @@
-// Multi-provider LLM client. Question generation, verification, and image/PDF
-// extraction all run through here, billed to the institution's own key (any
-// supported provider) or the platform Anthropic key as a fallback. Uses Node's
-// built-in fetch.
+// Multi-provider LLM client. Question generation, verification, image/PDF
+// extraction and the AI assistant's chat all run through here, billed to the
+// institution's own key (any supported provider) or the platform Anthropic key
+// as a fallback. Uses Node's built-in fetch.
 //
 // Providers: Anthropic (native Messages API) plus any OpenAI-compatible Chat
 // Completions API - OpenAI, Google Gemini (via its OpenAI-compat endpoint), xAI
-// (Grok), and DeepSeek. Text and images work on all of them; PDFs are native on
-// Anthropic and best-effort (base64 `file` part) on the OpenAI-compatible ones.
+// (Grok), and DeepSeek. Text works on all of them, and images on all but
+// DeepSeek; PDFs are native on Anthropic and best-effort (base64 `file` part)
+// on the OpenAI-compatible ones. A chat reply streams (streamChat); everything
+// else is one completion (complete).
 
 import { config } from './config.js';
 
@@ -68,6 +70,7 @@ export const PROVIDERS = {
     baseUrl: 'https://api.deepseek.com/v1',
     defaultModel: 'deepseek-chat',
     openaiCompatible: true,
+    vision: false, // its chat models read text only
   },
 };
 
@@ -82,29 +85,35 @@ export function providerCatalog() {
   }));
 }
 
-const apiError = (message, statusCode) => {
+// An AI error carries a statusCode for the API's error handler, and a `kind`
+// for callers that put it in their own words: 'no_key', 'bad_key' (the
+// provider refused the key), or 'service' (unreachable, overloaded, refused).
+const apiError = (message, statusCode, kind = 'service') => {
   const err = new Error(message);
   err.statusCode = statusCode;
+  err.kind = kind;
   return err;
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// POST JSON with backoff on transient (429 / 529 / 5xx / network) failures so
+// POST with backoff on transient (429 / 529 / 5xx / network) failures so
 // parallel extraction calls don't silently drop questions when throttled.
-async function postJson(url, { headers, body, label }) {
+// Resolves to the successful response; `signal` gives up at once.
+async function postWithRetry(url, { headers, body, signal }) {
   const MAX_ATTEMPTS = 4;
   for (let attempt = 1; ; attempt += 1) {
     let res;
     try {
-      res = await fetch(url, { method: 'POST', headers, body });
+      res = await fetch(url, { method: 'POST', headers, body, signal });
     } catch (err) {
+      if (signal?.aborted) throw err;
       if (attempt >= MAX_ATTEMPTS) throw apiError(`Could not reach the AI service: ${err.message}`, 502);
       await sleep(500 * 2 ** (attempt - 1));
       continue;
     }
 
-    if (res.ok) return res.json();
+    if (res.ok) return res;
 
     const transient = res.status === 429 || res.status === 529 || res.status >= 500;
     if (transient && attempt < MAX_ATTEMPTS) {
@@ -119,8 +128,63 @@ async function postJson(url, { headers, body, label }) {
     throw apiError(
       badKey ? 'The AI service rejected the API key - check the key in Settings.' : `The AI service answered ${res.status}: ${errBody.slice(0, 200)}`,
       badKey ? 400 : 502,
+      badKey ? 'bad_key' : 'service',
     );
   }
+}
+
+const postJson = async (url, options) => (await postWithRetry(url, options)).json();
+
+/**
+ * The events of a server-sent event stream (a fetch response body), as
+ * { event, data } once each is complete. Both providers' streams are SSE. A
+ * stream that stops without its last blank line still gives its last event.
+ */
+export async function* sseEvents(body) {
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let event = 'message';
+  let data = [];
+  // One line: a field of the event being read, or the blank line ending it.
+  function* line(text) {
+    if (!text) {
+      if (data.length) yield { event, data: data.join('\n') };
+      event = 'message';
+      data = [];
+    } else if (!text.startsWith(':')) {
+      const colon = text.indexOf(':');
+      const field = colon < 0 ? text : text.slice(0, colon);
+      const value = colon < 0 ? '' : text.slice(colon + 1).replace(/^ /, '');
+      if (field === 'event') event = value;
+      else if (field === 'data') data.push(value);
+    }
+  }
+  for await (const chunk of body) {
+    buffer += typeof chunk === 'string' ? chunk : decoder.decode(chunk, { stream: true });
+    let nl;
+    while ((nl = buffer.indexOf('\n')) >= 0) {
+      yield* line(buffer.slice(0, nl).replace(/\r$/, ''));
+      buffer = buffer.slice(nl + 1);
+    }
+  }
+  buffer += decoder.decode();
+  if (buffer) yield* line(buffer.replace(/\r$/, ''));
+  yield* line('');
+}
+
+/** The provider and key a call runs on: the institution's, else the platform's (Anthropic). */
+function resolveKey(creds = {}) {
+  let provider = creds.provider || DEFAULT_PROVIDER;
+  let key = String(creds.apiKey || '').trim();
+  // No institution key -> fall back to the platform key, which is Anthropic's.
+  if (!key) {
+    key = config.platformApiKey;
+    provider = DEFAULT_PROVIDER;
+  }
+  if (!key) {
+    throw apiError('No LLM API key configured. Add one in Settings to generate or upload questions.', 400, 'no_key');
+  }
+  return { provider, key, p: PROVIDERS[provider] || PROVIDERS[DEFAULT_PROVIDER] };
 }
 
 // --- Anthropic (native Messages API) ---------------------------------------
@@ -200,18 +264,7 @@ async function completeOpenAICompatible(p, { key, model, system, prompt, maxToke
  * @param {'low'|'medium'|'high'} [o.effort]  thinking-depth/cost dial (Anthropic only; default high)
  */
 export async function complete({ creds = {}, model, system, prompt, maxTokens = 4000, image = null, effort = null }) {
-  let provider = creds.provider || DEFAULT_PROVIDER;
-  let key = String(creds.apiKey || '').trim();
-  // No institution key -> fall back to the platform key, which is Anthropic's.
-  if (!key) {
-    key = config.platformApiKey;
-    provider = DEFAULT_PROVIDER;
-  }
-  if (!key) {
-    throw apiError('No LLM API key configured. Add one in Settings to generate or upload questions.', 400);
-  }
-
-  const p = PROVIDERS[provider] || PROVIDERS[DEFAULT_PROVIDER];
+  const { key, p } = resolveKey(creds);
   if (p.openaiCompatible) {
     const effModel = String(creds.model || '').trim() || p.defaultModel;
     return completeOpenAICompatible(p, { key, model: effModel, system, prompt, maxTokens, image });
@@ -220,6 +273,109 @@ export async function complete({ creds = {}, model, system, prompt, maxTokens = 
   // per-tier alias; both go through the alias resolver.
   const effModel = resolveModel(String(creds.model || '').trim() || model);
   return completeAnthropic({ key, model: effModel, system, prompt, maxTokens, image, effort });
+}
+
+// --- Streaming chat ------------------------------------------------------------
+// A conversation is [{ role: 'user' | 'assistant', content, images? }], images
+// ([{ media, data }], base64) going with the message they belong to.
+
+const anthropicMessage = ({ role, content, images = [] }) => ({
+  role,
+  content: images.length
+    ? [...images.map((i) => ({ type: 'image', source: { type: 'base64', media_type: i.media, data: i.data } })), { type: 'text', text: content }]
+    : content,
+});
+
+async function streamAnthropic({ key, model, system, messages, maxTokens, signal, onStart, onText }) {
+  const res = await postWithRetry('https://api.anthropic.com/v1/messages', {
+    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({ model, max_tokens: maxTokens, system, messages: messages.map(anthropicMessage), stream: true }),
+    signal,
+  });
+  onStart?.();
+  let text = '';
+  let stop = null;
+  for await (const { data } of sseEvents(res.body)) {
+    let msg;
+    try { msg = JSON.parse(data); } catch { continue; }
+    // Text arrives as text deltas; thinking, if the model does any, is not shown.
+    if (msg.type === 'content_block_delta' && msg.delta?.type === 'text_delta') {
+      text += msg.delta.text;
+      onText?.(msg.delta.text);
+    } else if (msg.type === 'message_delta') {
+      stop = msg.delta?.stop_reason ?? stop;
+    } else if (msg.type === 'error') {
+      throw apiError(`The AI service stopped answering: ${msg.error?.message || 'error'}`, 502);
+    } else if (msg.type === 'message_stop') {
+      break;
+    }
+  }
+  return { text, truncated: stop === 'max_tokens' };
+}
+
+const openaiMessage = ({ role, content, images = [] }) => ({
+  role,
+  content: images.length
+    ? [...images.map((i) => ({ type: 'image_url', image_url: { url: `data:${i.media};base64,${i.data}` } })), { type: 'text', text: content }]
+    : content,
+});
+
+async function streamOpenAICompatible(p, { key, model, system, messages, maxTokens, signal, onStart, onText }) {
+  const payload = {
+    model,
+    stream: true,
+    messages: [...(system ? [{ role: 'system', content: system }] : []), ...messages.map(openaiMessage)],
+  };
+  payload[p.tokenParam || 'max_tokens'] = maxTokens;
+  const res = await postWithRetry(`${p.baseUrl}/chat/completions`, {
+    headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+    signal,
+  });
+  onStart?.();
+  let text = '';
+  let stop = null;
+  for await (const { data } of sseEvents(res.body)) {
+    if (data === '[DONE]') break;
+    let msg;
+    try { msg = JSON.parse(data); } catch { continue; }
+    if (msg.error) throw apiError(`The AI service stopped answering: ${msg.error.message || 'error'}`, 502);
+    const choice = msg.choices?.[0];
+    const piece = choice?.delta?.content;
+    if (typeof piece === 'string' && piece) {
+      text += piece;
+      onText?.(piece);
+    }
+    if (choice?.finish_reason) stop = choice.finish_reason;
+  }
+  return { text, truncated: stop === 'length' };
+}
+
+/**
+ * The next reply in a conversation, streamed. `onStart` is called once the
+ * provider has accepted the request (a refusal before that throws), `onText`
+ * with each piece of the reply as it arrives. Resolves to the whole reply,
+ * { text, truncated } (truncated: it ran out of tokens).
+ * @param {object} o
+ * @param {{provider?:string, apiKey?:string, model?:string}} [o.creds]  institution credentials
+ * @param {string} [o.model]   per-call tier hint (Anthropic alias); an institution model override wins
+ * @param {string} [o.system]  system prompt
+ * @param {Array<{role:'user'|'assistant', content:string, images?:Array<{media:string, data:string}>}>} o.messages
+ * @param {number} [o.maxTokens]
+ * @param {AbortSignal} [o.signal]  stops the request, and the bill, when the asker goes away
+ * @param {() => void} [o.onStart]
+ * @param {(text: string) => void} [o.onText]
+ */
+export async function streamChat({ creds = {}, model, system, messages, maxTokens = 2000, signal, onStart, onText }) {
+  const { key, p } = resolveKey(creds);
+  // A provider that reads no images gets the words alone.
+  const sent = p.vision === false ? messages.map(({ images, ...m }) => m) : messages;
+  if (p.openaiCompatible) {
+    const effModel = String(creds.model || '').trim() || p.defaultModel;
+    return streamOpenAICompatible(p, { key, model: effModel, system, messages: sent, maxTokens, signal, onStart, onText });
+  }
+  const effModel = resolveModel(String(creds.model || '').trim() || model);
+  return streamAnthropic({ key, model: effModel, system, messages: sent, maxTokens, signal, onStart, onText });
 }
 
 /**

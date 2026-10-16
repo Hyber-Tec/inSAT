@@ -115,7 +115,7 @@ try {
   const result = (await api(`sessions/${diagnostic.sessionId}/results`)).results;
   assert.equal(result.totalQuestions, 98);
   assert.ok(result.sections.every((s) => s.questions.every((q) => q.skill && q.rationale.correct)));
-  await page.getByRole('button', { name: '1', exact: true }).first().click();
+  await page.getByRole('button', { name: /^Question 1: / }).first().click();
   await page.getByRole('button', { name: 'Close', exact: true }).waitFor();
   await page.screenshot({ path: path.join(output, 'explanation.png'), fullPage: true, animations: 'disabled' });
   await page.getByRole('button', { name: 'Close', exact: true }).click();

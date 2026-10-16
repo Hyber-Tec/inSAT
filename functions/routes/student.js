@@ -158,6 +158,7 @@ router.post('/assignments/:id/start', asyncHandler(async (req, res) => {
   const open = (await listSessions([['user_id', '==', me], ['assignment_id', '==', req.params.id]], ['status', 'started_at']))
     .sort((a, b) => (b.status === 'in_progress') - (a.status === 'in_progress') || b.started_at - a.started_at);
   if (open[0]) {
+    if (open[0].status === 'in_progress') await updateSession(open[0].id, { active_at: new Date() });
     return res.json(sessionPayload(await loadSession(open[0].id, me)));
   }
 
@@ -211,7 +212,7 @@ router.patch('/sessions/:id/state', asyncHandler(async (req, res) => {
   const { state } = parseBody(z.object({ state: z.any() }), req.body);
   const s = await sessionFields(req.params.id, ['user_id', 'status']);
   if (!s || s.user_id !== req.user.sub || s.status !== 'in_progress') throw notFound('active session');
-  await updateSession(s.id, { state: state || {} });
+  await updateSession(s.id, { state: state || {}, active_at: new Date() });
   res.json({ ok: true });
 }));
 
@@ -226,7 +227,7 @@ router.post('/sessions/:id/route', asyncHandler(async (req, res) => {
   const mergedState = state || s.state || {};
   const route = computeRouting(s.form, mergedState.answers || {}, sectionKind, s.form.routing?.thresholdFraction);
   const routing = { ...(s.routing || {}), [sectionKind]: route };
-  await updateSession(s.id, { state: mergedState, routing });
+  await updateSession(s.id, { state: mergedState, routing, active_at: new Date() });
   res.json({ routing: route });
 }));
 

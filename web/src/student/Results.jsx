@@ -1,23 +1,38 @@
 // Results screen for a completed attempt. Renders the server-computed scores,
 // what to practise next, and a per-question review (correct answer + the
 // student's choice + an explanation for each choice). Driven entirely by the
-// API results payload.
+// API results payload. In a question's review the student can ask the AI
+// assistant about it: the conversation opens beside the question (in its
+// place on a narrow screen).
 //
 // A full test reports a total out of 1600, one section a score out of 800,
 // and a skill practice set (which has no scaled score) correct of total.
 
-import React, { useEffect, useState } from 'react';
-import { LuArrowRight, LuChevronLeft, LuChevronRight, LuRotateCcw, LuTarget, LuX } from 'react-icons/lu';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { LuArrowRight, LuChevronLeft, LuChevronRight, LuRotateCcw, LuSparkles, LuTarget, LuX } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { api, assetUrl } from '../api.js';
+import { useAuth } from '../auth.jsx';
 import { ErrorNote, Meter, StatusBadge } from '../ui.jsx';
 import { MathText } from '../MathText.jsx';
+import {
+  loadChat, useAssistant, useAssistantHost, useAssistantScreen, useMedia, useVisibleBox,
+} from '../assistant/assistant.jsx';
 import { LETTERS } from './tools.jsx';
 import { LEVELS } from '../skills.jsx';
+
+const ReviewPane = lazy(() => loadChat().then((m) => ({ default: m.ReviewPane })));
+
+// What is worth asking the AI assistant about a question, by how it went.
+const ASK = {
+  incorrect: ['Why is my answer wrong?', 'Explain this question step by step', 'Give me a similar question to try'],
+  correct: ['Explain this question step by step', 'Is there a faster way to solve it?', 'Give me a similar question to try'],
+  unanswered: ['How do I start this question?', 'Explain this question step by step', 'Give me a similar question to try'],
+};
 
 /** Skills missed in this attempt, weakest first: the ones to practise next. */
 function missedSkills(sections) {
@@ -98,6 +113,7 @@ function NextSteps({ sections, skillSet, standing, starting, error, onPractice }
 }
 
 export default function Results({ results, onBack, onPractice, starting = null, error = null }) {
+  const { user } = useAuth();
   const [review, setReview] = useState(null); // {sIdx, qIdx}
   const sections = results.sections || [];
   const skillSet = results.practice?.mode === 'skills';
@@ -130,7 +146,7 @@ export default function Results({ results, onBack, onPractice, starting = null, 
         : { label: 'Total score', value: results.totalScaled, sub: 'out of 1600 · scaled' };
 
   return (
-    <main className="mx-auto max-w-5xl animate-in space-y-8 px-4 pt-8 pb-16 animation-duration-300 fade-in-0 sm:px-6 sm:pt-10">
+    <main className={cn('mx-auto max-w-5xl animate-in space-y-8 px-4 pt-8 pb-16 animation-duration-300 fade-in-0 sm:px-6 sm:pt-10', user?.assistant && 'pb-24')}>
       <div className={eyebrow}>{results.examTitle} · Results</div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -196,6 +212,7 @@ export default function Results({ results, onBack, onPractice, starting = null, 
                 const answered = isAnswered(q);
                 return (
                   <button key={q.qid} type="button" onClick={() => setReview({ sIdx, qIdx })}
+                    aria-label={`Question ${qIdx + 1}: ${!answered ? 'not answered' : q.isCorrect ? 'correct' : 'incorrect'}`}
                     className={cn(
                       'aspect-square rounded-md border text-sm font-medium tabular-nums transition-colors',
                       !answered ? 'border-dashed border-foreground/25 text-muted-foreground hover:bg-muted/50'
@@ -247,15 +264,46 @@ function ReviewModal({ sections, review, onClose, onNav }) {
   const answered = isAnswered(q);
   const wrongLetter = !q.isCorrect && q.selectedIdx != null ? LETTERS[q.selectedIdx] : null;
   const wrongWhy = wrongLetter && rationale[wrongLetter];
+
+  // The AI assistant, beside the question while it is open (in its place on
+  // a narrow screen, where closing the review closes it too; on a phone the
+  // review then fills the screen the keyboard leaves, as a chat does).
+  const assistant = useAssistant();
+  const ai = Boolean(assistant?.offered);
+  const chat = ai && assistant.open;
+  const wide = useMedia('(min-width: 1024px)');
+  const phone = useMedia('(max-width: 639px)');
+  const box = useVisibleBox(chat && phone);
+  useAssistantHost(ai);
+  useAssistantScreen(`${s.name} question ${review.qIdx + 1}`, ASK[q.isCorrect ? 'correct' : answered ? 'incorrect' : 'unanswered']);
+  const close = () => {
+    if (chat && !wide) assistant.setOpen(false);
+    onClose();
+  };
+
   return (
-    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      {/* Escape closes; the arrow keys step through the questions. */}
+    <Dialog open onOpenChange={(open) => { if (!open) close(); }}>
+      {/* Escape closes (only the assistant, from inside it); the arrow keys
+          step through the questions, unless they are moving through text. */}
       <DialogContent
         showCloseButton={false}
-        className="flex max-h-[90svh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl"
+        style={box ? { top: box.top, height: box.height } : undefined}
+        className={cn(
+          'flex flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl',
+          chat
+            ? 'h-[min(52rem,92svh)] lg:max-w-[min(72rem,calc(100vw-4rem))] max-sm:top-0 max-sm:left-0 max-sm:h-svh max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none max-sm:ring-0'
+            : 'max-h-[90svh]',
+        )}
         onKeyDown={(e) => {
+          if (e.target.closest?.('textarea, input')) return;
           if (e.key === 'ArrowLeft') onNav(-1);
           else if (e.key === 'ArrowRight') onNav(1);
+        }}
+        onEscapeKeyDown={(e) => {
+          if (chat && e.target.closest?.('[data-assistant]')) {
+            e.preventDefault();
+            assistant.setOpen(false);
+          }
         }}
       >
         <div className="flex items-start justify-between gap-3 border-b px-5 py-4 sm:px-6">
@@ -271,72 +319,85 @@ function ReviewModal({ sections, review, onClose, onNav }) {
             <DialogDescription className={cn('mt-1', !q.skill && 'sr-only')}>{q.skill || 'Answer review'}</DialogDescription>
           </div>
           <div className="flex shrink-0 gap-1.5">
+            {ai && !chat && (
+              <Button variant="outline" size="sm" className="max-sm:w-8 max-sm:px-0" aria-label="Ask AI about this question"
+                onClick={() => assistant.setOpen(true)} onPointerEnter={loadChat} onFocus={loadChat}>
+                <LuSparkles /><span className="max-sm:sr-only">Ask AI</span>
+              </Button>
+            )}
             <Button variant="outline" size="icon-sm" aria-label="Previous question" onClick={() => onNav(-1)}><LuChevronLeft /></Button>
             <Button variant="outline" size="icon-sm" aria-label="Next question" onClick={() => onNav(1)}><LuChevronRight /></Button>
-            <Button variant="outline" size="icon-sm" aria-label="Close" onClick={onClose}><LuX /></Button>
+            <Button variant="outline" size="icon-sm" aria-label="Close" onClick={close}><LuX /></Button>
           </div>
         </div>
 
-        <div className="scrollbar-thin overflow-y-auto px-5 py-5 sm:px-6">
-          {q.passage && (
-            <div className="mb-5 border-b pb-5">
-              <div className={cn(eyebrow, 'mb-2')}>Passage</div>
-              <div className="font-serif text-[15px] leading-[1.7]"><MathText text={q.passage} /></div>
-            </div>
-          )}
-          {q.assetId && <img src={assetUrl(q.assetId)} alt="" className="mb-5 block max-h-80 max-w-full rounded-lg border" />}
-          <div className="mb-4 text-[15px] leading-relaxed font-medium"><MathText text={q.question} /></div>
-          {!answered && q.answerType !== 'grid-in' && (
-            <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800">
-              You didn&apos;t answer this question.
-            </div>
-          )}
-          {q.answerType === 'grid-in' ? (
-            <div className="flex flex-wrap gap-3">
-              <div className={cn('min-w-40 flex-1 rounded-lg border px-4 py-3',
-                q.isCorrect ? 'border-emerald-300 bg-emerald-50/70' : answered ? 'border-red-300 bg-red-50/70' : 'border-amber-200 bg-amber-50')}>
-                <div className={cn('mb-1 text-xs font-semibold tracking-wide uppercase',
-                  q.isCorrect ? 'text-emerald-700' : answered ? 'text-red-700' : 'text-amber-800')}>Your answer</div>
-                <div className="text-lg">{answered ? <MathText text={q.selectedText} /> : 'No answer'}</div>
+        <div className="flex min-h-0 flex-1">
+          <div className={cn('scrollbar-thin min-w-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6', chat && 'max-lg:hidden')}>
+            {q.passage && (
+              <div className="mb-5 border-b pb-5">
+                <div className={cn(eyebrow, 'mb-2')}>Passage</div>
+                <div className="font-serif text-[15px] leading-[1.7]"><MathText text={q.passage} /></div>
               </div>
-              <div className="min-w-40 flex-1 rounded-lg border border-emerald-300 bg-emerald-50/70 px-4 py-3">
-                <div className="mb-1 text-xs font-semibold tracking-wide text-emerald-700 uppercase">Correct answer</div>
-                <div className="text-lg"><MathText text={String(q.correctAnswer ?? '')} /></div>
+            )}
+            {q.assetId && <img src={assetUrl(q.assetId)} alt="" data-figure className="mb-5 block max-h-80 max-w-full rounded-lg border" />}
+            <div className="mb-4 text-[15px] leading-relaxed font-medium"><MathText text={q.question} /></div>
+            {!answered && q.answerType !== 'grid-in' && (
+              <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800">
+                You didn&apos;t answer this question.
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {q.choices.map((c, i) => {
-                const correct = i === q.correctIdx;
-                const user = i === q.selectedIdx;
-                return (
-                  <div key={i} className={cn('flex items-start gap-3 rounded-lg border px-4 py-3 text-sm',
-                    correct ? 'border-emerald-300 bg-emerald-50/70' : user ? 'border-red-300 bg-red-50/70' : '')}>
-                    <span className={cn('flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold',
-                      correct ? 'border-emerald-600 bg-emerald-600 text-white' : user ? 'border-red-600 bg-red-600 text-white' : 'border-foreground/60')}>
-                      {LETTERS[i]}
-                    </span>
-                    <span className="flex-1 pt-px leading-relaxed"><MathText text={String(c)} /></span>
-                    {correct && <span className="pt-0.5 text-[11px] font-semibold tracking-wide text-emerald-700 uppercase">Correct</span>}
-                    {user && !correct && <span className="pt-0.5 text-[11px] font-semibold tracking-wide text-red-700 uppercase">Your answer</span>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-          {wrongWhy && (
-            <div className="mt-5 rounded-lg border border-red-200 bg-red-50/60 p-4">
-              <div className="mb-1.5 text-xs font-semibold tracking-wide text-red-700 uppercase">Why {wrongLetter} is wrong</div>
-              <div className="text-sm leading-relaxed text-foreground/80"><MathText text={wrongWhy} /></div>
-            </div>
-          )}
-          {rationale.correct && (
-            <div className={cn('rounded-lg border bg-muted/50 p-4', wrongWhy ? 'mt-3' : 'mt-5')}>
-              <div className="mb-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                {q.correctIdx != null ? `Why ${LETTERS[q.correctIdx]} is correct` : 'Explanation'}
+            )}
+            {q.answerType === 'grid-in' ? (
+              <div className="flex flex-wrap gap-3">
+                <div className={cn('min-w-40 flex-1 rounded-lg border px-4 py-3',
+                  q.isCorrect ? 'border-emerald-300 bg-emerald-50/70' : answered ? 'border-red-300 bg-red-50/70' : 'border-amber-200 bg-amber-50')}>
+                  <div className={cn('mb-1 text-xs font-semibold tracking-wide uppercase',
+                    q.isCorrect ? 'text-emerald-700' : answered ? 'text-red-700' : 'text-amber-800')}>Your answer</div>
+                  <div className="text-lg">{answered ? <MathText text={q.selectedText} /> : 'No answer'}</div>
+                </div>
+                <div className="min-w-40 flex-1 rounded-lg border border-emerald-300 bg-emerald-50/70 px-4 py-3">
+                  <div className="mb-1 text-xs font-semibold tracking-wide text-emerald-700 uppercase">Correct answer</div>
+                  <div className="text-lg"><MathText text={String(q.correctAnswer ?? '')} /></div>
+                </div>
               </div>
-              <div className="text-sm leading-relaxed text-foreground/80"><MathText text={rationale.correct} /></div>
-            </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {q.choices.map((c, i) => {
+                  const correct = i === q.correctIdx;
+                  const user = i === q.selectedIdx;
+                  return (
+                    <div key={i} className={cn('flex items-start gap-3 rounded-lg border px-4 py-3 text-sm',
+                      correct ? 'border-emerald-300 bg-emerald-50/70' : user ? 'border-red-300 bg-red-50/70' : '')}>
+                      <span className={cn('flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold',
+                        correct ? 'border-emerald-600 bg-emerald-600 text-white' : user ? 'border-red-600 bg-red-600 text-white' : 'border-foreground/60')}>
+                        {LETTERS[i]}
+                      </span>
+                      <span className="flex-1 pt-px leading-relaxed"><MathText text={String(c)} /></span>
+                      {correct && <span className="pt-0.5 text-[11px] font-semibold tracking-wide text-emerald-700 uppercase">Correct</span>}
+                      {user && !correct && <span className="pt-0.5 text-[11px] font-semibold tracking-wide text-red-700 uppercase">Your answer</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {wrongWhy && (
+              <div className="mt-5 rounded-lg border border-red-200 bg-red-50/60 p-4">
+                <div className="mb-1.5 text-xs font-semibold tracking-wide text-red-700 uppercase">Why {wrongLetter} is wrong</div>
+                <div className="text-sm leading-relaxed text-foreground/80"><MathText text={wrongWhy} /></div>
+              </div>
+            )}
+            {rationale.correct && (
+              <div className={cn('rounded-lg border bg-muted/50 p-4', wrongWhy ? 'mt-3' : 'mt-5')}>
+                <div className="mb-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                  {q.correctIdx != null ? `Why ${LETTERS[q.correctIdx]} is correct` : 'Explanation'}
+                </div>
+                <div className="text-sm leading-relaxed text-foreground/80"><MathText text={rationale.correct} /></div>
+              </div>
+            )}
+          </div>
+          {chat && (
+            <Suspense fallback={<div className="flex flex-1 items-center justify-center lg:w-100 lg:flex-none lg:border-l"><Spinner className="size-5 text-muted-foreground" /></div>}>
+              <ReviewPane onClose={() => assistant.setOpen(false)} />
+            </Suspense>
           )}
         </div>
       </DialogContent>

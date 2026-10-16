@@ -1,11 +1,14 @@
-// Institution settings (admin) - currently the institution's own LLM API key.
-// The key is encrypted at rest and never returned; only its status + a hint.
+// Institution settings (admin): the institution's own LLM API key, whether
+// its students may use the AI assistant, and its branding. The key is
+// encrypted at rest and never returned; only its status + a hint.
 
 import { Router } from 'express';
 import { z } from 'zod';
 import { COL, col, getRow } from '../lib/store.js';
 import { asyncHandler, parseBody, badRequest } from '../lib/http.js';
-import { keyStatus, setInstitutionKey, clearInstitutionKey } from '../lib/institutions.js';
+import { config } from '../lib/config.js';
+import { aiReady, keyStatus, setInstitutionKey, clearInstitutionKey } from '../lib/institutions.js';
+import { studentsAllowed } from '../lib/assistant.js';
 import { saveAsset } from '../lib/assets.js';
 import { multipart } from '../lib/upload.js';
 
@@ -34,6 +37,21 @@ router.put('/llm-key', asyncHandler(async (req, res) => {
 router.delete('/llm-key', asyncHandler(async (req, res) => {
   await clearInstitutionKey(inst(req));
   res.json({ configured: false, hint: null });
+}));
+
+// --- The AI assistant --------------------------------------------------------
+// Admins always have it once AI is set up; `students` says whether the
+// academy's students do too (they do unless it is turned off).
+
+router.get('/assistant', asyncHandler(async (req, res) => {
+  const r = await getRow(COL.institutions, inst(req));
+  res.json({ students: studentsAllowed(r), ready: aiReady(r), dailyLimit: config.assistantDailyLimit });
+}));
+
+router.put('/assistant', asyncHandler(async (req, res) => {
+  const { students } = parseBody(z.object({ students: z.boolean() }), req.body);
+  await institution(req).update({ assistant_students: students });
+  res.json({ students });
 }));
 
 // --- Branding (logo + accent) ----------------------------------------------

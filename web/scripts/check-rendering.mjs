@@ -262,7 +262,7 @@ async function throughUi(browser, ids) {
       const original = copies.get(q.itemId);
       if (!original) continue;
       checked += 1;
-      await page.getByRole('button', { name: String(i + 1), exact: true }).first().click();
+      await page.getByRole('button', { name: new RegExp(`^Question ${i + 1}: `) }).first().click();
       await page.getByRole('button', { name: 'Close', exact: true }).waitFor();
       // Tag the review dialog for the scan.
       const dialog = page.getByRole('dialog');

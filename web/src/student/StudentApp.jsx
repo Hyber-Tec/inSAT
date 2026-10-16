@@ -14,10 +14,18 @@ import { useAuth } from '../auth.jsx';
 import { HomeLink, Wordmark, ErrorNote, Loading } from '../ui.jsx';
 import { UserMenu } from '../account.jsx';
 import { Button } from '@/components/ui/button';
+import { useAssistantScreen } from '../assistant/assistant.jsx';
 import ExamRunner from './ExamRunner.jsx';
 import Results from './Results.jsx';
 import PracticeHome from './Practice.jsx';
 import AssignedHome, { blockedByExamApp } from './Assigned.jsx';
+
+// What is worth asking the AI assistant on each screen.
+const ASK = {
+  practice: ['What should I practice next?', 'How is the digital SAT scored?', 'Make me a study plan for the next two weeks'],
+  assigned: ['What should I work on first?', 'How is the digital SAT scored?', 'How should I get ready for my next test?'],
+  results: ['What should I work on next?', 'Explain my score', 'Which questions should I review first?'],
+};
 
 export default function StudentApp() {
   const { user } = useAuth();
@@ -36,6 +44,8 @@ export default function StudentApp() {
   const [busyId, setBusyId] = useState(null);
   // Which practice start is being prepared: a test mode, 'next' or 'picked'.
   const [starting, setStarting] = useState(null);
+  const onResults = view === 'results' && results;
+  useAssistantScreen(onResults ? 'Results' : 'Dashboard', onResults ? ASK.results : managed ? ASK.assigned : ASK.practice);
 
   const load = useCallback(async () => {
     setError(null);
@@ -146,7 +156,8 @@ export default function StudentApp() {
     <div className="min-h-svh">
       {header}
 
-      <main className="mx-auto max-w-5xl animate-in px-4 pt-8 pb-16 animation-duration-300 fade-in-0 sm:px-6 sm:pt-10">
+      {/* Room at the foot of the page for the AI assistant's button. */}
+      <main className={`mx-auto max-w-5xl animate-in px-4 pt-8 ${user?.assistant ? 'pb-24' : 'pb-16'} animation-duration-300 fade-in-0 sm:px-6 sm:pt-10`}>
         {error && <ErrorNote className="mb-6">{error}</ErrorNote>}
 
         {!loaded ? (

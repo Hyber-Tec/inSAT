@@ -156,8 +156,9 @@ const managedOnly = requireMode('managed', 'Groups, tests and assignments are fo
 router.use(['/groups', '/blueprints', '/exams', '/exam-folders', '/assignments'], managedOnly);
 // Questions from uploads or written by AI are for a managed academy's own
 // tests (they stay in its private bank, lib/pool.js); a self-guided
-// institution serves insat's pool alone, so it has no bank and no AI key.
-router.use(['/bank', '/settings/llm-key'], requireMode('managed', 'Making tests from uploads or with AI is only for institution-managed academies.'));
+// institution serves insat's pool alone, so it has no bank. Every academy
+// has an AI key, though: the AI assistant runs on it (routes/assistant.js).
+router.use('/bank', requireMode('managed', 'Making tests from uploads or with AI is only for institution-managed academies.'));
 
 // What an assignment is called: its test's title, or the practice set's.
 const assignmentTitle = (a) => (a.kind === 'practice'
