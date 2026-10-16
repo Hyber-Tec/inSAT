@@ -1,7 +1,9 @@
 // One student's page (managed academies): who they are and their groups, how
 // they are doing in every College Board skill, what is assigned to them, and
 // every test and practice set they have done. Practice topics are assigned
-// from the skill map, starting from the student's weakest skills.
+// from the skill map, starting from the student's weakest skills. The platform
+// console shows any academy's student on the same page, read-only, from its own
+// endpoints (`source`).
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { LuArrowLeft, LuChevronRight, LuFileText, LuSend, LuTarget, LuUsers } from 'react-icons/lu';
@@ -44,7 +46,9 @@ function scoreOf(s) {
   return { value: s.totalScaled, label: 'Total' };
 }
 
-export default function StudentPage({ studentId, onBack }) {
+export default function StudentPage({ studentId, onBack, backLabel = 'All students', eyebrow = 'Student', source = null, readOnly = false }) {
+  const overviewUrl = source?.overview ?? `/api/admin/users/${studentId}/overview`;
+  const reviewUrl = source?.review ?? ((id) => `/api/admin/results/${id}`);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [banner, setBanner] = useState(null);
@@ -54,17 +58,17 @@ export default function StudentPage({ studentId, onBack }) {
   const load = useCallback(async () => {
     setError(null);
     try {
-      setData(await api.get(`/api/admin/users/${studentId}/overview`));
+      setData(await api.get(overviewUrl));
     } catch (err) {
       setError(err.message || 'Could not load this student');
     }
-  }, [studentId]);
+  }, [overviewUrl]);
 
   useEffect(() => { load(); }, [load]);
 
   const back = (
     <Button variant="ghost" size="sm" className="mb-4 -ml-2.5 text-muted-foreground" onClick={onBack}>
-      <LuArrowLeft /> All students
+      <LuArrowLeft /> {backLabel}
     </Button>
   );
   if (!data) return <div>{back}{error ? <ErrorNote>{error}</ErrorNote> : <Loading />}</div>;
@@ -81,7 +85,7 @@ export default function StudentPage({ studentId, onBack }) {
         <div className="flex flex-wrap items-center gap-4">
           <Avatar className="size-12"><AvatarFallback className="text-sm font-medium">{initialsOf(student.displayName, student.email)}</AvatarFallback></Avatar>
           <div className="min-w-0 flex-1">
-            <div className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Student</div>
+            <div className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{eyebrow}</div>
             <h1 className="flex flex-wrap items-center gap-2 text-2xl font-semibold tracking-tight">
               {student.displayName}
               {!student.active && <StatusBadge tone="danger">Inactive</StatusBadge>}
@@ -91,7 +95,7 @@ export default function StudentPage({ studentId, onBack }) {
               {groups.map((g) => <Badge key={g.id} variant="secondary"><LuUsers /> {g.name}</Badge>)}
             </div>
           </div>
-          <Button onClick={() => setAssigning({ kind: 'exam' })}><LuSend data-icon="inline-start" /> Assign a test</Button>
+          {!readOnly && <Button onClick={() => setAssigning({ kind: 'exam' })}><LuSend data-icon="inline-start" /> Assign a test</Button>}
         </div>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Card size="sm" className="px-4"><Stat label={latest ? `Latest score (${latest.label})` : 'Latest score'} value={latest?.value} /></Card>
@@ -109,12 +113,13 @@ export default function StudentPage({ studentId, onBack }) {
         profile={profile}
         title="Skills"
         subject="student"
-        initialPicked={profile.recommended}
+        initialPicked={readOnly ? [] : profile.recommended}
         actionLabel="Assign practice"
         onPractise={(skills, _key, difficulty) => setAssigning({ kind: 'practice', practice: { skills, difficulty } })}
+        readOnly={readOnly}
       />
 
-      <section className="space-y-4">
+      {!(readOnly && assignments.length === 0) && <section className="space-y-4">
         <SectionHeading title="Assigned work" />
         {assignments.length === 0 ? (
           <EmptyState icon={LuSend} title="Nothing assigned yet" hint="Assign a test, or practice on the skills above." />
@@ -142,7 +147,7 @@ export default function StudentPage({ studentId, onBack }) {
             })}
           </div>
         )}
-      </section>
+      </section>}
 
       <section className="space-y-4">
         <SectionHeading title="Tests and practice" />
@@ -186,7 +191,7 @@ export default function StudentPage({ studentId, onBack }) {
             load();
           }} />
       )}
-      {open && <DetailModal sessionId={open} onClose={() => setOpen(null)} />}
+      {open && <DetailModal sessionId={open} url={reviewUrl(open)} onClose={() => setOpen(null)} />}
     </div>
   );
 }

@@ -6,7 +6,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { COL, col, getRow } from '../lib/store.js';
-import { ensureProfile, requireAuth, verifyRequest } from '../lib/auth.js';
+import { ensureProfile, inStudentView, requireAuth, verifyRequest } from '../lib/auth.js';
+import { defaultInstitutionId } from '../lib/pool.js';
 import { setPassword } from '../lib/accounts.js';
 import { readInvite, spendInvite } from '../lib/invite.js';
 import { access } from '../lib/assistant.js';
@@ -54,9 +55,16 @@ router.get('/me', asyncHandler(async (req, res) => {
   const claims = await verifyRequest(req);
   const profile = await ensureProfile(claims);
   if (profile.active === false) throw forbidden('This account is deactivated. Contact your administrator.');
-  const institution = profile.institution_id ? await getRow(COL.institutions, profile.institution_id) : null;
+  // A platform owner in student view is a student of insat's own academy (lib/auth.js).
+  const ownerView = inStudentView(req, profile.role);
+  const as = ownerView ? { ...profile, role: 'student', institution_id: await defaultInstitutionId() } : profile;
+  const institution = as.institution_id ? await getRow(COL.institutions, as.institution_id) : null;
   res.json({
-    user: { ...publicUser(await withInstitution(profile, institution)), assistant: access(profile.role, institution).shown },
+    user: {
+      ...publicUser(await withInstitution(as, institution)),
+      assistant: access(as.role, institution).shown,
+      ...(ownerView ? { ownerView: true } : {}),
+    },
   });
 }));
 

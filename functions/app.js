@@ -6,7 +6,7 @@
 import express from 'express';
 import cors from 'cors';
 import { config } from './lib/config.js';
-import { requireAuth, requireRole } from './lib/auth.js';
+import { asStudentView, requireAuth, requireRole } from './lib/auth.js';
 import { bootstrap } from './lib/pool.js';
 import { readAsset } from './lib/assets.js';
 import { asyncHandler, errorHandler, notFound } from './lib/http.js';
@@ -54,8 +54,8 @@ export function createApp() {
   app.use('/api/auth', authRoutes);
   app.use('/api/super', requireAuth, requireRole('superadmin'), superRoutes);
   app.use('/api/admin', requireAuth, requireRole('admin'), adminRoutes);
-  app.use('/api/student', requireAuth, requireRole('student'), studentRoutes);
-  app.use('/api/assistant', requireAuth, assistantRoutes);
+  app.use('/api/student', requireAuth, asStudentView, requireRole('student'), studentRoutes);
+  app.use('/api/assistant', requireAuth, asStudentView, assistantRoutes);
 
   app.use('/api', (_req, _res, next) => next(notFound()));
   app.use(errorHandler);

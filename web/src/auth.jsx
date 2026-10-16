@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider } from './firebase.js';
 import { api } from './api.js';
+import { setOwnerView } from './view.js';
 import { ROUTES, navigate } from './nav.js';
 
 const AuthCtx = createContext(null);
@@ -99,8 +100,16 @@ export function AuthProvider({ children }) {
     url: `${window.location.origin}${ROUTES.signIn}`,
   }), []);
 
+  /** A platform owner's switch between the console ('platform') and using insat as a student ('student'). */
+  const switchView = useCallback(async (view) => {
+    setOwnerView(view);
+    await loadMe();
+    navigate(ROUTES.home, { replace: true });
+  }, [loadMe]);
+
   const logout = useCallback(async () => {
     await signOut(auth);
+    setOwnerView('platform');
     setUser(null);
     // Land on the sign-in page, not the marketing landing page - whoever just
     // signed out is an existing user, and signing back in is the likely next
@@ -109,7 +118,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthCtx.Provider value={{ user, loading, notice, login, loginWithGoogle, signUp, resetPassword, logout, setUser }}>
+    <AuthCtx.Provider value={{ user, loading, notice, login, loginWithGoogle, signUp, resetPassword, logout, setUser, switchView }}>
       {children}
     </AuthCtx.Provider>
   );
