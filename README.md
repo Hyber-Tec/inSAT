@@ -94,7 +94,8 @@ Copy `web/.env.example` to `web/.env.local` and fill in the Firebase web config
 This starts the Firebase emulators (Auth `:9109`, Firestore `:8090`, Storage
 `:9209`, the `api` function `:5011`, the Emulator UI `:4010`) and the web app
 (`:5180`, with `/api` proxied to the function as Hosting does in production).
-Open **http://localhost:5180** and make an account on the sign-up page.
+Open **http://127.0.0.1:5180** (the address it listens on: `localhost` may
+reach another app on the same port) and make an account on the sign-up page.
 "Continue with Google" offers the Auth emulator's test accounts; a Google
 sign-in with an address in `SUPERADMIN_EMAILS` (`functions/.env.local`) is the
 platform owner. The emulators keep their data in `.logs/emulator-data`.
