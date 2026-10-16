@@ -208,6 +208,8 @@ export function AssistantProvider({ children }) {
   const state = useMemo(() => ({
     offered,
     role: user?.role,
+    // A test is on screen (the runner hides the assistant): other chrome steps aside too.
+    onTest: hidden > 0,
     open: open && offered && !hidden,
     setOpen,
     messages,

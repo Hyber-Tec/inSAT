@@ -9,6 +9,7 @@ import { sseEvents, streamChat } from '../lib/llm.js';
 import {
   LIMITS, TEST_ACTIVE_MS, access, conversation, dayOf, isTakingTest, reasonText, remaining, systemPrompt,
 } from '../lib/assistant.js';
+import { VIEW_HEADER, inStudentView } from '../lib/auth.js';
 
 /** A fetch response body that arrives in the given pieces. */
 function body(pieces) {
@@ -243,4 +244,14 @@ test('it is told who it talks to and how to answer, and never names the AI behin
   assert.doesNotMatch(systemPrompt({ role: 'admin', mode: 'self_guided' }), /Assignments \(/);
   assert.match(systemPrompt({ role: 'student', mode: 'self_guided' }), /trusted adult/);
   assert.doesNotMatch(systemPrompt({ role: 'admin', mode: 'self_guided' }), /trusted adult/);
+});
+
+test("a platform owner is a student only from the app's student view", () => {
+  // Express reads headers case-insensitively; so does this request.
+  const req = (view) => ({ get: (h) => (h.toLowerCase() === VIEW_HEADER && view ? view : undefined) });
+  assert.equal(inStudentView(req('student'), 'superadmin'), true);
+  assert.equal(inStudentView(req(null), 'superadmin'), false);
+  assert.equal(inStudentView(req('platform'), 'superadmin'), false);
+  // Anyone else is who they are, whatever the header says.
+  for (const role of ['student', 'admin']) assert.equal(inStudentView(req('student'), role), false);
 });

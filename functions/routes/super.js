@@ -11,6 +11,7 @@ import { createInvite, inviteLink } from '../lib/invite.js';
 import { sendInvite } from '../lib/mail.js';
 import { GLOBAL_POOL_SLUG, POOL_SLUG } from '../lib/pool.js';
 import { MODES } from '../lib/modes.js';
+import { sessionReview, studentOverview } from '../lib/students.js';
 
 const router = Router();
 
@@ -193,6 +194,25 @@ router.delete('/institutions/:id/students/:studentId', asyncHandler(async (req, 
   if (!(await memberOf(req.params.studentId, req.params.id, 'student'))) throw notFound('student');
   await deleteAccount(req.params.studentId);
   res.json({ ok: true });
+}));
+
+// One student's page, as their academy's admin sees it: their skill map,
+// every test and practice set they started, and what is assigned to them.
+router.get('/institutions/:id/students/:studentId/overview', asyncHandler(async (req, res) => {
+  const i = await institutionOf(req.params.id);
+  if (!i) throw notFound('institution');
+  const student = await memberOf(req.params.studentId, i.id, 'student');
+  if (!student) throw notFound('student');
+  res.json({ student: publicUser(student), ...(await studentOverview(student, i.id)) });
+}));
+
+// The review of one of an institution's sessions: what was answered, and why.
+router.get('/institutions/:id/results/:sessionId', asyncHandler(async (req, res) => {
+  const i = await institutionOf(req.params.id);
+  if (!i) throw notFound('institution');
+  const results = await sessionReview(req.params.sessionId, i.id);
+  if (!results) throw notFound('session');
+  res.json({ results });
 }));
 
 export default router;

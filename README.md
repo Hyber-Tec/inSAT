@@ -68,6 +68,16 @@ in is the superadmin. Firebase Auth holds the sign-in; each account's profile
 (role, institution, active) is a `users` document the API reads on every
 request.
 
+**The platform owner as a student.** The console's Student view lets an owner
+use insat as one of its students: their own practice, skill map and AI
+assistant, as a student of insat's own academy. While it is on, the app sends
+`X-Insat-View: student` and the API's student and assistant routes, and
+`/api/auth/me`, take the owner for that student (`asStudentView` in
+`lib/auth.js`); without it an owner is refused the student routes. The console
+also opens any academy's student, read-only: the page their admin has (skill
+map, every test and practice set, each one's review), from
+`/api/super/institutions/:id/students/:studentId/overview`.
+
 **Data model:** one Firestore collection per kind of record (`institutions`,
 `users`, `groups`, `items`, `blueprints`, `exams`, `examFolders`,
 `assignments`, `sessions`, `invites`), each document keeping the field names

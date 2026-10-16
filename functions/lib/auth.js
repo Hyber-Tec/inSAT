@@ -82,6 +82,25 @@ export function requireAuth(req, _res, next) {
   })().then(() => next(), next);
 }
 
+// A platform owner can also use insat as one of its students: their own
+// practice, skill map and AI assistant. While the app is in student view it
+// sends this header, and the student and assistant routes, and /me, take the
+// owner for a student of insat's own academy. Their sessions are theirs, as any
+// student's; without the header an owner is refused the student routes.
+export const VIEW_HEADER = 'x-insat-view';
+
+/** Whether a request is a platform owner's (`role`), made from the app's student view. */
+export const inStudentView = (req, role) => role === 'superadmin' && req.get(VIEW_HEADER) === 'student';
+
+/** On the student and assistant routes (after requireAuth): an owner in student view as a student of insat's own academy. */
+export function asStudentView(req, _res, next) {
+  if (!inStudentView(req, req.user?.role)) return next();
+  defaultInstitutionId().then((inst) => {
+    req.user = { ...req.user, role: 'student', inst, ownerView: true };
+    next();
+  }, next);
+}
+
 /** Require a specific role (use after requireAuth). */
 export const requireRole = (role) => (req, _res, next) => {
   if (!req.user) return next(unauthorized());

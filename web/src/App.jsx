@@ -1,6 +1,8 @@
 // Top-level app: wraps everything in the auth provider and routes by role.
 
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { LuGraduationCap } from 'react-icons/lu';
+import { Button } from '@/components/ui/button';
 import { AuthProvider, useAuth } from './auth.jsx';
 import { FullScreenSpinner } from './ui.jsx';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -10,7 +12,7 @@ import Login from './Login.jsx';
 import SignUp from './SignUp.jsx';
 import { ROUTES, useLocation, navigate } from './nav.js';
 import AcceptInvite from './AcceptInvite.jsx';
-import { AssistantProvider } from './assistant/assistant.jsx';
+import { AssistantProvider, useAssistant } from './assistant/assistant.jsx';
 
 // Each role's app is its own chunk, so a student never downloads the admin
 // console (and the landing page loads without any of them).
@@ -60,13 +62,42 @@ function Root() {
   }
   const RoleApp = user.role === 'superadmin' ? SuperAdminApp : user.role === 'admin' ? AdminApp : StudentApp;
   // Students and academy admins can ask the AI assistant; it lives as long as
-  // they stay signed in.
+  // they stay signed in, and a platform owner has it in student view.
   return (
-    <AssistantProvider>
+    <AssistantProvider key={user.ownerView ? 'student-view' : user.role}>
+      {user.ownerView && <OwnerViewBar />}
       <Suspense fallback={<FullScreenSpinner />}>
         <RoleApp />
       </Suspense>
     </AssistantProvider>
+  );
+}
+
+/** While a platform owner uses insat as a student: what this is, and the way back. Not over a test. */
+function OwnerViewBar() {
+  const { switchView } = useAuth();
+  const { onTest } = useAssistant();
+  const [busy, setBusy] = useState(false);
+  if (onTest) return null;
+  const back = async () => {
+    setBusy(true);
+    try { await switchView('platform'); } finally { setBusy(false); }
+  };
+  return (
+    <div className="border-b bg-muted/60">
+      {/* The student app's own width (student/StudentApp.jsx), so the bar lines up with it. */}
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-1.5 sm:px-6">
+        <p className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+          <LuGraduationCap className="size-4 shrink-0" />
+          <span className="min-w-0">
+            <span className="font-medium text-foreground">Student view</span>
+            {/* On a phone the button says the rest. */}
+            <span className="max-sm:hidden"> · You're using insat as one of its students.</span>
+          </span>
+        </p>
+        <Button variant="outline" size="sm" className="shrink-0" disabled={busy} onClick={back}>Back to the platform</Button>
+      </div>
+    </div>
   );
 }
 

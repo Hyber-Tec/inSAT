@@ -9,16 +9,17 @@
 // AI assistant's answers) go straight to the function (VITE_API_DIRECT_URL).
 
 import { auth } from './firebase.js';
+import { viewHeaders } from './view.js';
 
 const BASE = import.meta.env.VITE_API_URL || '';
 const DIRECT = import.meta.env.VITE_API_DIRECT_URL || BASE;
 const LONG = /^\/api\/(admin\/(exams\/(from-upload|from-ai|[^/]+\/questions\/(generate|upload))|bank\/(generate|ingest))|assistant\/chat)$/;
 const urlFor = (path) => `${LONG.test(path) ? DIRECT : BASE}${path}`;
 
-/** The Authorization header for the signed-in user (none when signed out). */
+/** The Authorization header for the signed-in user (none when signed out), and a platform owner's student view. */
 export async function authHeaders() {
   const token = await auth.currentUser?.getIdToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+  return token ? { Authorization: `Bearer ${token}`, ...viewHeaders() } : {};
 }
 
 /** Absolute URL for a question figure asset (or null). */

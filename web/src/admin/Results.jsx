@@ -184,7 +184,8 @@ function AnalysisPanel({ detail }) {
   );
 }
 
-export function DetailModal({ sessionId, onClose }) {
+/** The review of a finished session, from the admin's endpoint or `url` (the platform console's). */
+export function DetailModal({ sessionId, onClose, url = `/api/admin/results/${sessionId}` }) {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -194,7 +195,7 @@ export function DetailModal({ sessionId, onClose }) {
     (async () => {
       setLoading(true);
       try {
-        const { results } = await api.get(`/api/admin/results/${sessionId}`);
+        const { results } = await api.get(url);
         if (!cancelled) setDetail(results);
       } catch (err) {
         if (!cancelled) setError(err.message || 'Could not load the result');
@@ -203,7 +204,7 @@ export function DetailModal({ sessionId, onClose }) {
       }
     })();
     return () => { cancelled = true; };
-  }, [sessionId]);
+  }, [url]);
 
   // A skill set or a custom test has no scaled score: correct of total is the result.
   const byCount = detail?.totalScaled == null;

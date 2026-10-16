@@ -1,10 +1,12 @@
 // Superadmin console (platform owner): provision institutions/academies and
 // their first admin. Each institution is fully isolated - its admin then
 // invites their own students and manages their own bank, exams, and groups.
+// The owner can open any student's progress here, read-only, and switch to
+// using insat as a student themselves (Student view).
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { Suspense, lazy, useState, useEffect, useCallback } from 'react';
 import {
-  LuBuilding2, LuEllipsis, LuGraduationCap, LuKeyRound, LuPlus, LuPower, LuRepeat, LuRotateCcw, LuSearch,
+  LuBuilding2, LuChartColumn, LuEllipsis, LuGraduationCap, LuKeyRound, LuPlus, LuPower, LuRepeat, LuRotateCcw, LuSearch,
   LuTrash2, LuUserPlus, LuUsers,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
@@ -26,7 +28,11 @@ import { api } from '../api.js';
 import { ChoiceCards, ConfirmDialog, EmptyState, ErrorNote, HomeLink, Loading, SectionHeading, StatusBadge, Wordmark } from '../ui.jsx';
 import { scrollToTop } from '../nav.js';
 import { UserMenu } from '../account.jsx';
+import { useAuth } from '../auth.jsx';
 import { ResultBanner } from '../admin/shared.jsx';
+
+// A student's progress, read-only: the page an academy admin has for each of theirs.
+const StudentPage = lazy(() => import('../admin/StudentPage.jsx'));
 
 export default function SuperAdminApp() {
   const [institutions, setInstitutions] = useState(null);
@@ -38,6 +44,9 @@ export default function SuperAdminApp() {
   const [deleting, setDeleting] = useState(null); // institution pending delete confirmation
   const [switching, setSwitching] = useState(null); // institution pending a mode change
   const [banner, setBanner] = useState(null); // { email, password, institution }
+  const [viewing, setViewing] = useState(null); // { institution, studentId }: a student's progress
+  const [enteringStudentView, setEnteringStudentView] = useState(false);
+  const { switchView } = useAuth();
 
   const load = useCallback(async () => {
     setError(null);
@@ -62,11 +71,33 @@ export default function SuperAdminApp() {
             <Separator orientation="vertical" className="h-5" />
             <span className="text-sm text-muted-foreground">Platform</span>
           </div>
-          <UserMenu />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" aria-label="Student view" disabled={enteringStudentView}
+              onClick={async () => { setEnteringStudentView(true); try { await switchView('student'); } finally { setEnteringStudentView(false); } }}>
+              <LuGraduationCap /> <span className="max-sm:sr-only">Student view</span>
+            </Button>
+            <UserMenu />
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl animate-in space-y-6 px-4 py-8 animation-duration-300 fade-in-0 sm:px-6 sm:py-10">
+        {viewing ? (
+          <Suspense fallback={<Loading />}>
+            <StudentPage
+              key={viewing.studentId}
+              studentId={viewing.studentId}
+              eyebrow={`Student · ${viewing.institution.name}`}
+              backLabel="Institutions"
+              onBack={() => { setViewing(null); scrollToTop(); }}
+              readOnly
+              source={{
+                overview: `/api/super/institutions/${viewing.institution.id}/students/${viewing.studentId}/overview`,
+                review: (sessionId) => `/api/super/institutions/${viewing.institution.id}/results/${sessionId}`,
+              }}
+            />
+          </Suspense>
+        ) : (<>
         <SectionHeading
           as="h1"
           eyebrow="Tenants"
@@ -134,6 +165,7 @@ export default function SuperAdminApp() {
             ))}
           </div>
         )}
+        </>)}
       </main>
 
       {creating && (
@@ -166,6 +198,7 @@ export default function SuperAdminApp() {
           institution={studentsFor}
           onClose={() => setStudentsFor(null)}
           onChanged={load}
+          onOpen={(student) => { setStudentsFor(null); setViewing({ institution: studentsFor, studentId: student.id }); scrollToTop(); }}
         />
       )}
       {switching && (
@@ -247,8 +280,8 @@ function ListDialog({ title, description, onClose, children }) {
   );
 }
 
-// View, search, deactivate/reactivate, or delete an institution's students.
-function ManageStudentsModal({ institution, onClose, onChanged }) {
+// View, search, deactivate/reactivate, or delete an institution's students, or open one's progress.
+function ManageStudentsModal({ institution, onClose, onChanged, onOpen }) {
   const [students, setStudents] = useState(null);
   const [error, setError] = useState(null);
   const [busyId, setBusyId] = useState(null);
@@ -299,6 +332,7 @@ function ManageStudentsModal({ institution, onClose, onChanged }) {
           {students.map((s) => (
             <PersonRow key={s.id} person={s} actions={(
               <>
+                <IconAction title="View progress" onClick={() => onOpen(s)}><LuChartColumn /></IconAction>
                 <IconAction title={s.active ? 'Deactivate' : 'Reactivate'} onClick={() => toggleActive(s)} disabled={busyId === s.id}
                   className={s.active ? 'text-amber-700' : 'text-emerald-700'}><LuPower /></IconAction>
                 <IconAction title="Delete student" onClick={() => setRemoving(s)} disabled={busyId === s.id} className={danger}><LuTrash2 /></IconAction>

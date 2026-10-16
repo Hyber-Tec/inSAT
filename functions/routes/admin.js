@@ -17,8 +17,7 @@ import { auth } from '../lib/firebase.js';
 import { config } from '../lib/config.js';
 import { createAccount, deleteAccount, setActive, setPassword } from '../lib/accounts.js';
 import { publicUser } from './auth.js';
-import { sessionResults } from '../lib/session.js';
-import { LIST_FIELDS, listSessions, sessionFields, withExam } from '../lib/sessions.js';
+import { LIST_FIELDS, listSessions, sessionFields } from '../lib/sessions.js';
 import { materializeForm } from '../lib/assembly.js';
 import { extractFromUploads } from '../lib/ingest.js';
 import { manualRow } from '../lib/items.js';
@@ -30,12 +29,13 @@ import { isValidDomain, domainForSkill, canonicalSkill, taxonomyTree } from '../
 import { aiStatus, getInstitutionCredentials } from '../lib/institutions.js';
 import { POOL_SOURCES, bankRows, poolFor, touched } from '../lib/pool.js';
 import { requireMode } from '../lib/modes.js';
-import {
-  skillProfile, sectionSpec, practiceTitle, testSize, skillSetSize, MAX_SKILLS,
-} from '../lib/practice.js';
+import { sectionSpec, testSize, MAX_SKILLS } from '../lib/practice.js';
 import { createInvite, inviteLink } from '../lib/invite.js';
 import { sendInvite } from '../lib/mail.js';
 import { multipart } from '../lib/upload.js';
+import {
+  assignmentTitle, attemptsByAssignment, byName, newestFirst, owned, sessionReview, studentOf, studentOverview,
+} from '../lib/students.js';
 import bankRouter from './bank.js';
 import settingsRouter from './settings.js';
 
@@ -49,8 +49,6 @@ const inst = (req) => req.user.inst;
 // A user's id: a UUID for an account an admin made, a Firebase uid for one
 // its owner made by signing up.
 const anId = z.string().min(1).max(128);
-const byName = (a, b) => String(a).toLowerCase().localeCompare(String(b).toLowerCase());
-const newestFirst = (field) => (a, b) => (b[field]?.getTime?.() ?? 0) - (a[field]?.getTime?.() ?? 0);
 
 // The institution's own LLM credentials (provider + key + optional model), so
 // generation/extraction bill to them. Empty apiKey => platform Anthropic
@@ -63,17 +61,6 @@ async function resolveCreds(req) {
   return creds;
 }
 
-/** A row of this institution's, or null (a row of another reads as absent). */
-async function owned(name, id, institutionId) {
-  const row = await getRow(name, id);
-  return row && row.institution_id === institutionId ? row : null;
-}
-
-/** A student of this institution, or null. */
-async function studentOf(id, institutionId) {
-  const u = await owned(COL.users, id, institutionId);
-  return u && u.role === 'student' ? u : null;
-}
 
 /** Only the ids that are students of this institution. */
 async function studentsAmong(ids, institutionId) {
@@ -160,24 +147,6 @@ router.use(['/groups', '/blueprints', '/exams', '/exam-folders', '/assignments']
 // has an AI key, though: the AI assistant runs on it (routes/assistant.js).
 router.use('/bank', requireMode('managed', 'Making tests from uploads or with AI is only for institution-managed academies.'));
 
-// What an assignment is called: its test's title, or the practice set's.
-const assignmentTitle = (a) => (a.kind === 'practice'
-  ? practiceTitle('skills', a.practice?.skills || [], a.practice?.difficulty || null)
-  : a.exam_title);
-
-/** A student's attempt at each assignment: the finished one first, else the latest. */
-function attemptsByAssignment(sessions) {
-  const best = new Map();
-  for (const s of sessions) {
-    if (!s.assignment_id) continue;
-    const cur = best.get(s.assignment_id);
-    const better = !cur || ((s.status === 'completed') !== (cur.status === 'completed')
-      ? s.status === 'completed'
-      : s.started_at > cur.started_at);
-    if (better) best.set(s.assignment_id, s);
-  }
-  return best;
-}
 
 // One student, for their page (managed institutions): who they are and their
 // groups, their skill map (with what there is to practise, for assigning
@@ -186,50 +155,7 @@ function attemptsByAssignment(sessions) {
 router.get('/users/:id/overview', managedOnly, asyncHandler(async (req, res) => {
   const student = await studentOf(req.params.id, inst(req));
   if (!student) throw notFound('student');
-  const groups = (await queryRows(col(COL.groups).where('member_ids', 'array-contains', student.id)))
-    .map((g) => ({ id: g.id, name: g.name }))
-    .sort((a, b) => byName(a.name, b.name));
-  const profile = await skillProfile(student.id, { institutionId: inst(req) });
-  const sessions = (await listSessions([['user_id', '==', student.id], ['institution_id', '==', inst(req)]]))
-    .sort(newestFirst('started_at')).slice(0, 200);
-  const assigned = [
-    ...await queryRows(col(COL.assignments).where('institution_id', '==', inst(req)).where('user_id', '==', student.id)),
-    ...await whereIn(COL.assignments, 'group_id', groups.map((g) => g.id), [['institution_id', '==', inst(req)]]),
-  ];
-  const exams = await getMany(COL.exams, [...sessions, ...assigned].map((x) => x.exam_id).filter(Boolean));
-  const groupName = new Map(groups.map((g) => [g.id, g.name]));
-  const attempts = attemptsByAssignment(sessions);
-  res.json({
-    student: publicUser(student),
-    groups,
-    profile,
-    sessions: sessions.map((s) => {
-      const e = s.exam_id ? exams.get(s.exam_id) : null;
-      return {
-        sessionId: s.id, status: s.status, kind: s.kind, assigned: Boolean(s.assignment_id),
-        practiceMode: s.practice?.mode ?? null, custom: e?.kind === 'fixed', title: e?.title ?? s.title,
-        startedAt: s.started_at, completedAt: s.completed_at,
-        rwScaled: s.rw_scaled, mathScaled: s.math_scaled, totalScaled: s.total_scaled,
-        questionCount: s.response_count ?? 0, correct: s.correct_count ?? 0,
-      };
-    }),
-    assignments: assigned
-      .sort(newestFirst('created_at'))
-      .map((a) => {
-        const e = a.exam_id ? exams.get(a.exam_id) : null;
-        const customCount = e?.kind === 'fixed' ? countFormQuestions(e.form) : null;
-        const s = attempts.get(a.id);
-        return {
-          id: a.id, kind: a.kind, title: assignmentTitle({ ...a, exam_title: e?.title ?? null }), scope: e?.scope ?? null,
-          practice: a.practice ?? null, custom: customCount != null,
-          via: a.target_type === 'group' ? groupName.get(a.group_id) ?? null : null, hidden: a.hidden, dueAt: a.due_at,
-          createdAt: a.created_at, status: s?.status || 'not_started', sessionId: s?.id || null,
-          questionCount: a.kind === 'practice'
-            ? skillSetSize(a.practice?.skills || [], a.practice?.perSkill)
-            : (e?.scope ? testSize(e.scope) : customCount),
-        };
-      }),
-  });
+  res.json({ student: publicUser(student), ...(await studentOverview(student, inst(req))) });
 }));
 
 // ============================== Groups =====================================
@@ -1129,18 +1055,9 @@ router.delete('/results/:sessionId', asyncHandler(async (req, res) => {
 }));
 
 router.get('/results/:sessionId', asyncHandler(async (req, res) => {
-  const s = await owned(COL.sessions, req.params.sessionId, inst(req));
-  if (!s) throw notFound('session');
-  const u = await getRow(COL.users, s.user_id);
-  if (!u) throw notFound('session');
-  const full = await withExam(s);
-  res.json({
-    results: {
-      ...sessionResults(full),
-      studentName: u.display_name,
-      proctor: s.state?.proctor || null,
-    },
-  });
+  const results = await sessionReview(req.params.sessionId, inst(req));
+  if (!results) throw notFound('session');
+  res.json({ results });
 }));
 
 // ======================== Question bank ====================================
