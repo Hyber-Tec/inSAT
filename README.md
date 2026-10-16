@@ -105,8 +105,9 @@ outside the Functions emulator (the browser checks use it).
 
 insat's question pool is the bank of the default institution (insat, slug
 `satify`), and every institution's tests and practice draw on it. It is filled
-by the original-question import and the math templates (see below); math can
-be served from the first test, Reading and Writing once the originals are
+by the original-question import, the official math questions of the College
+Board bank and practice tests, and the math templates (see below); math can be
+served from the first test, Reading and Writing once the originals are
 imported.
 
 **Admin scripts and their target.** Everything under `functions/scripts/` runs
@@ -280,10 +281,11 @@ importers read it; the shared item checks reject it in generated items.
 `scripts/repair-item-text.js` repairs rows imported before that, in every bank
 and in stored sessions: report first, `--apply` to repair (with a backup).
 
-### Reference material
+### Reference material and official questions
 
 The College Board question bank and the full-length practice tests import as
-**reference** material, which generation learns from but students never see.
+**reference** material, which generation learns from, and their math is also
+served to students as **official** questions (below).
 
 Turning the source PDFs into questions is an offline step in
 [`tools/sat-extract/`](tools/sat-extract/README.md). Reading & Writing is
@@ -308,9 +310,29 @@ questions whose key disagrees with the independent solution are held back.
 Anything with `source='reference'` is excluded from `candidatesFor()` in
 `assembly.js` and therefore never appears on a student's exam. It is preferred
 by `exemplars()` in `generate.js`, same skill and difficulty first, so it
-shapes what the model writes and anchors the difficulty labels. These are
-College Board's and publishers' questions, not original content: keep them on
-the reference side of that line.
+shapes what the model writes and anchors the difficulty labels.
+
+**Official questions.** Given `--institution`, the same import serves the
+math of the bank and the practice tests from that institution's bank instead,
+as `source='official'` (one of the pool's sources, `lib/pool.js`):
+
+```bash
+node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/SAT/extracted/dataset" cb --institution satify --replace
+node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/SAT/extracted/dataset" dsat --institution satify --replace
+```
+
+They are the real test's own questions, so they carry the top realism rating
+(a full test draws them first) and fill the hard math the pool otherwise
+lacks. Their explanations name choices by letter ("Choice B is correct",
+"Choices A, C, and D are incorrect and ..."), and choices are shuffled for
+every student, so `lib/official.js` puts each in the bank's shape: the right
+answer's explanation, and each wrong choice's beside it. A question whose
+explanation still names a choice by letter, or follows no official shape,
+stays reference material (about 90% of hard math converts; `npm run
+check:official` tests the shapes). Reading and Writing stays reference: its
+explanations compare the choices by letter throughout. These are College
+Board's and publishers' questions: serving them was decided for the math on
+2026-10-16, and Reading and Writing stays on the reference side of that line.
 
 ### Original questions
 
