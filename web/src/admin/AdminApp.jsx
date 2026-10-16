@@ -14,6 +14,7 @@ import { UserMenu } from '../account.jsx';
 import { assetUrl } from '../api.js';
 import { scrollToTop } from '../nav.js';
 import { useAuth } from '../auth.jsx';
+import { useAssistantAction, useAssistantScreen } from '../assistant/assistant.jsx';
 
 import Students from './Students.jsx';
 import Groups from './Groups.jsx';
@@ -33,6 +34,17 @@ const SECTIONS = {
 const NAV_BY_MODE = {
   self_guided: ['students', 'results', 'settings'],
   managed: ['students', 'groups', 'tests', 'assignments', 'results', 'settings'],
+};
+
+// What is worth asking the AI assistant in each section (and on a student's page).
+const ASK = {
+  students: ['How do I add a student?', 'How do invite links work?', 'Summarize what is on this screen'],
+  student: ['Summarize this student’s progress', 'Which skills should they focus on?', 'What should I assign them next?'],
+  groups: ['How do I give work to a whole group?', 'Summarize what is on this screen'],
+  tests: ['What kinds of tests can I make?', 'How do I make a test of my own questions?', 'Summarize what is on this screen'],
+  assignments: ['How do I assign a test with a due date?', 'Summarize what is on this screen'],
+  results: ['Which students need the most help?', 'Summarize these results', 'What should my students work on next?'],
+  settings: ['What is the AI key used for?', 'Can I turn off the AI assistant for students?'],
 };
 
 function NavItem({ item, active, onClick }) {
@@ -88,6 +100,9 @@ export default function AdminApp() {
     else go(NAV[0].id);
   };
   const Panel = active.Panel;
+  const onStudent = active.id === 'students' && studentId;
+  useAssistantScreen(onStudent ? 'Student page' : active.label, ASK[onStudent ? 'student' : active.id]);
+  useAssistantAction('openSettings', () => go('settings'));
 
   return (
     <div className="flex min-h-svh max-md:flex-col">
@@ -117,7 +132,8 @@ export default function AdminApp() {
             <span className="font-medium text-foreground">{active.label}</span>
           </div>
         </header>
-        <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {/* Room at the foot of the page for the AI assistant's button. */}
+        <main className={cn('flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:px-8', user?.assistant && 'pb-24 sm:pb-24')}>
           <div key={`${active.id}:${studentId || ''}:${visit}`} className="mx-auto max-w-5xl animate-in animation-duration-300 fade-in-0">
             <Panel mode={mode} studentId={studentId} onOpenStudent={mode === 'managed' ? openStudent : null}
               onCloseStudent={() => setStudentId(null)} onGo={go} />

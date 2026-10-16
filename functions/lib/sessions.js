@@ -5,7 +5,9 @@
 // scores and one response per question served (what pa_responses held). It
 // also keeps the ids of the questions its form serves (lib/assembly.js
 // seenFields), so the questions a student has met are read without the forms.
-// Lists read only the light fields.
+// `active_at` is when the attempt was last worked on (started, resumed,
+// autosaved): while it is recent, an assigned test is being taken, and the AI
+// assistant is off (lib/assistant.js). Lists read only the light fields.
 
 import { FieldPath } from 'firebase-admin/firestore';
 import { db } from './firebase.js';
@@ -39,7 +41,7 @@ export async function createSession(fields) {
   const row = {
     assignment_id: null, exam_id: null, state: {}, routing: {}, status: 'in_progress', kind: 'assigned',
     title: null, timing_mode: null, practice: null, rw_scaled: null, math_scaled: null, total_scaled: null,
-    started_at: now(), completed_at: null, hidden_at: null, responses: [], response_count: 0, correct_count: 0,
+    started_at: now(), active_at: now(), completed_at: null, hidden_at: null, responses: [], response_count: 0, correct_count: 0,
     ...fields,
     ...seenFields(fields.form),
   };

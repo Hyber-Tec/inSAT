@@ -40,14 +40,19 @@ export async function keyStatus(institutionId) {
 }
 
 /**
- * Whether AI can run for the institution now: it has its own key on file, or
- * the platform has one and institutions are not required to bring their own.
+ * Whether AI can run for an institution (its row) now: it has its own key on
+ * file, or the platform has one and institutions are not required to bring
+ * their own.
  */
+export const aiReady = (institution) => Boolean(institution?.llm_api_key_enc)
+  || (!config.requireInstitutionKey && Boolean(config.platformApiKey));
+
+/** aiReady for an institution by id, with what it rests on. */
 export async function aiStatus(institutionId) {
-  const ownKey = Boolean((await getRow(COL.institutions, institutionId))?.llm_api_key_enc);
+  const institution = await getRow(COL.institutions, institutionId);
   return {
-    ready: ownKey || (!config.requireInstitutionKey && Boolean(config.platformApiKey)),
-    ownKey,
+    ready: aiReady(institution),
+    ownKey: Boolean(institution?.llm_api_key_enc),
     requiresOwnKey: config.requireInstitutionKey,
   };
 }

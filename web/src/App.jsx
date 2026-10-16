@@ -10,6 +10,7 @@ import Login from './Login.jsx';
 import SignUp from './SignUp.jsx';
 import { ROUTES, useLocation, navigate } from './nav.js';
 import AcceptInvite from './AcceptInvite.jsx';
+import { AssistantProvider } from './assistant/assistant.jsx';
 
 // Each role's app is its own chunk, so a student never downloads the admin
 // console (and the landing page loads without any of them).
@@ -58,10 +59,14 @@ function Root() {
     return path === ROUTES.signIn || isExamApp ? <Login /> : <Landing />;
   }
   const RoleApp = user.role === 'superadmin' ? SuperAdminApp : user.role === 'admin' ? AdminApp : StudentApp;
+  // Students and academy admins can ask the AI assistant; it lives as long as
+  // they stay signed in.
   return (
-    <Suspense fallback={<FullScreenSpinner />}>
-      <RoleApp />
-    </Suspense>
+    <AssistantProvider>
+      <Suspense fallback={<FullScreenSpinner />}>
+        <RoleApp />
+      </Suspense>
+    </AssistantProvider>
   );
 }
 

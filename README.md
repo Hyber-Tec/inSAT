@@ -362,8 +362,11 @@ insat's own academy.
 
 ## LLM API keys (per institution)
 
-Each institution sets its **own Anthropic API key** in the admin **Settings**
-tab, so generation/upload bills to them - not the platform. Keys are encrypted
+Each institution sets its **own AI provider and API key** in the admin
+**Settings** tab (Anthropic, or OpenAI, Google Gemini, xAI or DeepSeek through
+their OpenAI-compatible APIs, with an optional model), so what its AI does
+bills to it - not the platform: the AI assistant for every academy, and making
+tests from uploads or with AI for a managed one. Keys are encrypted
 at rest (with the `ENCRYPTION_KEY` secret) and never returned to the browser.
 If an institution has no key, the platform fallback (`ANTHROPIC_API_KEY`) is
 used unless `REQUIRE_INSTITUTION_KEY=true`, which forces each institution to
@@ -376,8 +379,7 @@ bring its own. Production sets it true and binds no platform key; locally,
    per-domain quotas, adaptive Module 2).
 2. Each start **materializes a unique form**: items are sampled from the
    institution's bank, never one the student has seen, choice order shuffled;
-   a short math cell is filled from the templates on the spot, and from
-   generation when the institution has an API key.
+   a short math cell is filled from the templates on the spot.
 3. The student takes Module 1, the server picks the Module 2 difficulty from
    their performance, then Module 2 is scored server-side (scaled 200 to 800
    per section). The full form with answers never leaves the server.
@@ -399,8 +401,7 @@ its explanation. Practice sessions are ordinary sessions with
 `kind = 'practice'` and no exam (`POST /api/student/practice`), so admins see
 them in Progress. Math gaps are filled from the templates while the set is
 assembled; Reading and Writing draws on the original questions in the bank
-(see above), then on generation when an API key is set, and the dashboard
-marks what is not available yet.
+(see above), and the dashboard marks what is not available yet.
 
 A student can discard any set from their list. An unfinished one is deleted
 and its questions go back into their pool; a finished one only leaves the list
@@ -446,8 +447,8 @@ The API enforces the mode (`functions/lib/modes.js`, read fresh on every request
 groups, tests, folders and assignments answer 403 for a self-guided academy,
 and self-started practice answers 403 for a managed one. Making tests from
 uploads or with AI is for managed academies only: a self-guided institution
-serves insat's pool alone, so its bank routes and AI key settings answer 403
-too.
+serves insat's pool alone, so its bank routes answer 403 too (the AI key it
+can set runs its AI assistant alone).
 
 What a managed academy uploads or has AI write stays in its own bank: it is
 served only in its own custom tests and never enters insat's pool or the
@@ -472,6 +473,53 @@ modules and assigns the test; the student takes it, timed, and both see the
 number correct. It also checks that the academy's questions stayed out of the
 shared pools and that a self-guided institution can do none of this.
 Screenshots go to `.logs/screens/authoring/`.
+
+## The AI assistant
+
+Students and an academy's admins can ask AI about what is on their screen. An
+**Ask AI** button floats in the corner of their screens (never in the test
+runner, and not in the platform console) and opens a chat; in a question's
+review it opens beside the question, in its place on a narrow screen. Answers
+stream in as they are written, their math set as all math in the app is.
+Conversations are not stored: one lasts until the tab reloads or signs out.
+
+- **It sees the screen.** Each message goes with the screen it was sent from:
+  the name the screen gives itself (`useAssistantScreen`, shown in the panel
+  as "Sees: ..."), its text as laid out (`web/src/assistant/screen.js`:
+  headings, lists, tables, what a control is called, each formula as its
+  LaTeX, a meter's value), the page behind an open dialog, and pictures of the
+  question figures on it (images marked `data-figure`, drawn to PNG, since the
+  models read only bitmaps). Form values, password fields and the assistant
+  itself are left out. The API gives it to the model as the page's content,
+  never as instructions (`functions/lib/assistant.js`, which also holds what
+  the assistant is told about insat and the SAT).
+- **Never during a test.** The test runner hides it, for tests and practice
+  sets alike, and the API refuses a student while an assigned test is in
+  progress: an attempt worked on in the last 15 minutes (`active_at`, set as
+  it starts, resumes and saves), so a second tab is no way around it. An
+  attempt left unfinished stops counting after that. Practice is the
+  student's own and does not lock it.
+- **On the academy's key.** Every academy's admin can set an AI key in
+  Settings, and the assistant runs on it (or on the platform's, where that is
+  allowed). Without one, students are not offered the assistant and admins
+  are led to Settings to add one. **Students can ask AI** (Settings) turns it
+  off for an academy's students; its admins keep it. Each person can send it
+  `ASSISTANT_DAILY_LIMIT` messages a UTC day (50 unless set); on Anthropic it
+  runs on `CHAT_MODEL` (`sonnet` unless set) unless the academy chose a model.
+  As everywhere in the app, it is "AI" and never names the model or provider.
+- **Streamed.** `POST /api/assistant/chat` answers as a stream of JSON lines,
+  straight from the function (see Hosting).
+
+`npm run check:assistant` (from `functions/`) tests its logic: both kinds of
+provider stream, the conversation and screen it sends, when it is off, and
+whom it is for. From `web/`, with the emulators running, `npm run
+check:assistant` walks it in a browser against its own API with the AI mocked
+(`web/scripts/mock-llm.mjs`, which says back what it was sent): an academy
+before and after it adds a key, an admin and a student, answers streaming in
+with math, a practice set (no assistant in the runner) and a question's
+review with its figure, on a desktop and on a phone, a test in progress, the
+day's limit and the switch for students. Screenshots go to
+`.logs/screens/assistant/`.
 
 ## The interface
 
@@ -504,6 +552,9 @@ self-hosted.
 - Every role's header (the admin's sidebar foot) has the account menu
   (`src/account.jsx`): the avatar opens who is signed in, account settings
   (change password, which also clears an admin's "must reset") and sign out.
+- The AI assistant (`src/assistant/`): its button and panel float over a
+  student's and an admin's screens, and a question's review shows it beside
+  the question (see "The AI assistant").
 
 With the API and client running, `npm run check:screens` (from `web/`)
 photographs every screen as a student, an admin and the platform owner see it,
@@ -517,9 +568,10 @@ on screen.
 Firebase, project `insat-hyber`: Hosting site `insatprep`
 (https://insatprep.web.app) serves `web/dist` and rewrites `/api/**` to the
 `api` function (us-central1); Firestore is `(default)` in `nam5`. Hosting
-gives a rewritten request 60 seconds, so the AI requests that can run longer
-(reading an upload, writing questions) go straight to the function's own URL
-(`VITE_API_DIRECT_URL`, `web/.env.production`). A daily `syncPool` function
+gives a rewritten request 60 seconds and holds a streamed answer back until it
+ends, so the AI requests that can run longer (reading an upload, writing
+questions) and the AI assistant's answers go straight to the function's own
+URL (`VITE_API_DIRECT_URL`, `web/.env.production`). A daily `syncPool` function
 copies new pool questions into the generation pool. Deploying, the secrets and
 the one-time Postgres migration are in [DEPLOY.md](DEPLOY.md).
 
@@ -532,7 +584,8 @@ the one-time Postgres migration are in [DEPLOY.md](DEPLOY.md).
   `firebase functions:secrets:set ENCRYPTION_KEY`).
 - `functions/.env.local` (git-ignored, from `functions/.env.example`): the same
   for the emulators and scripts, plus `ANTHROPIC_API_KEY`, `RESEND_API_KEY`,
-  model overrides. `functions/.secret.local` gives the emulators their
+  model overrides (`GEN_MODEL`, `VERIFY_MODEL`, `CHAT_MODEL`) and
+  `ASSISTANT_DAILY_LIMIT`. `functions/.secret.local` gives the emulators their
   `ENCRYPTION_KEY`.
 - `web/.env.local` (git-ignored, from `web/.env.example`): the Firebase web
   config and `VITE_DESMOS_API_KEY`; `web/.env.development.local` points the app

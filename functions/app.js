@@ -14,6 +14,7 @@ import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
 import studentRoutes from './routes/student.js';
 import superRoutes from './routes/super.js';
+import assistantRoutes from './routes/assistant.js';
 
 // Origins that may call the API from a browser: the app's own (CLIENT_ORIGIN),
 // any localhost in development, and the desktop exam app's webview.
@@ -54,6 +55,7 @@ export function createApp() {
   app.use('/api/super', requireAuth, requireRole('superadmin'), superRoutes);
   app.use('/api/admin', requireAuth, requireRole('admin'), adminRoutes);
   app.use('/api/student', requireAuth, requireRole('student'), studentRoutes);
+  app.use('/api/assistant', requireAuth, assistantRoutes);
 
   app.use('/api', (_req, _res, next) => next(notFound()));
   app.use(errorHandler);

@@ -61,7 +61,7 @@ function EditorQuestion({ q, n, domainLabel, selected, onSelect, onEdit, onDelet
       </div>
 
       {q.passage && <div className="mb-3 font-serif text-sm leading-relaxed text-muted-foreground"><MathText text={q.passage} /></div>}
-      {q.assetId && <img src={assetUrl(q.assetId)} alt="Figure" loading="lazy" className="mb-3 block max-h-80 max-w-full rounded-lg border bg-white p-1" />}
+      {q.assetId && <img src={assetUrl(q.assetId)} alt="Figure" data-figure loading="lazy" className="mb-3 block max-h-80 max-w-full rounded-lg border bg-white p-1" />}
       <div className="mb-3 font-serif text-[15px] leading-relaxed font-medium"><MathText text={q.question} /></div>
 
       {grid ? (

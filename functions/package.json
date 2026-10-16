@@ -26,7 +26,8 @@
     "check:generation": "firebase emulators:exec --only firestore,storage --project demo-insat 'node --test tests/generation.test.js'",
     "check:verification": "node --test tests/template-verification.test.js",
     "check:variation": "node --test tests/variation.test.js",
-    "check:text-repair": "node --test tests/text-repair.test.js"
+    "check:text-repair": "node --test tests/text-repair.test.js",
+    "check:assistant": "node --test tests/assistant.test.js"
   },
   "dependencies": {
     "busboy": "^1.6.0",

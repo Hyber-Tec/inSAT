@@ -74,7 +74,7 @@ function QuestionReview({ q }) {
 
       {q.passage && <div className="mb-3 font-serif text-sm leading-relaxed text-muted-foreground"><MathText text={q.passage} /></div>}
       {q.assetId && (
-        <img src={assetUrl(q.assetId)} alt="Figure" loading="lazy" className="mb-3 block max-w-full rounded-lg border" />
+        <img src={assetUrl(q.assetId)} alt="Figure" data-figure loading="lazy" className="mb-3 block max-w-full rounded-lg border" />
       )}
       <div className="mb-3 font-serif text-[15px] leading-relaxed font-medium"><MathText text={q.question} /></div>
 

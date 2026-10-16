@@ -107,7 +107,7 @@ async function answerAll(session, lineage, label) {
 async function reviewVariant(questions, lineage, label) {
   const index = questions.findIndex((q) => lineage.isVariant(q.itemId));
   assert.ok(index >= 0, 'a variant was served');
-  await page.getByRole('button', { name: String(index + 1), exact: true }).first().click();
+  await page.getByRole('button', { name: new RegExp(`^Question ${index + 1}: `) }).first().click();
   await page.getByRole('button', { name: 'Close', exact: true }).waitFor();
   assert.equal(await page.locator('.katex-error').count(), 0, 'KaTeX error in the explanation');
   const file = `${label}-explanation.png`;
@@ -174,7 +174,7 @@ try {
 
   // Phone width: the runner stays within the screen.
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('button', { name: String(1), exact: true }).first().click();
+  await page.getByRole('button', { name: /^Question 1: / }).first().click();
   await page.getByRole('button', { name: 'Close', exact: true }).waitFor();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   await page.screenshot({ path: path.join(output, 'explanation-mobile.png'), fullPage: true, animations: 'disabled' });

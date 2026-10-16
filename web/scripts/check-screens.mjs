@@ -243,7 +243,7 @@ try {
   await page.setViewportSize(PHONE);
   await capture(page, 'results-phone');
   await page.setViewportSize(DESKTOP);
-  await page.getByRole('button', { name: '1', exact: true }).first().click();
+  await page.getByRole('button', { name: /^Question 1: / }).first().click();
   await page.getByRole('button', { name: 'Close', exact: true }).waitFor();
   await capture(page, 'review-desktop', { full: false });
   await page.setViewportSize(PHONE);
@@ -325,8 +325,12 @@ try {
   await page.getByRole('button', { name: 'Close', exact: true }).last().click();
   await page.getByRole('button', { name: 'Settings' }).first().click();
   await page.getByText('Branding').first().waitFor();
-  // A self-guided institution serves insat's pool alone: it has no AI to set up.
-  if (await page.getByText('AI provider').count()) problems.push('admin: a self-guided institution shows AI settings');
+  // A self-guided institution serves insat's pool alone: its AI key runs the
+  // AI assistant, and nothing makes tests.
+  if (!(await page.getByText('Powers the AI assistant your students and staff can ask.', { exact: false }).count())) {
+    problems.push('admin: a self-guided institution is not offered an AI key for the assistant');
+  }
+  if (await page.getByText('making tests from uploads', { exact: false }).count()) problems.push('admin: a self-guided institution is told its key makes tests');
   await capture(page, 'admin-settings-desktop');
   await page.setViewportSize(PHONE);
   await page.getByRole('link', { name: 'insat home', exact: true }).click();
