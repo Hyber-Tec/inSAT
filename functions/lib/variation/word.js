@@ -113,6 +113,8 @@ export function numbersIn(text, { question = true } = {}) {
         percent: m[4] ? m[4] : '',
         commas: /,|\{,\}/.test(m[2]),
         latexCommas: /\{,\}/.test(m[2]),
+        // A thousand or more printed without a comma ("1000 shirts"): new values keep that style.
+        plain: !/,|\{,\}/.test(m[2]) && /^\d{4}/.test(m[2]),
         places: m[3] ? m[3].length - 1 : 0,
       },
     });
@@ -185,7 +187,10 @@ export function formatLike(v, fmt, { math = false } = {}) {
   else return null; // does not print the way the source number did
   const negative = body.startsWith('-');
   if (negative) body = body.slice(1);
-  if (fmt.commas || (Number(body.split('.')[0]) >= 10000)) {
+  // The SAT prints a thousand or more with a comma (1,190), so a new value
+  // does too unless its source printed one without.
+  const whole = Number(body.split('.')[0]);
+  if (fmt.commas || whole >= 10000 || (!fmt.plain && whole >= 1000)) {
     const sep = fmt.latexCommas || math ? '{,}' : ',';
     body = body.replace(/^(\d+)/, (d) => d.replace(/\B(?=(\d{3})+(?!\d))/g, sep));
   }

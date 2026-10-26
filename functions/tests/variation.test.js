@@ -13,6 +13,7 @@ import { segment } from '../lib/variation/text.js';
 import { understand, vary, classify } from '../lib/variation/engine.js';
 import { verifyVariant } from '../lib/variation/verify.js';
 import { gridAnswer } from '../lib/variation/render.js';
+import { formatLike } from '../lib/variation/word.js';
 import { lineageOf } from '../lib/lineage.js';
 
 const mc = (question, choices, correctIdx, extra = {}) => ({ question, choices, correct_idx: correctIdx, answer_type: 'multiple-choice', ...extra });
@@ -262,4 +263,15 @@ test('a constant of the world is never read as a coincidence of the stated numbe
   const u = understand(angle);
   if (!u.ok) return; // refusing is safe
   for (const v of vary(u, { count: 3, seed: 1 }).variants) assert.match(v.choices[v.correctIdx], /\(180\)/, v.question);
+});
+
+test('a new value is printed as the SAT prints it: a thousand or more with a comma, unless its source had none', () => {
+  const like = (v, source) => formatLike(R.Q(v), { dollar: '', percent: '', commas: /,/.test(source), latexCommas: false, places: 0, plain: !/,/.test(source) && /^\d{4}/.test(source) });
+  assert.equal(like(1190, '580'), '1,190');
+  assert.equal(like(11900, '5,800'), '11,900');
+  assert.equal(like(990, '580'), '990');
+  // A source that printed "1000 shirts" keeps its style below ten thousand.
+  assert.equal(like(1200, '1000'), '1200');
+  assert.equal(like(12000, '1000'), '12,000');
+  assert.equal(formatLike(R.Q(1650), { dollar: '$', percent: '', commas: false, latexCommas: false, places: 0, plain: false }, { math: true }), '$1{,}650');
 });
