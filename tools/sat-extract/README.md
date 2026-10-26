@@ -1,8 +1,9 @@
 # sat-extract: SAT source material to structured questions
 
-Turns the College Board question bank PDFs and the full-length practice tests
-(`DSAT/`) into one JSON record per question, with math in LaTeX, underlines,
-tables and figures, ready for `functions/scripts/import-dataset.js`.
+Turns the College Board question bank (fetched from the bank's own site, or
+its PDF export) and the full-length practice tests (`DSAT/`) into one JSON
+record per question, with math in LaTeX, underlines, tables and figures, and
+the day each was published, ready for `functions/scripts/import-dataset.js`.
 
 Everything this tooling reads and writes lives in the project's `private-data/`
 folder, which git ignores, next to the sources (`SAT_SRC`, default
@@ -13,7 +14,36 @@ derived from it, is committed.
 Requirements: Python 3 with PyMuPDF (`pip install pymupdf`), Tesseract (DSAT
 OCR only), Node (the KaTeX check uses `web/node_modules`).
 
-## Why two paths
+## The bank from its own site
+
+The College Board's question bank (satsuitequestionbank.collegeboard.org)
+reads its questions from a public JSON API. `cb_api.py` fetches from there
+what the PDF export cannot give: every SAT question's id, skill, current
+difficulty and the day the College Board published it (`list.json`), and the
+question itself as HTML, its math as MathML and its figures as SVG with the
+bank's own description (`items/<id>.json`, kept as served under
+`SAT_SRC/College Board Question Bank API/`). A rerun fetches only what the
+bank changed since, so a bank update is `cb_api.py`, `build.py cb` and the
+import.
+
+`cb_html.py` reads that HTML into the record below, in the transcriptions'
+conventions, exactly where the PDFs had to be transcribed: it is the text of
+every bank question but the 459 of its first release that the bank serves
+only as images of their math (those keep their transcription). Against the
+2,804 questions both cover, it agrees on every key; where it differs, the
+transcription had lost the grouping of the rationale math (266, the PDF's
+defect below), or the College Board has rewritten the question or its
+explanation since the export. A question the export also holds keeps the
+figures cropped from it; a new one's figures are drawn from the HTML by
+`render_figures.mjs` (Chromium: an SVG as served, a table from its cells,
+math by KaTeX in the app's serif).
+
+`cb_new.py` reports what the bank added since the PDF export, and which of it
+was already in hand: the same question in the practice tests, the original
+questions or the academy's ClassMarker pool (on 2026-10-26, 158 of 507, 151 of
+them in the ClassMarker pool).
+
+## Why two paths for the PDFs
 
 Reading and Writing is prose. The PDF text layer holds all of it exactly, so
 `cb_rw.py` parses it deterministically: paragraphs from line gaps, bullets from
@@ -35,6 +65,8 @@ independently re-solved.
 
 | Step | Script | Output (under `SAT_OUT`) |
 |---|---|---|
+| Fetch the bank from its own site: the list (dates, current labels) and each question's HTML | `cb_api.py` | `SAT_SRC/College Board Question Bank API/` |
+| Report what the bank added since the PDF export, and which of it was already in hand | `cb_new.py` | `reports/cb-new.md`, `reports/cb-new.json` |
 | Index the bank: question ids, page regions, text-layer key and difficulty | `cb_index.py` | `cb/index.json` |
 | Parse Reading and Writing from the text layer | `cb_rw.py` | `out/cb/<id>.json`, `cb/rw-needs-vision.json` |
 | Render bank math pages, cropped to each question | `render_cb.py` | `cache/pages/cb/`, `cb/render.json` |
@@ -45,7 +77,7 @@ independently re-solved.
 | Read Reading and Writing explanations of born-digital College Board tests (10 to 13) from the text layer | `dsat_explain_text.py` | `out/dsat/tNN/explain1-*.json` |
 | Track progress | `status.py` | |
 | Validate against the text layer, KaTeX and the rules | `validate.py`, `katex_check.mjs` | `reports/` |
-| Build the dataset: labels, normalized answers, figure crops | `build.py` | `dataset/*.jsonl`, `dataset/figures/` |
+| Build the dataset: the bank's own questions (`cb_html.py`) or the transcriptions, labels and dates, normalized answers, figure crops and drawings (`render_figures.mjs`) | `build.py` | `dataset/*.jsonl`, `dataset/figures/` |
 | Cut original-question jobs (questions students will see), and the blind checks of their output | `jobs_originals.py`, `jobs_verify_originals.py` | `jobs/originals-*.json`, `jobs/verify-originals-*.json` |
 | Decode an academy's ClassMarker export (markup to the bank's conventions; flags for images, College Board text, CrackSAT and repeats) and, with `--fetch-images`, download the images it names; `functions/scripts/import-classmarker.js` transcribes, checks and imports it | `classmarker.py` | `classmarker/questions.jsonl`, `classmarker/images/` |
 | Write and verify originals (a writer, a blind solver on a different model, an editor who applies its notes and promotes `.blind-NN` to `.verify-NN`) | sub-agents, `SPEC.md` | `out/original/<name>.jsonl`, `out/original/<name>.verify-NN.jsonl` |
@@ -69,3 +101,12 @@ only), `question`, `answer_type` (`multiple-choice` | `grid-in`), `choices`
 description, structured `table` cells with spans), `check` (the reader's own
 solution against the key) and `flags` (`source-error`, `restored-grouping`,
 `key-mismatch`, `unreadable`, `figure-in-choices`).
+
+The dataset adds `published_on` (the day the bank published the question,
+or its practice test's `published` date in `dsat_sources.py`; undated for
+the three scans that record none), `method` (`html`, `text` or `vision`) and,
+for a bank question with figures, `figure_key`: a fingerprint of the figures
+as the bank serves them, since the bank asks the same words of different
+graphs and the import's content hash must tell them apart. A grid-in's
+`accepted` holds the bank's own entries and the forms its explanation names,
+each checked against the bank's values.

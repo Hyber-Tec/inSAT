@@ -39,17 +39,18 @@ export async function exemplars(kind, domain, k = 3, { difficulty = null, skill 
   const rows = (await queryRows(col(COL.items)
     .where('institution_id', '==', pool).where('section', '==', kind).where('domain', '==', domain)
     .where('retired_at', '==', null)
-    .select('passage', 'question', 'choices', 'correct_idx', 'answer_type', 'answer_text', 'skill', 'difficulty', 'rationale', 'source', 'asset_id', 'realism')))
+    .select('passage', 'question', 'choices', 'correct_idx', 'answer_type', 'answer_text', 'skill', 'difficulty', 'rationale', 'source', 'asset_id', 'realism', 'published_on')))
     .filter((r) => !r.asset_id && !(r.rationale?.flags || []).some((f) => String(f).startsWith('key-')));
   // The real exam's questions first (reference, or official ones copied from
   // insat's pool), then the same skill, then the College Board's own before
-  // imitations (realism, lib/official.js), then the same difficulty; random
-  // among equals.
+  // imitations (realism, lib/official.js), then the same difficulty, then the
+  // newest year (the exam keeps changing, lib/assembly.js); random among equals.
   const rank = (r) => [
     ['reference', 'official'].includes(r.source) ? 0 : 1,
     r.skill === (skill || '') ? 0 : 1,
     -(r.realism ?? 4),
     r.difficulty === (difficulty || '') ? 0 : 1,
+    -(Number(String(r.published_on || '').slice(0, 4)) || 0),
     Math.random(),
   ];
   const keyed = rows.map((r) => [rank(r), r]);

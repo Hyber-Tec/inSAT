@@ -1,25 +1,40 @@
-"""Build the final dataset from the raw transcription records.
+"""Build the final dataset from the raw records.
 
-Raw records (OUT/out/...) stay exactly as the readers wrote them; everything
-here is a pure function of them plus the source PDFs, so it can be re-run at
-any time:
-  - labels (section, domain, skill, difficulty) joined in from the index
+Raw records stay exactly as they were written: the transcriptions (OUT/out/...)
+as the readers wrote them, and the College Board bank's own questions as
+cb_api.py fetched them. Everything here is a pure function of them plus the
+source PDFs, so it can be re-run at any time:
+  - a bank question read from the bank's own HTML (cb_html.py), exact where the
+    PDF export had to be transcribed; the transcription only for the questions
+    the bank serves as images of their math
+  - the bank's current labels (section, domain, skill, difficulty) and the day
+    it published each question (`published_on`); a practice test's questions
+    are dated by the test
   - answers normalized (a grid-in "30, -30" means either value is correct)
-  - every figure cropped from the source page to a PNG next to the dataset
+  - every figure cropped from the source page to a PNG next to the dataset,
+    or, for a question only the bank's HTML has, drawn from that HTML
+    (render_figures.mjs)
 
 Usage: python3 build.py cb        -> OUT/dataset/cb.jsonl, OUT/dataset/figures/cb/*.png
+       python3 build.py dsat      -> OUT/dataset/dsat.jsonl, OUT/dataset/dsat-tests.json, OUT/dataset/figures/dsat/*.png
        python3 build.py original  -> OUT/dataset/original.jsonl (originals that passed a blind solve)
 """
 
 import argparse
+import hashlib
 import json
 import re
+import subprocess
 import sys
+from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pymupdf
 
-from common import CB_ROOT, DSAT_ROOT, OUT, read_json, read_jsonl, write_jsonl
+import cb_html
+from cb_api import API_DIR
+from common import CB_ROOT, DOMAIN_ID, DSAT_ROOT, OUT, read_json, read_jsonl, write_json, write_jsonl
 
 FIG_DPI = 220   # figures are shown at up to ~360 px tall; 2x that keeps them crisp
 PAD_PX = 4      # the reader's bbox is in rendered pixels; allow a little slack
@@ -186,84 +201,190 @@ def question_asset(qid, figs, fig_dir, prefix):
     return f'{prefix}/{qid}.png'
 
 
+DIFFICULTY = {'E': 'easy', 'M': 'medium', 'H': 'hard'}
+
+
+def published_on(ms):
+    """The day (UTC) of one of the bank's timestamps, as YYYY-MM-DD."""
+    return datetime.fromtimestamp(ms / 1000, timezone.utc).date().isoformat()
+
+
+def transcribed_cb(qid, q, render, fig_dir):
+    """A question of the PDF export as its transcription reads, its figures cropped from the page."""
+    rec = json.loads((OUT / 'out' / 'cb' / f'{qid}.json').read_text(encoding='utf8'))
+    flags = list(rec.get('flags') or [])
+    answer, accepted = normalize_answer(rec, flags)
+    # A reviewer's verdict (SPEC.md, "Adjudication jobs") settles a question
+    # the source left without a key, or whose key was disputed.
+    adj = read_json(OUT / 'out' / 'adjudicate' / f'cb_{qid}.json')
+    if adj:
+        verdict = adj.get('verdict')
+        rec = {**rec, **(adj.get('corrections') or {})} if verdict == 'transcription-error' else rec
+        if verdict in ('key-wrong', 'transcription-error') and adj.get('answer'):
+            flags = [f for f in flags if not f.startswith('source-error: no answer key')]
+            flags.append(f"key-from-review: {'no key in the source' if answer is None else f'source key {answer}'}, "
+                         f"reviewer's answer {adj['answer']}")
+            answer = str(adj['answer']).strip()
+            if rec.get('answer_type') == 'grid-in':
+                accepted = [e for e in (enterable(a) for a in (adj.get('accepted') or [answer])) if e]
+                answer = accepted[0] if accepted else answer
+        elif verdict == 'ambiguous':
+            flags.append(f"ambiguous: {adj.get('note', '')}")
+    # The bank printed no rationale (its keyless questions): one written in
+    # its style (SPEC.md, "Explanation-writing jobs") stands in, marked as such.
+    rationale = rec.get('rationale') or ''
+    if not rationale:
+        written = read_json(OUT / 'out' / 'cb' / 'written' / f'cb_{qid}.json')
+        if written and written.get('agrees') and written.get('rationale'):
+            rationale = written['rationale']
+            flags.append('explanation-written')
+    figs = []
+    for n, fig in enumerate(figures_of(rec), 1):
+        name = f'{qid}-{n}.png'
+        size = crop_figure(fig, render.get(qid, []), CB_ROOT / q['file'], fig_dir / name)
+        figs.append({k: v for k, v in {
+            'kind': fig.get('kind'),
+            'choice': fig.get('choice'),
+            'description': fig.get('description', ''),
+            'table': fig.get('table'),
+            'asset': f'figures/cb/{name}' if size else None,
+            'size': size,
+        }.items() if v is not None})
+    return {
+        'passage': rec.get('passage') if q['section'] == 'rw' else None,
+        'question': restore_roman_labels(rec.get('question') or '', rec.get('choices') or [], flags),
+        'answer_type': rec.get('answer_type'),
+        'choices': rec.get('choices') or [],
+        'answer': answer,
+        'accepted': accepted,
+        'rationale': rationale,
+        'figures': figs,
+        'figure_asset': question_asset(qid, figs, fig_dir, 'figures/cb'),
+        'flags': flags,
+        'check': rec.get('check'),
+        'method': rec.get('method', 'vision'),
+        'source': {'file': q['file'], 'pages': [r['page'] + 1 for r in q['regions']]},
+    }
+
+
+def from_bank(qid, fetched, section, old, draw):
+    """A question as the bank's HTML reads (cb_html.py). One the PDF export
+    also holds keeps the figures cropped from it (the College Board's own
+    print) and, where the choices are figures, the transcription's words for
+    them; a new one has its figures drawn (queued on `draw`)."""
+    rec = cb_html.record(qid, fetched['item'], section)
+    flags = rec['flags']
+    # The bank sometimes asks the same words of different figures ("The graph
+    # of the polynomial function f is shown ...", two graphs): what a figure
+    # shows is part of which question it is (the import's content hash).
+    figure_key = hashlib.sha1('\n'.join(re.sub(r'\s+', ' ', f['svg']) if f['svg'] else json.dumps(f['table'], sort_keys=True)
+                                        for f in rec['figure'] or []).encode()).hexdigest()[:16] if rec['figure'] else None
+    if old:
+        figs, asset = old['figures'], old['figure_asset']
+        choices = old['choices'] if any(f.get('choice') for f in figs) else rec['choices']
+    else:
+        figs, asset, choices = [], None, rec['choices']
+        for n, fig in enumerate(rec['figure'] or [], 1):
+            entry = {k: v for k, v in {'kind': fig['kind'], 'choice': fig.get('choice'), 'description': fig['description'],
+                                      'table': fig['table'], 'asset': f'figures/cb/{qid}-{n}.png'}.items() if v is not None}
+            figs.append(entry)
+            draw.append((qid, entry, {'svg': fig['svg']} if fig['svg'] else {'table': fig['table']}))
+    return {
+        'passage': rec['passage'] if section == 'rw' else None,
+        'question': rec['question'],
+        'answer_type': rec['answer_type'],
+        'choices': choices,
+        'answer': rec['answer'],
+        'accepted': rec['accepted'],
+        'rationale': rec['rationale'],
+        'figures': figs,
+        'figure_asset': asset,
+        'figure_key': figure_key,
+        'flags': flags,
+        'check': rec['check'],
+        'method': 'html',
+        'source': {'bank': API_DIR.name, 'external_id': fetched['external_id'], 'fetched_at': fetched['fetched_at']},
+    }
+
+
+def draw_figures(draw, fig_dir):
+    """Draw the queued figures (render_figures.mjs), each only when it is new or
+    changed, and set their sizes; a figure that cannot be drawn loses its asset."""
+    cache_file = fig_dir / 'drawn.json'
+    cache = read_json(cache_file, {})
+    todo = []
+    for qid, entry, spec in draw:
+        name = Path(entry['asset']).name
+        digest = hashlib.sha1(json.dumps(spec, sort_keys=True).encode()).hexdigest()
+        hit = cache.get(name)
+        if hit and hit['hash'] == digest and (fig_dir / name).exists():
+            entry['size'] = hit['size']
+        else:
+            todo.append((entry, name, digest, spec))
+    if todo:
+        fig_dir.mkdir(parents=True, exist_ok=True)
+        manifest = OUT / 'cb' / 'draw-manifest.json'
+        write_json(manifest, [{'out': str(fig_dir / name), **spec} for _, name, _, spec in todo])
+        out = subprocess.run(['node', str(Path(__file__).with_name('render_figures.mjs')), str(manifest)],
+                             capture_output=True, text=True, check=True).stdout
+        drawn = {Path(r['out']).name: r for r in map(json.loads, out.splitlines())}
+        for entry, name, digest, _ in todo:
+            r = drawn.get(name, {'error': 'not drawn'})
+            if r.get('error'):
+                print(f"  could not draw {name}: {r['error']}", file=sys.stderr)
+                entry.pop('asset', None)
+                continue
+            entry['size'] = {'width': r['width'], 'height': r['height']}
+            cache[name] = {'hash': digest, 'size': entry['size']}
+        write_json(cache_file, cache)
+    return len(todo)
+
+
 def build_cb():
-    index = {q['id']: q for q in read_json(OUT / 'cb' / 'index.json')}
+    """The College Board question bank as it stands now (cb_api.py fetched it):
+    each question read from the bank's HTML where it serves it, else from the
+    transcription of the PDF export, labeled with the bank's current skill and
+    difficulty and dated by the day the bank published it."""
+    bank = read_json(API_DIR / 'list.json')
+    if not bank:
+        sys.exit("No list of the bank's questions: run cb_api.py first")
+    index = {q['id']: q for q in read_json(OUT / 'cb' / 'index.json', [])}
     render = read_json(OUT / 'cb' / 'render.json', {})
     fig_dir = OUT / 'dataset' / 'figures' / 'cb'
-    rows, missing = [], []
-    for qid, q in index.items():
-        p = OUT / 'out' / 'cb' / f'{qid}.json'
-        if not p.exists():
+    rows, missing, draw = [], [], []
+    for lq in bank['questions']:
+        qid = lq['questionId']
+        old = transcribed_cb(qid, index[qid], render, fig_dir) \
+            if qid in index and (OUT / 'out' / 'cb' / f'{qid}.json').exists() else None
+        fetched = read_json(API_DIR / 'items' / f'{qid}.json')
+        body = from_bank(qid, fetched, lq['section'], old, draw) if fetched else old
+        if body is None:
             missing.append(qid)
             continue
-        rec = json.loads(p.read_text(encoding='utf8'))
-        flags = list(rec.get('flags') or [])
-        answer, accepted = normalize_answer(rec, flags)
-        # A reviewer's verdict (SPEC.md, "Adjudication jobs") settles a question
-        # the source left without a key, or whose key was disputed.
-        adj = read_json(OUT / 'out' / 'adjudicate' / f'cb_{qid}.json')
-        if adj:
-            verdict = adj.get('verdict')
-            rec = {**rec, **(adj.get('corrections') or {})} if verdict == 'transcription-error' else rec
-            if verdict in ('key-wrong', 'transcription-error') and adj.get('answer'):
-                flags = [f for f in flags if not f.startswith('source-error: no answer key')]
-                flags.append(f"key-from-review: {'no key in the source' if answer is None else f'source key {answer}'}, "
-                             f"reviewer's answer {adj['answer']}")
-                answer = str(adj['answer']).strip()
-                if rec.get('answer_type') == 'grid-in':
-                    accepted = [e for e in (enterable(a) for a in (adj.get('accepted') or [answer])) if e]
-                    answer = accepted[0] if accepted else answer
-            elif verdict == 'ambiguous':
-                flags.append(f"ambiguous: {adj.get('note', '')}")
-        # The bank printed no rationale (its keyless questions): one written in
-        # its style (SPEC.md, "Explanation-writing jobs") stands in, marked as such.
-        rationale = rec.get('rationale') or ''
-        if not rationale:
-            written = read_json(OUT / 'out' / 'cb' / 'written' / f'cb_{qid}.json')
-            if written and written.get('agrees') and written.get('rationale'):
-                rationale = written['rationale']
-                flags.append('explanation-written')
-        figs = []
-        for n, fig in enumerate(figures_of(rec), 1):
-            name = f'{qid}-{n}.png'
-            size = crop_figure(fig, render.get(qid, []), CB_ROOT / q['file'], fig_dir / name)
-            figs.append({k: v for k, v in {
-                'kind': fig.get('kind'),
-                'choice': fig.get('choice'),
-                'description': fig.get('description', ''),
-                'table': fig.get('table'),
-                'asset': f'figures/cb/{name}' if size else None,
-                'size': size,
-            }.items() if v is not None})
-        asset = question_asset(qid, figs, fig_dir, 'figures/cb')
         rows.append({
             'uid': f'cb:{qid}',
             'collection': 'cb-bank',
             'source_id': qid,
-            'section': q['section'],
-            'domain': q['domain'],
-            'skill': q['skill'],
-            'difficulty': q['pdf_difficulty'] or q['folder_difficulty'],
-            'passage': rec.get('passage') if q['section'] == 'rw' else None,
-            'question': restore_roman_labels(rec.get('question') or '', rec.get('choices') or [], flags),
-            'answer_type': rec.get('answer_type'),
-            'choices': rec.get('choices') or [],
-            'answer': answer,
-            'accepted': accepted,
-            'rationale': rationale,
-            'figures': figs,
-            'figure_asset': asset,
-            'flags': flags,
-            'check': rec.get('check'),
-            'method': rec.get('method', 'vision'),
-            'source': {'file': q['file'], 'pages': [r['page'] + 1 for r in q['regions']]},
+            'section': lq['section'],
+            'domain': DOMAIN_ID[lq['primary_class_cd_desc']],
+            'skill': lq['skill_desc'],
+            'difficulty': DIFFICULTY[lq['difficulty']],
+            'published_on': published_on(lq['createDate']),
+            **body,
         })
+    drawn = draw_figures(draw, fig_dir)
+    for row in rows:
+        if row['method'] == 'html' and row['source_id'] not in index:
+            row['figure_asset'] = question_asset(row['source_id'], row['figures'], fig_dir, 'figures/cb')
     write_jsonl(OUT / 'dataset' / 'cb.jsonl', rows)
-    by = {}
-    for r in rows:
-        by[r['section']] = by.get(r['section'], 0) + 1
-    print(f"{len(rows)} questions ({by}), {sum(len(r['figures']) for r in rows)} figures; "
-          f'{len(missing)} still without a record', file=sys.stderr)
+    gone = sorted(set(index) - {q['questionId'] for q in bank['questions']})
+    by = Counter((r['section'], r['method']) for r in rows)
+    print(f"{len(rows)} questions of the bank as fetched {bank['fetched_at']}: "
+          f"{sum(1 for r in rows if r['source_id'] not in index)} added since the PDF export; "
+          f"{', '.join(f'{s} {m} {n}' for (s, m), n in sorted(by.items()))}; "
+          f"{len(draw)} figures drawn from the HTML ({drawn} new); "
+          f"{len(missing)} without content{(': ' + ', '.join(missing)) if missing else ''}; "
+          f"{len(gone)} of the PDF export no longer in the bank{(': ' + ', '.join(gone)) if gone else ''}", file=sys.stderr)
     return rows
 
 
@@ -461,6 +582,7 @@ def build_dsat():
                 'uid': uid, 'collection': 'dsat', 'test': test, 'section': sec, 'module': mod,
                 'module_label': r.get('module_label'), 'number': num,
                 'domain': r.get('domain'), 'skill': r.get('skill'), 'difficulty': r.get('difficulty'),
+                'published_on': spec.get('published'),
                 'passage': r.get('passage') if sec == 'rw' else None,
                 'question': r.get('question'), 'answer_type': r.get('answer_type'),
                 'choices': r.get('choices') or [], 'answer': answer, 'accepted': accepted,
@@ -494,7 +616,6 @@ def build_dsat():
             r['rationale'] = explained[identity(r)]
             r['flags'] = [*r.get('flags', []), 'explanation-borrowed: the same question in another test']
     write_jsonl(OUT / 'dataset' / 'dsat.jsonl', rows)
-    from common import write_json
     write_json(OUT / 'dataset' / 'dsat-tests.json', tests)
     print(f'{len(rows)} DSAT questions across {sum(1 for t in tests.values() if "counts" in t)} tests', file=sys.stderr)
     for t, info in tests.items():

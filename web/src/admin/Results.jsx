@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { api, assetUrl, authHeaders } from '../api.js';
+import { api, assetUrl, authHeaders, figureIsChoices } from '../api.js';
 import { EmptyState, ErrorNote, Loading, Meter, StatusBadge } from '../ui.jsx';
 import { SectionHead, Stat, useConfirm } from './shared.jsx';
 import { categoryLabel } from '../../taxonomy.js';
@@ -73,10 +73,13 @@ function QuestionReview({ q }) {
       {q.skill && <div className="mb-3 text-xs text-muted-foreground">{q.skill}</div>}
 
       {q.passage && <div className="mb-3 font-serif text-sm leading-relaxed text-muted-foreground"><MathText text={q.passage} /></div>}
-      {q.assetId && (
+      {q.assetId && !figureIsChoices(q) && (
         <img src={assetUrl(q.assetId)} alt="Figure" data-figure loading="lazy" className="mb-3 block max-w-full rounded-lg border" />
       )}
       <div className="mb-3 font-serif text-[15px] leading-relaxed font-medium"><MathText text={q.question} /></div>
+      {q.assetId && figureIsChoices(q) && (
+        <img src={assetUrl(q.assetId)} alt="Figure" data-figure loading="lazy" className="mb-3 block max-w-full rounded-lg border" />
+      )}
 
       {q.answerType === 'grid-in' ? (
         <div className="flex flex-wrap gap-2">

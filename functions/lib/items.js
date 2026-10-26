@@ -15,12 +15,14 @@ import { conflict } from './http.js';
 import { simhash, hamming, bitsFor, wordOverlap, NEAR_DUPLICATE_OVERLAP } from './similarity.js';
 import { canonicalSkill } from './taxonomy.js';
 
-export function contentHash({ section, question, choices, passage }) {
+export function contentHash({ section, question, choices, passage, figure = null }) {
   const norm = (s) => String(s || '').normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g, '');
   // Passage is part of the identity: many Reading & Writing questions share an
   // identical stem + choices and differ only by passage, so without it distinct
-  // questions collapse into one and get dropped as "duplicates".
-  const basis = `${section}|${norm(passage)}|${norm(question)}|${(choices || []).map(norm).join('|')}`;
+  // questions collapse into one and get dropped as "duplicates". So is a
+  // figure, where its source gives a fingerprint of it (`figure`): the College
+  // Board's bank asks the same words of different graphs.
+  const basis = `${section}|${norm(passage)}|${norm(question)}|${(choices || []).map(norm).join('|')}${figure ? `|figure:${figure}` : ''}`;
   return crypto.createHash('sha256').update(basis).digest('hex').slice(0, 24);
 }
 
@@ -68,11 +70,13 @@ export async function insertItem(row, institutionId, { nearDuplicates = 'reject'
 
   // A figure is stored as an asset the exam UI shows through the normal <img>
   // path: a rendered figure as SVG, a figure cropped from a source page as PNG,
-  // or an imported image as it came ({ mime, bytes }).
+  // or an imported image as it came ({ mime, bytes }). A copy of a question
+  // already in a bank keeps that question's stored figure (an asset never
+  // changes once stored).
   const image = row.image
     || (row.png ? { mime: 'image/png', bytes: row.png } : null)
     || (row.svg ? { mime: 'image/svg+xml', bytes: Buffer.from(String(row.svg), 'utf8') } : null);
-  const assetId = image ? await saveAsset(image) : null;
+  const assetId = image ? await saveAsset(image) : row.asset_id ?? null;
 
   const id = newId();
   const item = {
@@ -98,6 +102,7 @@ export async function insertItem(row, institutionId, { nearDuplicates = 'reject'
     simhash: fingerprint,
     accepted: Array.isArray(row.accepted) && row.accepted.length ? row.accepted : null,
     realism: row.realism ?? null,
+    published_on: row.published_on ?? null,
     variant_of: row.variant_of ?? null,
   };
   const batch = db.batch();

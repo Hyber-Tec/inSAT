@@ -12,6 +12,9 @@
 // for several choices at once going to each. An explanation that still names a
 // choice by letter, or does not follow the official shape, is not converted:
 // its question stays reference material, never served with a wrong letter.
+// The exception is a question whose choices are figures (four graphs, four
+// tables): its choices keep their order, since one picture shows them labeled
+// A to D (lib/assembly.js), so a letter there names the right choice.
 //
 // Not every practice test is the College Board's own. The transcribed tests
 // are its practice tests, whose questions it also publishes in the question
@@ -48,8 +51,9 @@ export function collegeBoardTests(tests, bank) {
 /** How much a question from the bank (`cb`) or a practice test (`dsat`) reads like the current exam. */
 export const officialRealism = (collection, q, ownTests) => (collection === 'cb' || ownTests.has(q.test) ? 5 : 4);
 
-// A choice named by its letter: "choice B", "Choices A and C", "option D", "(B)".
-export const LETTER_REF = /\b(?:[Cc]hoices?|[Oo]ptions?|[Aa]nswers?)\s*\(?[A-D]\b|\([A-D]\)/;
+// A choice named by its letter: "choice B", "Choices A and C", "option D",
+// "(B)"; not an angle or point in function notation, as in \tan(A) or f(B).
+export const LETTER_REF = /\b(?:[Cc]hoices?|[Oo]ptions?|[Aa]nswers?)\s*\(?[A-D]\b|(?<![A-Za-z0-9\\])\([A-D]\)/;
 
 // Where a choice's own explanation starts: "Choice B is ...", "Choices A, C,
 // and D are ...", "Choice B. This ...".
@@ -66,12 +70,16 @@ const firstMatch = (patterns, text) => patterns.map((p) => p.exec(text)).find(Bo
 const lettersIn = (s) => [...s.matchAll(/\b([A-D])\b/g)].map((m) => m[1]);
 const join = (...parts) => parts.filter(Boolean).join('\n\n');
 
+/** Whether a question's choices are figures, which keep their order when it is served. */
+export const choicesAreFigures = (q) => (q.figures || q.figure?.figures || []).some((f) => f.choice);
+
 /**
  * An official question's explanation ({ answer_type, answer, rationale }) in
  * the bank's shape: { rationale: { correct, A?, B?, C?, D? } } (no entry for
  * the right answer's letter), or { why } it cannot be put in it.
  */
 export function officialRationale(q) {
+  const inOrder = choicesAreFigures(q);
   const text = String(q.rationale || '').replace(/\r/g, '').trim();
   if (!text) return { why: 'no explanation' };
   if (q.answer_type === 'grid-in') {
@@ -104,7 +112,7 @@ export function officialRationale(q) {
         if (letter === key) return { why: 'explanation calls the key incorrect' };
         out[letter] = [out[letter], `This choice is incorrect${m[2]}`].filter(Boolean).join(' ');
       }
-    } else if (/^Choices? [A-D]/.test(piece)) {
+    } else if (/^Choices? [A-D]/.test(piece) && !inOrder) {
       return { why: 'explanation of a choice in another shape' };
     } else if (out.correct) {
       out.correct = join(out.correct, piece); // more on the right answer: an alternate approach
@@ -114,6 +122,6 @@ export function officialRationale(q) {
   }
   if (!out.correct) return { why: 'explanation of the right answer not found' };
   out.correct = join(...leadIn, out.correct);
-  if (Object.values(out).some((v) => LETTER_REF.test(v))) return { why: 'explanation names a choice by letter' };
+  if (!inOrder && Object.values(out).some((v) => LETTER_REF.test(v))) return { why: 'explanation names a choice by letter' };
   return { rationale: out };
 }

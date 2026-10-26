@@ -9,9 +9,10 @@ analysis, and practice sets built from the weakest skills), or
 follow each student's results. Every answer has an explanation. Every test is
 a College-Board-structured, **adaptive** form assembled fresh for that student
 (no question is served twice) and scored server-side. Questions come from one
-pool that every institution draws on: the platform's own original Reading and
-Writing bank, verified variations of the bank's own math questions, and
-deterministic math templates. An institution-managed academy can also make
+pool that every institution draws on: the College Board's own questions (its
+question bank and practice tests, newest first), the platform's original
+Reading and Writing questions and the academy's own, verified variations of
+the pool's math questions, and deterministic math templates. An institution-managed academy can also make
 tests of its own questions, from an upload or written by AI on its own LLM API
 key; those stay private to it.
 
@@ -248,7 +249,9 @@ The batch lands in `../exports/variants-<date>/`: `questions.jsonl` (each
 variant with its source and verification), `coverage.md` (what was understood,
 by skill, and why the rest was left alone) and `manifest.json`. Imported
 variants are `source = 'variant'`, linked to their source by `variant_of` and
-carrying its realism rating. A question and its variants are one lineage:
+carrying its realism rating and date (`--replace` brings a kept variant's
+rating, difficulty and date in line with its source's). A question and its
+variants are one lineage:
 assembly never puts two of a lineage in one form, and prefers lineages a
 student has not met (strongly in an exam, lightly in a practice set, where the
 same question with new numbers beats a formulaic template). Sources rated
@@ -301,14 +304,29 @@ The College Board question bank and the full-length practice tests import as
 **reference** material, which generation learns from, and are also served to
 students as **official** questions (below).
 
-Turning the source PDFs into questions is an offline step in
-[`tools/sat-extract/`](tools/sat-extract/README.md). Reading & Writing is
-parsed straight from the PDF text layer (paragraphs, bullets, underlines,
-verse); math, figures and the scanned practice tests are transcribed from page
-images, with every answer independently re-solved and checked against the
-text layer or OCR. The output is a dataset of one JSON record per question,
-with math in LaTeX and figures as images, kept outside the repository next to
-the sources. Import it with:
+**The bank, as it stands.** The College Board's question bank site reads its
+questions from a public JSON API, and `tools/sat-extract/cb_api.py` fetches
+them from there: every SAT question's skill, current difficulty and the day
+the College Board published it, and the question itself as HTML, its math as
+MathML and its figures as SVG. `cb_html.py` reads that HTML exactly, where the
+PDF export had to be transcribed (the PDFs lost the grouping of the rationale
+math, among other things); only the 459 questions of the bank's first release
+that it serves as images of their math keep their transcription. A rerun
+fetches what the bank changed since, so a bank update is one run of the
+fetch, the build and the import ([`tools/sat-extract/`](tools/sat-extract/README.md)).
+`cb_new.py` reports what the bank added and which of it was already in hand:
+on 2026-10-26 the bank held 507 questions the PDF export (2025-11) did not,
+502 of them published in 2026; 158 were already among ours, 151 in the
+academy's ClassMarker pool.
+
+The practice tests (and the bank's first-release questions) are transcribed
+from the PDFs, an offline step in the same tools. Reading & Writing is parsed
+straight from the PDF text layer (paragraphs, bullets, underlines, verse);
+math, figures and the scanned practice tests are transcribed from page images,
+with every answer independently re-solved and checked against the text layer
+or OCR. The output is a dataset of one JSON record per question, with math in
+LaTeX and figures as images, kept outside the repository next to the sources.
+Import it with:
 
 ```bash
 cd functions
@@ -325,8 +343,8 @@ Anything with `source='reference'` is excluded from `candidatesFor()` in
 `assembly.js` and therefore never appears on a student's exam. It is preferred
 by `exemplars()` in `generate.js` (with the official questions copied into the
 generation pool): the same skill first, then the College Board's own before
-imitations, then the same difficulty, so it shapes what the model writes and
-anchors the difficulty labels.
+imitations, then the same difficulty, then the newest, so it shapes what the
+model writes and anchors the difficulty labels.
 
 **Official questions.** Given `--institution`, the same import serves the
 questions of the bank and the practice tests from that institution's bank
@@ -343,21 +361,46 @@ third-party "Digital SAT" series written to imitate them. The import tells
 them apart by how many of a test's questions the bank holds word for word
 (tests 8-13 and 17 hold 92-98% of theirs, the others 0-17%) and rates every
 bank and practice-test question, reference or official, by how closely it
-reads like the current exam: the College Board's own 5, a third party's 4. A
-full test draws the highest first, a skill set takes it first among questions
-of the same fit (`lib/assembly.js`), and generation imitates it first.
-`--replace` brings the ratings of questions already in a bank in line.
+reads like the current exam: the College Board's own 5, a third party's 4.
+
+**Newest first.** Every question is also dated (`published_on`): the day the
+College Board published it in its bank, or the day its practice test was made
+(the files' own metadata; tests 10-13 are its Practice Tests 1-4, from 2022,
+and the third-party series dates from 2023 and early 2024). The exam keeps
+changing, and the College Board's newest questions are not like its first:
+of what it added to its bank in 2026, 43% of the math and 48% of the reading
+and writing is hard, against about 30% of its 2023 release. So a draw takes
+the most exam-like first and, among those, the newest (`realismCost` and
+`recencyCost` in `lib/assembly.js`): strongly in a full test (a new student's
+first full practice test draws nearly all of it from the bank's 2026
+questions, then 2025's as those run out), as a tiebreak in a skill set, which
+practises the right difficulty first. A variant carries its source's date.
+
+**Keeping the pool in line.** `--replace` brings a served bank in line with
+the dataset. A question is known by where it came from (the bank's question
+id, a test's question number), so one the source rewords, re-rates, re-dates,
+re-keys or redraws is changed in place and keeps its id, and with it its place
+in students' histories (a student is never served one question twice, by id);
+one the dataset no longer holds is retired (never deleted) and one it holds
+again comes back. A question the bank holds is served as the bank's: a
+practice test's copy of it is not served, and the bank's import retires a
+copy the pool serves from elsewhere (the academy's ClassMarker pool had many
+of the bank's 2026 questions before it published them); run
+`vary-bank.js --replace` after it, so their variants follow.
 
 Their explanations name choices by letter ("Choice B is correct",
 "Choices A, C, and D are incorrect and ..."), and choices are shuffled for
 every student, so `lib/official.js` puts each in the bank's shape: the right
 answer's explanation, and each wrong choice's beside it. A question whose
 explanation still names a choice by letter, or follows no official shape,
-stays reference material (`npm run check:official` tests the shapes). Nearly
-all of the bank converts, Reading and Writing included (3,086 of its 3,266
-questions); the third-party tests' explanations keep the shape less often
-(1,666 of 2,540). These are the College Board's and publishers' questions:
-serving them was decided on 2026-10-16.
+stays reference material (`npm run check:official` tests the shapes). A
+question whose choices are figures is the exception: its choices keep their
+order, since one picture shows them labeled A to D, so its explanation keeps
+its letters. Nearly all of the bank converts, Reading and Writing included
+(3,615 of its 3,770 questions); the third-party tests' explanations keep the
+shape less often (1,675 of 2,540). These are the College Board's and
+publishers' questions: serving them was decided on 2026-10-16; taking the
+bank from its site, on 2026-10-26.
 
 ### Original questions
 
@@ -425,8 +468,10 @@ bring its own. Production sets it true and binds no platform key; locally,
 1. A **blueprint** gives the CB structure (RW 54 = 27+27, Math 44 = 22+22,
    per-domain quotas, adaptive Module 2).
 2. Each start **materializes a unique form**: items are sampled from the
-   institution's bank, never one the student has seen, choice order shuffled;
-   a short math cell is filled from the templates on the spot.
+   institution's bank, never one the student has seen, the most exam-like and
+   then the newest first, choice order shuffled (choices that are figures
+   keep their order: one picture shows them, labeled A to D); a short math
+   cell is filled from the templates on the spot.
 3. The student takes Module 1, the server picks the Module 2 difficulty from
    their performance, then Module 2 is scored server-side (scaled 200 to 800
    per section). The full form with answers never leaves the server.
