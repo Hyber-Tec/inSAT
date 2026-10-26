@@ -68,11 +68,13 @@ export async function insertItem(row, institutionId, { nearDuplicates = 'reject'
 
   // A figure is stored as an asset the exam UI shows through the normal <img>
   // path: a rendered figure as SVG, a figure cropped from a source page as PNG,
-  // or an imported image as it came ({ mime, bytes }).
+  // or an imported image as it came ({ mime, bytes }). A copy of a question
+  // already in a bank keeps that question's stored figure (an asset never
+  // changes once stored).
   const image = row.image
     || (row.png ? { mime: 'image/png', bytes: row.png } : null)
     || (row.svg ? { mime: 'image/svg+xml', bytes: Buffer.from(String(row.svg), 'utf8') } : null);
-  const assetId = image ? await saveAsset(image) : null;
+  const assetId = image ? await saveAsset(image) : row.asset_id ?? null;
 
   const id = newId();
   const item = {

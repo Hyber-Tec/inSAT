@@ -11,7 +11,7 @@ const {
   mastery, level, practiceDifficulty, perSkillFor, skillsSpec, sectionSpec, practiceTitle,
 } = await import('../lib/practice.js');
 const { FULL_SAT_SPEC } = await import('../lib/blueprints.js');
-const { realismCost, TEMPLATE_BIAS } = await import('../lib/assembly.js');
+const { realismCost, TEMPLATE_BIAS, instanceFromRow } = await import('../lib/assembly.js');
 
 let passed = 0;
 const check = (what, fn) => {
@@ -112,6 +112,21 @@ check('a practice set takes the College Board\'s own questions first, without tr
   assert.ok(realismCost(template, false) + TEMPLATE_BIAS < 1);
   // An exam measures: there, how exam-like a question is outweighs that.
   assert.ok(realismCost(imitation, true) > 1);
+});
+
+check('choices that are figures keep their order, so the picture\'s labels name them', () => {
+  const row = (figures) => ({ id: 'q', section: 'math', answer_type: 'multiple-choice', choices: ['a', 'b', 'c', 'd'], correct_idx: 2,
+    rationale: { correct: 'c is right', A: 'not a', B: 'not b', D: 'not d' }, figure: figures ? { figures } : null });
+  const pictured = row(['A', 'B', 'C', 'D'].map((choice) => ({ kind: 'table', choice })));
+  for (let i = 0; i < 20; i += 1) {
+    const q = instanceFromRow(pictured);
+    assert.deepEqual(q.choices, ['a', 'b', 'c', 'd']);
+    assert.equal(q.correctIdx, 2);
+    assert.equal(q.rationale.A, 'not a');
+  }
+  // Any other question's choices are shuffled for every student.
+  const orders = new Set(Array.from({ length: 40 }, () => instanceFromRow(row(null)).choices.join('')));
+  assert.ok(orders.size > 1);
 });
 
 if (!process.exitCode) console.log(`${passed} practice checks pass`);

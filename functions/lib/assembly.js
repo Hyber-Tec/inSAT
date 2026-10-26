@@ -98,7 +98,9 @@ export function instanceFromRow(row) {
   }
 
   // Multiple choice: shuffle choices and remap the key + per-choice rationale.
-  const order = shuffle([0, 1, 2, 3]);
+  // Choices that are figures (four graphs, four tables) keep their order: one
+  // picture shows them, labeled A to D.
+  const order = (row.figure?.figures || []).some((f) => f.choice) ? [0, 1, 2, 3] : shuffle([0, 1, 2, 3]);
   const choices = order.map((i) => row.choices[i]);
   const correctIdx = order.indexOf(row.correct_idx);
   const rat = row.rationale || {};

@@ -104,3 +104,21 @@ test('the College Board\'s own questions are rated above a third party\'s', () =
   assert.equal(officialRealism('dsat', { test: 8 }, own), 5);
   assert.equal(officialRealism('dsat', { test: 14 }, own), 4);
 });
+
+test('an angle or point in function notation is not a choice named by letter', () => {
+  const { rationale } = mc('Choice B is correct. Since \\(\\tan(A) = \\sqrt{3}\\), it follows that \\(\\tan(D) = \\sqrt{3}\\) and \\(f(C) = 2\\).\n\nChoice A is incorrect and may result from using \\(\\sin(A)\\).');
+  assert.match(rationale.correct, /tan\(D\)/);
+  assert.match(mc('Choice B is correct, as (A) and (C) are too small.').why, /names a choice by letter/);
+});
+
+test('when the choices are figures, which keep their order, a letter in the explanation stays', () => {
+  const figures = ['A', 'B', 'C', 'D'].map((choice) => ({ kind: 'graph', choice }));
+  const { rationale } = officialRationale({
+    answer_type: 'multiple-choice', answer: 'B', figures,
+    rationale: 'Choice B is correct. The lines meet at (2, 4). Choice B is a graph that shows them meeting there. Thus, choice B represents the system.\n\nChoice A is incorrect. This graph shows lines that never meet, unlike choice B.',
+  });
+  assert.match(rationale.correct, /Choice B is a graph that shows them meeting there\. Thus, choice B represents the system\./);
+  assert.equal(rationale.A, 'This choice is incorrect. This graph shows lines that never meet, unlike choice B.');
+  // The same explanation for choices that are shuffled is not served.
+  assert.ok(mc('Choice B is correct. The lines meet at (2, 4). Choice B is a graph that shows them meeting there.').why);
+});

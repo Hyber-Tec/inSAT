@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
-import { api, assetUrl } from '../api.js';
+import { api, assetUrl, figureIsChoices } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { ErrorNote, Meter, StatusBadge } from '../ui.jsx';
 import { MathText } from '../MathText.jsx';
@@ -339,13 +339,14 @@ function ReviewModal({ sections, review, onClose, onNav }) {
                 <div className="font-serif text-[15px] leading-[1.7]"><MathText text={q.passage} /></div>
               </div>
             )}
-            {q.assetId && <img src={assetUrl(q.assetId)} alt="" data-figure className="mb-5 block max-h-80 max-w-full rounded-lg border" />}
+            {q.assetId && !figureIsChoices(q) && <img src={assetUrl(q.assetId)} alt="" data-figure className="mb-5 block max-h-80 max-w-full rounded-lg border" />}
             <div className="mb-4 text-[15px] leading-relaxed font-medium"><MathText text={q.question} /></div>
             {!answered && q.answerType !== 'grid-in' && (
               <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-800">
                 You didn&apos;t answer this question.
               </div>
             )}
+            {q.assetId && figureIsChoices(q) && <img src={assetUrl(q.assetId)} alt="" data-figure className="mb-3 block max-h-80 max-w-full rounded-lg border" />}
             {q.answerType === 'grid-in' ? (
               <div className="flex flex-wrap gap-3">
                 <div className={cn('min-w-40 flex-1 rounded-lg border px-4 py-3',

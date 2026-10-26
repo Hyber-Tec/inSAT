@@ -15,7 +15,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Spinner } from '@/components/ui/spinner';
-import { api, assetUrl } from '../api.js';
+import { api, assetUrl, figureIsChoices } from '../api.js';
 import { MathText } from '../MathText.jsx';
 import { useAssistantHidden } from '../assistant/assistant.jsx';
 import { MathCalculator, Reference, formatTime, LETTERS } from './tools.jsx';
@@ -521,11 +521,13 @@ function QuestionView({ q, number, isMath, isMarked, onMark, crossMode, setCross
         )}
       </div>
 
-      {isMath && q.assetId && <img src={assetUrl(q.assetId)} alt="" className="mb-5 block max-h-80 max-w-full rounded-lg border" />}
+      {isMath && q.assetId && !figureIsChoices(q) && <img src={assetUrl(q.assetId)} alt="" className="mb-5 block max-h-80 max-w-full rounded-lg border" />}
 
       <div className={cn('mb-6 leading-relaxed', isMath ? 'font-serif text-[17px]' : 'text-[15px] font-medium')}>
         <MathText text={q.question} />
       </div>
+
+      {isMath && q.assetId && figureIsChoices(q) && <img src={assetUrl(q.assetId)} alt="" className="mb-5 block max-h-80 max-w-full rounded-lg border" />}
 
       {isGrid ? (
         <div className="space-y-2.5">

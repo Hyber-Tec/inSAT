@@ -25,6 +25,9 @@ export async function authHeaders() {
 /** Absolute URL for a question figure asset (or null). */
 export const assetUrl = (id) => (id ? `${BASE}/api/assets/${id}` : null);
 
+/** Whether a question's figure shows its choices (four graphs or tables, labeled A to D): it then follows the question, as choices do. */
+export const figureIsChoices = (q) => (q?.figure?.figures || []).some((f) => f.choice);
+
 /** A response's JSON, or what went wrong in words when it is not the API's. */
 async function readJson(res, path) {
   const text = await res.text();
