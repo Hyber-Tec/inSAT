@@ -9,9 +9,9 @@
 // the same as the old PDF importer: generation learns from them and their
 // difficulty labels anchor generated items, but students never see them
 // (candidatesFor in assembly.js excludes reference items).
-//   cb    the College Board question bank. --replace swaps out every earlier
-//         College Board reference row, which is how the rows the old
-//         Ghostscript importer produced (truncated stems, missing math) retire.
+//   cb    the College Board question bank, as it stands (tools/sat-extract
+//         fetches it from the bank's own site). --replace swaps out every
+//         earlier College Board reference row.
 //   dsat  the full-length practice tests. A question whose key disagrees with
 //         the transcriber's own solution, or that has no key, is held back:
 //         a wrong key would teach generation the wrong answer. Import cb first:
@@ -21,9 +21,7 @@
 // SPEC.md, "Original-question jobs"), they are served to students, so they go
 // into an institution's own bank as source='original'.
 //   original  needs --institution <slug>. --replace syncs that bank with the
-//         dataset: a question the dataset dropped or rewrote is retired (a
-//         served question may sit in a student's history, so never deleted),
-//         and one the dataset carries again comes back.
+//         dataset (below).
 // The College Board bank and the practice tests are served as well: given
 // --institution, cb or dsat puts its questions into that bank as
 // source='official', each explanation in the bank's shape (lib/official.js; a
@@ -33,10 +31,22 @@
 // Every bank and practice-test question, reference or official, is rated by
 // how closely it reads like the current exam: the College Board's own (the
 // bank, and a practice test most of whose questions the bank holds) 5, a
-// third-party practice test's 4. A full test draws the highest first, a
-// practice set leans the same way (lib/assembly.js), and generation imitates
-// the highest first (lib/generate.js). --replace brings the rating of rows
-// already in a bank in line too.
+// third-party practice test's 4. It is also dated (`published_on`): the day
+// the College Board published it in its bank, or the day its practice test
+// was made. A full test draws the highest rated first and, among those, the
+// newest; a practice set leans the same way (lib/assembly.js); generation
+// imitates them first (lib/generate.js).
+//
+// --replace keeps a served bank in line with the dataset. A question is known
+// by where it came from (ORIGIN: the bank's question id, a test's question
+// number), so one the source rewords, re-rates, re-dates, re-keys or redraws
+// is changed in place and keeps its id, and with it its place in students'
+// histories; one the dataset no longer holds is retired (never deleted: a
+// served question may sit in a student's history) and one it holds again
+// comes back. A question the College Board's bank holds is served as the
+// bank's: a practice test's copy of it is not served, and once the bank is
+// imported, a copy the pool serves from elsewhere (the academy's ClassMarker
+// questions had many before the bank published them) is retired.
 //
 // Run (from functions/; the emulators when FIRESTORE_EMULATOR_HOST is set,
 // production otherwise):
@@ -47,12 +57,16 @@
 //   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" cb --institution satify --replace
 //   node --env-file-if-exists=.env.local scripts/import-dataset.js "/path/to/extracted/dataset" dsat --institution satify --replace
 
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { bucket, target as writingTo } from '../lib/firebase.js';
-import { COL, col, queryRows, writeAll } from '../lib/store.js';
+import { bucket, db, target as writingTo } from '../lib/firebase.js';
+import { COL, col, docOf, getMany, queryRows, writeAll } from '../lib/store.js';
 import { globalPoolId, ensureGlobalPool, touched } from '../lib/pool.js';
 import { contentHash, hashRef, importRows } from '../lib/items.js';
+import { assetMd5, saveAsset } from '../lib/assets.js';
+import { simhash } from '../lib/similarity.js';
+import { byCell, holds, planSync, stable } from '../lib/datasetSync.js';
 import { repairItemText } from '../lib/textRepair.js';
 import { DOMAINS, canonicalSkill } from '../lib/taxonomy.js';
 import { collegeBoardTests, officialRationale, officialRealism } from '../lib/official.js';
@@ -117,7 +131,7 @@ function toRow(q, ownTests) {
   const figures = (q.figures || []).map(({ kind, choice, description, table }) => ({ kind, choice, description, table }));
   return {
     row: {
-      content_hash: contentHash({ section: q.section, question: q.question, choices, passage }),
+      content_hash: contentHash({ section: q.section, question: q.question, choices, passage, figure: q.figure_key }),
       section: q.section,
       domain: q.domain,
       skill: canonicalSkill(q.domain, q.skill) || q.skill || '',
@@ -145,6 +159,7 @@ function toRow(q, ownTests) {
       // transcription; original: the writer's key, confirmed by a blind solve
       verified: true,
       ...(collection === 'original' ? {} : { realism: officialRealism(collection, q, ownTests) }),
+      published_on: q.published_on || null,
     },
   };
 }
@@ -161,62 +176,74 @@ async function targetInstitution() {
   return { id: found.id, label: `the ${found.name} bank` };
 }
 
-// What a student reads of a question, which a sync brings in line with the dataset.
-const TEXT_FIELDS = ['passage', 'question', 'choices', 'rationale'];
-// A value as text with its object keys in order, to compare stored and dataset rows.
-const stable = (v) => JSON.stringify(v, (_k, x) => (x && typeof x === 'object' && !Array.isArray(x)
-  ? Object.fromEntries(Object.keys(x).sort().map((k) => [k, x[k]]))
-  : x));
+/** Where a row came from (its ORIGIN, as text), or null for a row of another collection. */
+const MARKER = Object.keys(ORIGIN[collection]?.({}) || {})[0];
+const originOf = (r) => (r.rationale && MARKER in r.rationale ? stable(r.rationale[MARKER]) : null);
 
 /**
  * Bring a bank's served questions from this collection in line with the
- * dataset. A served row may be in a student's history by id, so a question the
- * dataset no longer carries is retired rather than deleted, and one it carries
- * again is restored; one the dataset now rates differently takes the new
- * rating, and one it now sets differently (a fix the content hash cannot see,
- * such as a verse line break) takes the new text. Only the collection's own
- * rows (marked by its ORIGIN) are compared: the bank's other questions, such
- * as an academy's ClassMarker pool among the originals, are not the dataset's
- * to retire.
+ * dataset (lib/datasetSync.js, planSync): a question changed in place keeps
+ * its id, one the dataset dropped or `held` names is retired, one it carries
+ * again is restored. Only the collection's own rows are compared: the bank's
+ * other questions, such as an academy's ClassMarker pool among the originals,
+ * are not the dataset's to retire.
  */
-async function syncServed(institutionId, rows) {
-  // A question the dataset holds twice (the bank repeats two, explained
-  // differently) is compared with its first copy, the one the import keeps.
-  const wanted = new Map();
-  for (const r of rows) if (!wanted.has(r.content_hash)) wanted.set(r.content_hash, r);
-  const marker = Object.keys(ORIGIN[collection]({}))[0];
+async function syncServed(institutionId, rows, held = new Set()) {
   const have = (await queryRows(col(COL.items)
-    .where('institution_id', '==', institutionId).where('source', '==', SOURCE)
-    .select('content_hash', 'retired_at', 'realism', ...TEXT_FIELDS)))
-    .filter((item) => item.rationale && marker in item.rationale);
-  const writes = [];
-  let retired = 0;
-  let restored = 0;
-  let rerated = 0;
-  let refreshed = 0;
-  for (const item of have) {
-    const row = wanted.get(item.content_hash);
-    const changes = {};
-    if (row && item.retired_at) {
-      restored += 1;
-      changes.retired_at = null;
-    } else if (!row && !item.retired_at) {
-      retired += 1;
-      changes.retired_at = new Date();
-    }
-    if (row && 'realism' in row && (item.realism ?? null) !== row.realism) {
-      rerated += 1;
-      changes.realism = row.realism;
-    }
-    const reset = row ? TEXT_FIELDS.filter((f) => stable(item[f] ?? null) !== stable(row[f] ?? null)) : [];
-    if (reset.length) {
-      refreshed += 1;
-      for (const f of reset) changes[f] = row[f];
-    }
-    if (Object.keys(changes).length) writes.push(['update', col(COL.items).doc(item.id), { ...changes, ...touched() }]);
+    .where('institution_id', '==', institutionId).where('source', '==', SOURCE)))
+    .filter((item) => originOf(item) !== null);
+  // Who holds each content hash the dataset's questions have, read at once.
+  const locks = await getMany(COL.itemHashes, [...new Set(rows.map((r) => `${institutionId}_${r.content_hash}`))], ['item_id']);
+  const holderOf = (hash) => locks.get(`${institutionId}_${hash}`)?.item_id ?? null;
+  const { updates, moves, counts: n } = planSync({ have, rows, originOf, held, holderOf });
+  await writeAll(updates.map(({ item, changes }) => ['update', col(COL.items).doc(item.id), { ...docOf(COL.items, changes), ...touched() }]));
+  for (const m of moves) await move(institutionId, m);
+  console.log(`\nsynced with the dataset: changed ${n.changed} (${n.moved} reworded or redrawn), retired ${n.retired}`
+    + `${n.repeats ? ` (${n.repeats} now repeat another question)` : ''}, restored ${n.restored}`);
+}
+
+/**
+ * Move a served question to the identity (content hash) its new wording
+ * gives it, with the dataset's changes, and its figure when that changed.
+ * The old figure stays in storage: past sessions show it.
+ */
+async function move(institutionId, { item, row, changes, fresh }) {
+  Object.assign(changes, { content_hash: row.content_hash, simhash: simhash(row) });
+  if (row.png && (await assetMd5(item.asset_id)) !== crypto.createHash('md5').update(row.png).digest('base64')) {
+    changes.asset_id = await saveAsset({ mime: 'image/png', bytes: row.png });
   }
-  await writeAll(writes);
-  console.log(`\nsynced with the dataset: retired ${retired}, restored ${restored}, re-rated ${rerated}, text refreshed ${refreshed}`);
+  const batch = db.batch();
+  if (item.content_hash) batch.delete(hashRef(institutionId, item.content_hash));
+  if (fresh) batch.create(hashRef(institutionId, row.content_hash), { item_id: item.id });
+  batch.update(col(COL.items).doc(item.id), { ...docOf(COL.items, changes), ...touched() });
+  await batch.commit();
+}
+
+/** The College Board bank's questions an institution serves, by cell (lib/datasetSync.js). */
+async function servedBank(institutionId) {
+  return byCell((await queryRows(col(COL.items).where('institution_id', '==', institutionId).where('source', '==', 'official')))
+    .filter((r) => !r.retired_at && r.rationale && 'collegeBoardId' in r.rationale));
+}
+
+/**
+ * A question the College Board's bank holds is served as the bank's, so the
+ * copy another collection serves is retired: a practice test printed it, or
+ * the academy's own pool (ClassMarker) had it before the bank published it.
+ * A student then never meets one question twice, and meets it with the
+ * bank's own explanation, difficulty and date. Their variants go with the
+ * next `vary-bank.js --replace`.
+ */
+async function retireCopies(institutionId) {
+  const bank = await servedBank(institutionId);
+  const others = (await queryRows(col(COL.items).where('institution_id', '==', institutionId)))
+    .filter((r) => !r.retired_at && ['original', 'official'].includes(r.source) && !(r.rationale && 'collegeBoardId' in r.rationale));
+  const copies = others.filter((r) => holds(bank, r));
+  await writeAll(copies.map((r) => ['update', col(COL.items).doc(r.id), { retired_at: new Date(), ...touched() }]));
+  const from = (r) => (r.rationale?.classmarker ? 'the ClassMarker pool' : r.rationale?.dsat ? 'the practice tests' : 'the original questions');
+  const by = {};
+  for (const r of copies) by[from(r)] = (by[from(r)] || 0) + 1;
+  console.log(`\nretired ${copies.length} served copies of the bank's questions${copies.length
+    ? ` (${Object.entries(by).map(([k, v]) => `${v} from ${k}`).join(', ')})` : ''}`);
 }
 
 /** The practice tests that are the College Board's own, judged against the bank beside them in the dataset. */
@@ -248,10 +275,13 @@ async function main() {
     rows.push(row);
   }
   const count = (pred) => rows.filter(pred).length;
+  const years = {};
+  for (const r of rows) years[r.published_on?.slice(0, 4) || 'undated'] = (years[r.published_on?.slice(0, 4) || 'undated'] || 0) + 1;
   console.log(`${questions.length} questions in ${file}`);
   if (collection === 'dsat') console.log(`  the College Board's own tests: ${[...ownTests].sort((a, b) => a - b).join(', ') || 'none'}`);
   console.log(`  importable   ${rows.length}  (rw ${count((r) => r.section === 'rw')}, math ${count((r) => r.section === 'math')})`);
   if (collection !== 'original') console.log(`  realism      ${count((r) => r.realism === 5)} at 5 (the College Board's own), ${count((r) => r.realism === 4)} at 4`);
+  console.log(`  published    ${Object.entries(years).sort().map(([y, k]) => `${y}: ${k}`).join(', ')}`);
   console.log(`  with figure  ${count((r) => r.png)}`);
   console.log(`  grid-in      ${count((r) => r.answer_type === 'grid-in')}`);
   for (const [why, n] of Object.entries(skipped)) console.log(`  skipped      ${n}  (${why})`);
@@ -259,8 +289,15 @@ async function main() {
 
   const target = await targetInstitution();
   console.log(`\nwriting to ${writingTo()}`);
+  // A practice-test question the bank holds is served as the bank's (import cb first).
+  let held = new Set();
+  if (official && collection === 'dsat') {
+    const bank = await servedBank(target.id);
+    held = new Set(rows.filter((r) => holds(bank, r)).map(originOf));
+    console.log(`  ${held.size} practice-test questions are the bank's, served as the bank's`);
+  }
   if (replace && servable) {
-    await syncServed(target.id, rows);
+    await syncServed(target.id, rows, held);
   } else if (replace) {
     // Reference rows are never served, so no session or exam points at them;
     // their figure assets, and their place in the bank, go with them.
@@ -283,12 +320,13 @@ async function main() {
   // tests go through the gate, so a question the bank already holds (official
   // tests reuse bank items) stays as the bank's version with its official
   // labels. Originals go through it too: a servable bank should stay varied.
-  const result = await importRows(rows, target.id, { nearDuplicates: collection === 'cb' ? 'allow' : 'reject' });
+  const result = await importRows(rows.filter((r) => !held.has(originOf(r))), target.id, { nearDuplicates: collection === 'cb' ? 'allow' : 'reject' });
   console.log(`\nimported into ${target.label} as ${official ? 'servable official questions' : servable ? 'servable questions' : 'reference material'}:`);
   console.log(`  added           ${result.added}`);
   console.log(`  duplicate       ${result.duplicates}`);
   console.log(`  near-duplicate  ${result.nearDuplicates}`);
   console.log(`  skipped         ${result.skipped}`);
+  if (official && collection === 'cb') await retireCopies(target.id);
 }
 
 main()

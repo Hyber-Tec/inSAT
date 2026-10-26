@@ -58,6 +58,29 @@ const REALISM_WEIGHT = { exam: 1.5, practice: 0.1 };
 const realismOf = (r) => (r.rationale?.template ? 1 : r.realism ?? 4);
 /** What a question's distance from the real SAT adds to its cost in a draw. */
 export const realismCost = (r, exam) => (5 - realismOf(r)) * REALISM_WEIGHT[exam ? 'exam' : 'practice'];
+// The SAT keeps changing, and the College Board's newest questions are not
+// like its first ones: of what it added to its bank in 2026, 43% of the math
+// and 48% of the reading and writing is hard, against about 30% of its 2023
+// release. So among questions alike in everything above, the newest go first
+// (`published_on`: the day the College Board published it, or its practice
+// test was made; a variant's is its source's). Each year a question is older
+// than the newest one the draw could take costs RECENCY_WEIGHT, up to
+// RECENCY_YEARS years, and an undated question (an academy's own, a template)
+// counts as that old. An exam's whole range stays below a step of difficulty,
+// so a module still gets the difficulty it asks for, and below a step of
+// realism, so the College Board's oldest question still goes before any
+// imitation; a skill set's stays below its realism step, a tiebreak.
+const RECENCY_WEIGHT = { exam: 0.3, practice: 0.02 };
+export const RECENCY_YEARS = 3;
+const YEAR_MS = 365.25 * 24 * 3600 * 1000;
+const dayOf = (r) => (r.published_on ? Date.parse(r.published_on) : NaN);
+/** The day (ms) of the newest dated question among `rows`, or null. */
+export const newestOf = (rows) => rows.reduce((m, r) => (dayOf(r) > (m ?? -Infinity) ? dayOf(r) : m), null);
+/** What a question's age adds to its cost in a draw whose newest question is from `newest` (ms). */
+export function recencyCost(r, exam, newest) {
+  const age = Number.isNaN(dayOf(r)) || newest == null ? RECENCY_YEARS : (newest - dayOf(r)) / YEAR_MS;
+  return Math.min(RECENCY_YEARS, Math.max(0, age)) * RECENCY_WEIGHT[exam ? 'exam' : 'practice'];
+}
 // A variant (lib/variation) is its source question with new numbers, so a
 // question and its variants form one lineage. A form never holds two of one
 // lineage, and a lineage the student has already met costs extra, so fresh
@@ -147,6 +170,7 @@ async function pickItems({ pool, kind, domain, skill = null, n, difficulty, stri
   // equals).
   const take = (candidates) => {
     const open = shuffle(candidates.filter((r) => !usedInForm.has(r.id) && !seen.has(r.id)));
+    const newest = newestOf(open);
     while (chosen.length < n && open.length) {
       let best = -1;
       let bestScore = Infinity;
@@ -156,6 +180,7 @@ async function pickItems({ pool, kind, domain, skill = null, n, difficulty, stri
         const score = (perSkill.get(r.skill) || 0) * SKILL_SPREAD + rank(r.difficulty)
           + (tpl ? (perTemplate.get(tpl) || 0) * TEMPLATE_SPREAD + TEMPLATE_BIAS : 0)
           + realismCost(r, exam)
+          + recencyCost(r, exam, newest)
           + (seenLineage.has(lineageOf(r)) ? LINEAGE_SEEN[exam ? 'exam' : 'practice'] : 0);
         if (score < bestScore) { best = i; bestScore = score; }
       });

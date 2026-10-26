@@ -21,12 +21,13 @@
 //   manifest.json     counts, and the bank ids once imported
 //
 // --import adds the batch to the bank as source 'variant', each row linked to
-// its source (variant_of) and carrying its realism rating, so assembly never
-// puts a question and its variant in one form. Re-running tops every source
-// up to --per-source; --replace makes every source's full set again and
-// syncs the bank to it: an identical question is kept (or brought back), one
-// the engine no longer makes is retired (never deleted: a served question
-// stays in its session).
+// its source (variant_of) and carrying its realism rating and date, so
+// assembly never puts a question and its variant in one form and ranks the
+// variant as its source. Re-running tops every source up to --per-source;
+// --replace makes every source's full set again and syncs the bank to it: an
+// identical question is kept (or brought back) with its source's current
+// rating, difficulty and date, one the engine no longer makes is retired
+// (never deleted: a served question stays in its session).
 //
 // Options: --per-source N (3), --skill "<skill>", --limit N (sources),
 // --min-realism N (3), --seed N, --output DIR, --import, --replace.
@@ -74,7 +75,7 @@ async function main() {
   // hash it holds is a question not to make again.
   const bank = await queryRows(col(COL.items).where('institution_id', '==', inst).select(
     'section', 'source', 'variant_of', 'retired_at', 'asset_id', 'figure', 'domain', 'skill', 'difficulty',
-    'question', 'choices', 'correct_idx', 'answer_type', 'answer_text', 'accepted', 'realism', 'rationale', 'content_hash',
+    'question', 'choices', 'correct_idx', 'answer_type', 'answer_text', 'accepted', 'realism', 'published_on', 'rationale', 'content_hash',
   ));
   const dashes = /-{3,}/;
   const sources = bank
@@ -139,6 +140,7 @@ async function main() {
           source: 'variant',
           verified: true,
           realism: src.realism ?? null,
+          published_on: src.published_on ?? null,
           variant_of: src.id,
         };
         rows.push(row);
@@ -166,19 +168,26 @@ async function main() {
     console.log(`writing to ${target()}`);
     let restored = 0;
     let retired = 0;
+    let relabeled = 0;
     const fresh = rows.filter((r) => !variantHashes.has(r.content_hash));
     if (replace) {
       // Sync: the same question comes back, a dropped one is retired (never
-      // deleted: a served question stays in its session).
-      const keep = new Set(rows.map((r) => r.content_hash));
+      // deleted: a served question stays in its session), and one kept takes
+      // its source's current rating, difficulty and date.
+      const keep = new Map(rows.map((r) => [r.content_hash, r]));
       const writes = [];
       for (const [hash, v] of variantHashes) {
-        if (keep.has(hash) && v.retired_at) { writes.push(['update', col(COL.items).doc(v.id), { retired_at: null, ...touched() }]); restored += 1; }
-        if (!keep.has(hash) && !v.retired_at) { writes.push(['update', col(COL.items).doc(v.id), { retired_at: new Date(), ...touched() }]); retired += 1; }
+        const changes = {};
+        if (keep.has(hash) && v.retired_at) { changes.retired_at = null; restored += 1; }
+        if (!keep.has(hash) && !v.retired_at) { changes.retired_at = new Date(); retired += 1; }
+        const now = keep.get(hash);
+        for (const f of ['realism', 'difficulty', 'published_on']) if (now && (v[f] ?? null) !== (now[f] ?? null)) changes[f] = now[f] ?? null;
+        if (now && ['realism', 'difficulty', 'published_on'].some((f) => f in changes)) relabeled += 1;
+        if (Object.keys(changes).length) writes.push(['update', col(COL.items).doc(v.id), { ...changes, ...touched() }]);
       }
       await writeAll(writes);
     }
-    imported = { ...(await importRows(fresh, inst, { nearDuplicates: 'allow' })), restored, retired };
+    imported = { ...(await importRows(fresh, inst, { nearDuplicates: 'allow' })), restored, retired, relabeled };
     const locks = await getMany(COL.itemHashes, rows.map((r) => `${inst}_${r.content_hash}`));
     bankIds = [...locks.values()].map((lock) => ({ id: lock.item_id, content_hash: lock.id.slice(inst.length + 1) }));
   }

@@ -29,3 +29,15 @@ export async function readAsset(id) {
     throw err;
   }
 }
+
+/** The MD5 (base64) Storage keeps of an image, or null: tells two images apart without downloading one. */
+export async function assetMd5(id) {
+  if (!isDocId(id)) return null;
+  try {
+    const [meta] = await file(id).getMetadata();
+    return meta.md5Hash || null;
+  } catch (err) {
+    if (err.code === 404) return null;
+    throw err;
+  }
+}
