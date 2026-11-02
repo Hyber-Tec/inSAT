@@ -18,15 +18,22 @@ import { DOMAINS, DOMAIN_LABEL, SKILLS, domainForSkill, sectionForDomain } from 
 /** Whether a response holds an answer (a question left blank holds none). */
 const hasAnswer = (r) => r.selected_idx != null || String(r.selected_text ?? '').trim() !== '';
 
+/** For how many of a student's latest skill sets the skills each covered rest (nextSkills). */
+const RESTING_SETS = 2;
+
 /**
  * Every question a student was served in their completed sessions, each with
  * the question as the bank files it now (a question relabelled later counts
  * where it is now filed): its section, domain, skill and difficulty, whether
- * it was answered and answered right, and when its session was finished.
+ * it was answered and answered right, and when its session was finished; and
+ * the skills their latest skill sets covered (`resting`).
  */
 async function answersOf(userId, pool) {
-  const snap = await col(COL.sessions).where('user_id', '==', userId).select('status', 'completed_at', 'responses').get();
+  const snap = await col(COL.sessions).where('user_id', '==', userId).select('status', 'completed_at', 'responses', 'practice').get();
   const done = snap.docs.map((d) => d.data()).filter((s) => s.status === 'completed');
+  const finished = (s) => s.completed_at?.toMillis?.() ?? new Date(s.completed_at ?? 0).getTime();
+  const latestSets = done.filter((s) => s.practice?.mode === 'skills')
+    .sort((a, b) => finished(b) - finished(a)).slice(0, RESTING_SETS);
   const ids = new Set(done.flatMap((s) => (s.responses || []).map((r) => r.item_id).filter(Boolean)));
   const known = await bankRows(pool);
   const items = new Map([...ids].filter((id) => known.has(id)).map((id) => [id, known.get(id)]));
@@ -44,7 +51,7 @@ async function answersOf(userId, pool) {
       });
     }
   }
-  return out;
+  return { answers: out, resting: latestSets.flatMap((s) => s.practice?.skills || []) };
 }
 
 /** The questions answered per domain and skill. */
@@ -63,7 +70,25 @@ function bySkill(answers) {
 
 /** A student's predicted score (lib/prediction.js), from everything they have finished. */
 export async function predictionOf(userId, { institutionId = null } = {}) {
-  return predictScore(await answersOf(userId, await poolFor(institutionId)));
+  return predictScore((await answersOf(userId, await poolFor(institutionId))).answers);
+}
+
+/**
+ * Up to three skills to work on next (of a profile's `skills`): the weakest of
+ * those with a miss in them (a skill answered right every time is unproven,
+ * not weak) that there is something to practise in, taking turns: the skills
+ * the latest sets covered (`resting`) wait while other weak skills have
+ * theirs. Practice interleaves a student's weak skills instead of drilling the
+ * same few set after set, and no one skill spends its newest questions at once.
+ */
+export function nextSkills(skills, { resting = [], practicable = () => true } = {}) {
+  const waiting = new Set(resting);
+  const weak = skills
+    .filter((x) => x.correct < x.answered && x.level !== 'strong' && practicable(x))
+    .sort((a, b) => a.mastery - b.mastery || b.answered - a.answered);
+  return [...weak.filter((x) => !waiting.has(x.skill)), ...weak.filter((x) => waiting.has(x.skill))]
+    .slice(0, 3)
+    .map((x) => x.skill);
 }
 
 // Laplace-smoothed accuracy: (correct + 1) / (answered + 2). Untested reads
@@ -128,7 +153,7 @@ async function supply(userId, institutionId) {
  * practise in each.
  */
 export async function skillProfile(userId, { institutionId = null } = {}) {
-  const answers = await answersOf(userId, await poolFor(institutionId));
+  const { answers, resting } = await answersOf(userId, await poolFor(institutionId));
   const seen = new Map(bySkill(answers).map((r) => [`${r.domain}|${r.skill}`, r]));
   const available = institutionId ? await supply(userId, institutionId) : null;
   const skills = [];
@@ -153,15 +178,7 @@ export async function skillProfile(userId, { institutionId = null } = {}) {
     }
   }
   const answered = skills.reduce((s, x) => s + x.answered, 0);
-  // Up to three skills to work on next: the weakest of those with a miss in
-  // them (a skill answered right every time is unproven, not weak) that there
-  // is something to practise in.
-  const practicable = (x) => !available || x.ready > 0 || x.more;
-  const recommended = skills
-    .filter((x) => x.correct < x.answered && x.level !== 'strong' && practicable(x))
-    .sort((a, b) => a.mastery - b.mastery || b.answered - a.answered)
-    .slice(0, 3)
-    .map((x) => x.skill);
+  const recommended = nextSkills(skills, { resting, practicable: (x) => !available || x.ready > 0 || x.more });
   const sections = available
     ? Object.fromEntries(['rw', 'math'].map((kind) => [kind, available.section(kind)]))
     : undefined;
@@ -221,8 +238,7 @@ export function skillsSpec(skillNames, profile, { perSkill, difficulty = null } 
       modules: [{ ordinal: 1, adaptive: false, count, difficulty: 'mixed', skills }],
     });
   }
-  // Practice, not an exam: it draws from the whole bank, templates included.
-  return { routing: { thresholdFraction: 0.6 }, sections, exam: false };
+  return { routing: { thresholdFraction: 0.6 }, sections };
 }
 
 /** How many questions a skill set of `skillNames` will hold. */

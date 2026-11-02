@@ -64,7 +64,7 @@ function NextUp({ profile, busy, onPractise, onTest }) {
   } else if (recommended.length) {
     eyebrow = 'Next up';
     title = recommended.length === 1 ? 'Practice your weakest skill' : 'Practice your weakest skills';
-    body = 'Picked from everything you have answered so far. Questions are set at a difficulty that fits how you are doing in each skill.';
+    body = 'Picked from everything you have answered so far, your weak skills taking turns. Questions are set at a difficulty that fits how you are doing in each skill.';
     action = (
       <Action size="lg" className="px-4" busy={busy === 'next'} disabled={Boolean(busy)}
         onClick={() => onPractise(recommended.map((s) => s.skill), 'next')}>

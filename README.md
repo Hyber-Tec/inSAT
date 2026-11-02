@@ -254,10 +254,10 @@ variants are `source = 'variant'`, linked to their source by `variant_of` and
 carrying its realism rating and date (`--replace` brings a kept variant's
 rating, difficulty and date in line with its source's). A question and its
 variants are one lineage:
-assembly never puts two of a lineage in one form, and prefers lineages a
-student has not met (strongly in an exam, lightly in a practice set, where the
-same question with new numbers beats a formulaic template). Sources rated
-below `--min-realism` (3) are not varied.
+assembly never puts two of a lineage in one form, and serves a lineage a
+student has met only after every fresh question, an imitation included,
+though before a formulaic template. Sources rated below `--min-realism` (3)
+are not varied.
 
 With the API and client running, `npm run check:variants -- ../exports/variants-<date>`
 (from `web/`) serves a batch to a temporary student, in an institution
@@ -371,12 +371,15 @@ College Board published it in its bank, or the day its practice test was made
 and the third-party series dates from 2023 and early 2024). The exam keeps
 changing, and the College Board's newest questions are not like its first:
 of what it added to its bank in 2026, 43% of the math and 48% of the reading
-and writing is hard, against about 30% of its 2023 release. So a draw takes
-the most exam-like first and, among those, the newest (`realismCost` and
-`recencyCost` in `lib/assembly.js`): strongly in a full test (a new student's
-first full practice test draws nearly all of it from the bank's 2026
-questions, then 2025's as those run out), as a tiebreak in a skill set, which
-practises the right difficulty first. A variant carries its source's date.
+and writing is hard, against about 30% of its 2023 release. So every draw, a
+full test's and a skill set's alike, takes the most exam-like first and, among
+those, the newest (`realismCost` and `recencyCost` in `lib/assembly.js`): a new
+student's first full practice test draws nearly all of it from the bank's 2026
+questions, then 2025's as those run out, and a skill set practises the College
+Board's own questions at the right difficulty first, newest first, then a step
+of difficulty either way, before any imitation of them (a third party's, the
+platform's originals) and with templates last. A variant carries its source's
+date.
 
 **Keeping the pool in line.** `--replace` brings a served bank in line with
 the dataset. A question is known by where it came from (the bank's question
@@ -490,6 +493,9 @@ a **diagnostic**, and offers:
   29 College Board skills, from everything the student has finished;
 - **practice sets** built from chosen skills, or in one click from the weakest
   ones, each skill at a difficulty matched to how the student is doing in it.
+  The weak skills take turns: those the latest two sets covered wait while
+  other weak skills have theirs (`nextSkills` in `lib/practice.js`), so
+  practice interleaves them instead of drilling the same few set after set.
 
 Results always point at the skills missed, and every reviewed question shows
 its explanation. Practice sessions are ordinary sessions with
