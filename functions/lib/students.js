@@ -2,13 +2,16 @@
 // they are doing in every College Board skill, every test and practice set
 // they started, and what is assigned to them; and the review of one of their
 // sessions. The admin routes show an academy its own students, the platform
-// console any academy's (routes/super.js).
+// console any academy's (routes/super.js). And each student's predicted score
+// for the rosters, kept on their account.
 
-import { COL, col, getMany, getRow, queryRows, whereIn } from './store.js';
+import { FieldValue } from 'firebase-admin/firestore';
+import { COL, chunks, col, getMany, getRow, queryRows, whereIn } from './store.js';
 import { listSessions, withExam } from './sessions.js';
 import { sessionResults } from './session.js';
 import { countFormQuestions } from './examForm.js';
-import { practiceTitle, skillProfile, skillSetSize, testSize } from './practice.js';
+import { practiceTitle, predictionOf, skillProfile, skillSetSize, testSize } from './practice.js';
+import { PREDICTION_MODEL } from './prediction.js';
 
 export const byName = (a, b) => String(a).toLowerCase().localeCompare(String(b).toLowerCase());
 export const newestFirst = (field) => (a, b) => (b[field]?.getTime?.() ?? 0) - (a[field]?.getTime?.() ?? 0);
@@ -103,4 +106,48 @@ export async function sessionReview(sessionId, institutionId) {
   const u = await getRow(COL.users, s.user_id);
   if (!u) return null;
   return { ...sessionResults(await withExam(s)), studentName: u.display_name, proctor: s.state?.proctor || null };
+}
+
+// Each student's predicted score for a roster. Working one out reads all they
+// have finished, so a student's account keeps its own (`prediction`) until
+// their results change (`results_version`, which resultsChanged() bumps once
+// a session is finished or removed) or the model does (PREDICTION_MODEL). A
+// roster works out only those that are out of date; the student's own page
+// and dashboard work theirs out afresh.
+
+/** A student's results changed: the prediction their account keeps is out of date. */
+export async function resultsChanged(userId) {
+  try {
+    await col(COL.users).doc(userId).update({ results_version: FieldValue.increment(1) });
+  } catch (err) {
+    console.error('[prediction] could not mark the results of', userId, 'changed:', err.message);
+  }
+}
+
+/**
+ * Each of these students' (user rows) predicted score, by id: { total, rw,
+ * math }. One that cannot be worked out right now is left out (the roster
+ * shows none for them) and tried again on the next request.
+ */
+export async function rosterPredictions(students) {
+  const out = new Map();
+  const due = [];
+  for (const u of students) {
+    const p = u.prediction;
+    if (p?.model === PREDICTION_MODEL && p.results_version === (u.results_version ?? 0)) out.set(u.id, p);
+    else due.push(u);
+  }
+  for (const part of chunks(due, 8)) {
+    await Promise.all(part.map(async (u) => {
+      try {
+        const { total, rw, math } = await predictionOf(u.id, { institutionId: u.institution_id });
+        const p = { total, rw, math, model: PREDICTION_MODEL, results_version: u.results_version ?? 0 };
+        await col(COL.users).doc(u.id).update({ prediction: p });
+        out.set(u.id, p);
+      } catch (err) {
+        console.error('[prediction] could not work out the prediction of', u.id, ':', err.message);
+      }
+    }));
+  }
+  return new Map([...out].map(([id, { total, rw, math }]) => [id, { total, rw, math }]));
 }

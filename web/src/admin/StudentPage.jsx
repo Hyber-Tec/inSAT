@@ -1,9 +1,9 @@
-// One student's page (managed academies): who they are and their groups, how
-// they are doing in every College Board skill, what is assigned to them, and
-// every test and practice set they have done. Practice topics are assigned
-// from the skill map, starting from the student's weakest skills. The platform
-// console shows any academy's student on the same page, read-only, from its own
-// endpoints (`source`).
+// One student's page (managed academies): who they are and their groups, the
+// score their work so far predicts, how they are doing in every College Board
+// skill, what is assigned to them, and every test and practice set they have
+// done. Practice topics are assigned from the skill map, starting from the
+// student's weakest skills. The platform console shows any academy's student
+// on the same page, read-only, from its own endpoints (`source`).
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { LuArrowLeft, LuChevronRight, LuFileText, LuSend, LuTarget, LuUsers } from 'react-icons/lu';
@@ -15,6 +15,7 @@ import { Card } from '@/components/ui/card';
 import { api } from '../api.js';
 import { EmptyState, ErrorNote, Loading, SectionHeading, StatusBadge } from '../ui.jsx';
 import { SkillMap } from '../skills.jsx';
+import { PredictedScore } from '../prediction.jsx';
 import { ResultBanner, Stat, fmtDate, initialsOf } from './shared.jsx';
 import { AssignDialog, assignedNote } from './assign.jsx';
 import { DetailModal } from './Results.jsx';
@@ -107,6 +108,8 @@ export default function StudentPage({ studentId, onBack, backLabel = 'All studen
 
       {banner && <ResultBanner onDismiss={() => setBanner(null)}>{banner}</ResultBanner>}
       <ErrorNote>{error}</ErrorNote>
+
+      <PredictedScore prediction={profile.prediction} subject="student" />
 
       <SkillMap
         key={studentId}

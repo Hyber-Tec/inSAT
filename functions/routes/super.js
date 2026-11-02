@@ -11,7 +11,7 @@ import { createInvite, inviteLink } from '../lib/invite.js';
 import { sendInvite } from '../lib/mail.js';
 import { GLOBAL_POOL_SLUG, POOL_SLUG } from '../lib/pool.js';
 import { MODES } from '../lib/modes.js';
-import { sessionReview, studentOverview } from '../lib/students.js';
+import { rosterPredictions, sessionReview, studentOverview } from '../lib/students.js';
 
 const router = Router();
 
@@ -171,12 +171,14 @@ router.delete('/institutions/:id/admins/:adminId', asyncHandler(async (req, res)
   res.json({ ok: true });
 }));
 
-// Students of an institution - optional ?search= matches name or email.
+// Students of an institution, with each one's predicted score - optional
+// ?search= matches name or email.
 router.get('/institutions/:id/students', asyncHandler(async (req, res) => {
   const search = (req.query.search || '').toString().trim().toLowerCase();
   const rows = (await queryRows(col(COL.users).where('institution_id', '==', req.params.id).where('role', '==', 'student')))
     .filter((u) => !search || String(u.display_name).toLowerCase().includes(search) || String(u.email).toLowerCase().includes(search));
-  res.json({ students: rows.sort(newestFirst).map(publicUser) });
+  const predicted = await rosterPredictions(rows);
+  res.json({ students: rows.sort(newestFirst).map((u) => ({ ...publicUser(u), predicted: predicted.get(u.id) })) });
 }));
 
 // Manage a student: deactivate / reactivate.

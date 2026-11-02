@@ -1,9 +1,11 @@
-// Self-guided practice on the student dashboard: what to work on next, a full
-// test or one section on the SAT's clock, a map of every College Board skill
-// to build a practice set from, and the practice already done.
+// Self-guided practice on the student dashboard: the score the student's work
+// so far predicts, what to work on next, a full test or one section on the
+// SAT's clock, a map of every College Board skill to build a practice set
+// from, and the practice already done.
 //
 // All of it reads from the server: GET /api/student/profile (accuracy and
-// what is available per skill) and GET /api/student/practice (history).
+// what is available per skill, and the predicted score) and
+// GET /api/student/practice (history).
 
 import React, { useState } from 'react';
 import { LuBookOpen, LuCalculator, LuClock, LuLayers, LuRotateCcw, LuTarget, LuTrash2 } from 'react-icons/lu';
@@ -14,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Action, ConfirmDialog, SectionHeading, StatusBadge } from '../ui.jsx';
 import { SECTION_NAME, SkillMap } from '../skills.jsx';
+import { PredictedScore } from '../prediction.jsx';
 
 const TESTS = [
   { mode: 'full', title: 'Full practice test', questions: 98, minutes: 134, icon: LuLayers, sections: ['rw', 'math'],
@@ -61,7 +64,7 @@ function NextUp({ profile, busy, onPractise, onTest }) {
   } else if (recommended.length) {
     eyebrow = 'Next up';
     title = recommended.length === 1 ? 'Practice your weakest skill' : 'Practice your weakest skills';
-    body = 'Picked from everything you have answered so far. Questions are set at a difficulty that fits how you are doing in each skill.';
+    body = 'Picked from everything you have answered so far, your weak skills taking turns. Questions are set at a difficulty that fits how you are doing in each skill.';
     action = (
       <Action size="lg" className="px-4" busy={busy === 'next'} disabled={Boolean(busy)}
         onClick={() => onPractise(recommended.map((s) => s.skill), 'next')}>
@@ -243,7 +246,10 @@ export default function PracticeHome({ profile, history, busy, busyId, onStart, 
   const practise = (skills, key, difficulty = null) => onStart({ mode: 'skills', skills, ...(difficulty ? { difficulty } : {}) }, key);
   return (
     <div className="space-y-12">
-      <NextUp profile={profile} busy={busy} onPractise={practise} onTest={test} />
+      <div className="space-y-4">
+        <PredictedScore prediction={profile.prediction} />
+        <NextUp profile={profile} busy={busy} onPractise={practise} onTest={test} />
+      </div>
       <section className="space-y-4">
         <SectionHeading title="Take a practice test" actions={<TimedSwitch on={timed} onChange={setTimed} />} />
         <TestCards busy={busy} timed={timed} sections={profile.sections} onTest={test} />

@@ -1,6 +1,7 @@
-// Students panel - roster of student accounts. Create accounts (admin sets an
-// initial password and is shown it once), reset passwords, toggle active, delete.
-// In a managed academy each student opens their own page (StudentPage.jsx).
+// Students panel - roster of student accounts, each with the score their work
+// so far predicts. Create accounts (admin sets an initial password and is shown
+// it once), reset passwords, toggle active, delete. In a managed academy each
+// student opens their own page (StudentPage.jsx).
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { LuCheck, LuChevronRight, LuCopy, LuKeyRound, LuPower, LuTrash2, LuUserPlus, LuUsers } from 'react-icons/lu';
@@ -18,6 +19,7 @@ import { api } from '../api.js';
 import { EmptyState, ErrorNote, Loading, StatusBadge } from '../ui.jsx';
 import { Field, FormDialog, SectionHead, ResultBanner, initialsOf, useConfirm } from './shared.jsx';
 import StudentPage from './StudentPage.jsx';
+import { PredictedFigure } from '../prediction.jsx';
 
 function AddStudentModal({ onClose, onCreated }) {
   const [mode, setMode] = useState('invite'); // 'invite' | 'password'
@@ -186,7 +188,7 @@ export default function Students({ mode = 'self_guided', studentId = null, onOpe
     setLoading(true);
     setError(null);
     try {
-      const { users: list } = await api.get('/api/admin/users');
+      const { users: list } = await api.get('/api/admin/users?predicted=1');
       setUsers(list || []);
     } catch (err) {
       setError(err.message || 'Could not load students');
@@ -251,7 +253,7 @@ export default function Students({ mode = 'self_guided', studentId = null, onOpe
                     <AvatarFallback className={cn('text-xs font-medium', !s.active && 'text-muted-foreground')}>{initialsOf(s.displayName, s.email)}</AvatarFallback>
                   </Avatar>
                 </ItemMedia>
-                <ItemContent className="min-w-48">
+                <ItemContent className="min-w-32">
                   <div className="flex flex-wrap items-center gap-2 text-sm leading-snug font-medium">
                     {onOpenStudent ? (
                       <button type="button" onClick={() => onOpenStudent(s.id)}
@@ -264,6 +266,7 @@ export default function Students({ mode = 'self_guided', studentId = null, onOpe
                   </div>
                   <ItemDescription className="truncate font-mono text-xs">{s.email}</ItemDescription>
                 </ItemContent>
+                <PredictedFigure predicted={s.predicted} className="mr-2 min-w-20" />
                 <ItemActions>
                   {onOpenStudent && <Button variant="outline" size="sm" onClick={() => onOpenStudent(s.id)}>View <LuChevronRight data-icon="inline-end" /></Button>}
                   <Button variant="outline" size="sm" onClick={() => setResetting(s)}><LuKeyRound /> Reset</Button>

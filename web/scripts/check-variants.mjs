@@ -138,7 +138,12 @@ try {
     assert.equal(res.added, 1);
     copy.set(s.id, added.id);
   }
-  const variants = picked.flatMap(([id, vs]) => vs.map((v) => ({ ...v, variant_of: copy.get(id) })));
+  // A variant carries its source's rating and date, as the import gives them
+  // (functions/scripts/vary-bank.js), whatever the batch's own records hold.
+  const sourceById = new Map(sources.map((s) => [s.id, s]));
+  const variants = picked.flatMap(([id, vs]) => vs.map((v) => ({
+    ...v, variant_of: copy.get(id), realism: sourceById.get(id)?.realism ?? null, published_on: sourceById.get(id)?.published_on ?? null,
+  })));
   const added = await importRows(variants, inst, { nearDuplicates: 'allow' });
   assert.equal(added.added, variants.length);
   const bank = await bankOf(inst);

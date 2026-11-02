@@ -240,6 +240,9 @@ test('it is told who it talks to and how to answer, and never names the AI behin
     }
   }
   assert.match(systemPrompt({ role: 'student', mode: 'managed' }), /cannot start practice of their own/);
+  for (const role of ['student', 'admin']) {
+    for (const mode of ['self_guided', 'managed']) assert.match(systemPrompt({ role, mode }), /predicted SAT score/);
+  }
   assert.match(systemPrompt({ role: 'admin', mode: 'managed' }), /Assignments/);
   assert.doesNotMatch(systemPrompt({ role: 'admin', mode: 'self_guided' }), /Assignments \(/);
   assert.match(systemPrompt({ role: 'student', mode: 'self_guided' }), /trusted adult/);

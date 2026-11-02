@@ -8,10 +8,12 @@ import assert from 'node:assert/strict';
 
 // lib/practice.js also holds the Firestore-backed profile; nothing here reads it.
 const {
-  mastery, level, practiceDifficulty, perSkillFor, skillsSpec, sectionSpec, practiceTitle,
+  mastery, level, practiceDifficulty, perSkillFor, skillsSpec, sectionSpec, practiceTitle, nextSkills,
 } = await import('../lib/practice.js');
 const { FULL_SAT_SPEC } = await import('../lib/blueprints.js');
-const { realismCost, recencyCost, newestOf, TEMPLATE_BIAS, instanceFromRow } = await import('../lib/assembly.js');
+const {
+  realismCost, recencyCost, newestOf, TEMPLATE_BIAS, LINEAGE_SEEN, instanceFromRow,
+} = await import('../lib/assembly.js');
 
 let passed = 0;
 const check = (what, fn) => {
@@ -76,12 +78,6 @@ check('section specs are the full test, cut to one section', () => {
   assert.deepEqual(sectionSpec('rw').sections[0], FULL_SAT_SPEC.sections[0]);
 });
 
-check('a test is drawn as an exam, a skill set as practice', () => {
-  assert.notEqual(sectionSpec('full').exam, false);
-  assert.notEqual(sectionSpec('math').exam, false);
-  assert.equal(skillsSpec(['Circles'], null).exam, false);
-});
-
 check('a chosen difficulty applies to every skill, strictly', () => {
   const profile = { skills: [{ skill: 'Circles', correct: 0, answered: 5 }] };
   const spec = skillsSpec(['Circles', 'Transitions'], profile, { difficulty: 'hard' });
@@ -97,21 +93,28 @@ check('titles', () => {
   assert.equal(practiceTitle('skills', ['Circles'], 'hard'), 'Skill practice: Circles (hard)');
 });
 
-check('a practice set takes the College Board\'s own questions first, without trading away the difficulty', () => {
+// In a draw a step away from the wanted difficulty costs 1.
+const STEP = 1;
+
+check('every draw takes the College Board\'s own questions first, imitations next, templates last', () => {
   const own = { realism: 5 };
   const imitation = { realism: 4 };
   const unrated = {};
-  const template = { rationale: { template: 'ps-residual' } };
-  for (const exam of [false, true]) {
-    assert.ok(realismCost(own, exam) < realismCost(imitation, exam), 'the College Board\'s own before an imitation');
-    assert.equal(realismCost(unrated, exam), realismCost(imitation, exam), 'an unrated question counts as an imitation');
-    assert.ok(realismCost(imitation, exam) < realismCost(template, exam), 'templates last');
-  }
-  // A step away from the wanted difficulty costs 1 in a draw: in practice, a
-  // template of the right difficulty, handicap included, still goes first.
-  assert.ok(realismCost(template, false) + TEMPLATE_BIAS < 1);
-  // An exam measures: there, how exam-like a question is outweighs that.
-  assert.ok(realismCost(imitation, true) > 1);
+  const template = realismCost({ rationale: { template: 'ps-residual' } }) + TEMPLATE_BIAS;
+  assert.ok(realismCost(own) < realismCost(imitation), 'the College Board\'s own before an imitation');
+  assert.equal(realismCost(unrated), realismCost(imitation), 'an unrated question counts as an imitation');
+  // The College Board's own a step off the wanted difficulty before an imitation at it.
+  assert.ok(realismCost(own) + STEP < realismCost(imitation));
+  // An imitation two steps off before a template at the wanted difficulty.
+  assert.ok(realismCost(imitation) + 2 * STEP < template, 'templates last');
+});
+
+check('a question met before, with new numbers, comes after every fresh one and before a template', () => {
+  const oldest = recencyCost({}, Date.parse('2026-07-30'));
+  // A fresh imitation, however old, before the student's own question again.
+  assert.ok(realismCost({ realism: 4 }) + oldest < LINEAGE_SEEN + realismCost({ realism: 5 }));
+  // The same question with new numbers, however old, before a template.
+  assert.ok(LINEAGE_SEEN + realismCost({ realism: 5 }) + oldest < realismCost({ rationale: { template: 'ps-residual' } }) + TEMPLATE_BIAS);
 });
 
 check('the newest questions go first, without trading away the difficulty or the College Board\'s own', () => {
@@ -119,22 +122,36 @@ check('the newest questions go first, without trading away the difficulty or the
   const newest = newestOf(rows);
   assert.equal(newest, Date.parse('2026-07-30'));
   const [latest, recent, first, undated] = rows;
-  for (const exam of [false, true]) {
-    const cost = (r) => recencyCost(r, exam, newest);
-    assert.equal(cost(latest), 0);
-    assert.ok(cost(latest) < cost(recent) && cost(recent) < cost(first), 'newer before older');
-    assert.equal(cost(undated), cost({ published_on: '2019-01-01' }), 'an undated question counts as the oldest');
-    assert.equal(cost(undated), recencyCost({ published_on: '2000-01-01' }, exam, newest), 'age counts only so far');
-    // The College Board's oldest question still goes before any imitation of it.
-    assert.ok(cost(undated) < realismCost({ realism: 4 }, exam) - realismCost({ realism: 5 }, exam));
-  }
-  // An exam's whole range is less than a step away from the wanted difficulty (1).
-  assert.ok(recencyCost({}, true, newest) < 1);
-  // In a skill set it only breaks ties: realism, the template handicap and age together stay below that step.
-  assert.ok(realismCost({ rationale: { template: 'ps-residual' } }, false) + TEMPLATE_BIAS + recencyCost({}, false, newest) < 1);
+  const cost = (r) => recencyCost(r, newest);
+  assert.equal(cost(latest), 0);
+  assert.ok(cost(latest) < cost(recent) && cost(recent) < cost(first), 'newer before older');
+  assert.equal(cost(undated), cost({ published_on: '2019-01-01' }), 'an undated question counts as the oldest');
+  assert.equal(cost(undated), cost({ published_on: '2000-01-01' }), 'age counts only so far');
+  // Its whole range is less than a step of difficulty, and less than a step of
+  // realism: the College Board's oldest question still goes before any imitation.
+  assert.ok(cost(undated) < STEP);
+  assert.ok(cost(undated) < realismCost({ realism: 4 }) - realismCost({ realism: 5 }));
   // A draw of undated questions has no newest: none is preferred.
   assert.equal(newestOf([{}, {}]), null);
-  assert.equal(recencyCost({}, true, null), recencyCost({ published_on: '2026-01-01' }, true, null));
+  assert.equal(recencyCost({}, null), recencyCost({ published_on: '2026-01-01' }, null));
+});
+
+check('the weak skills take turns', () => {
+  const skill = (name, correct, answered) => ({ skill: name, correct, answered, mastery: mastery(correct, answered), level: level(correct, answered) });
+  const skills = [
+    skill('Circles', 0, 6), skill('Percentages', 1, 6), skill('Transitions', 1, 5), skill('Boundaries', 2, 6),
+    skill('Inferences', 2, 5), skill('Words in Context', 6, 6), skill('Area and volume', 0, 0),
+  ];
+  const first = nextSkills(skills);
+  assert.deepEqual(first, ['Circles', 'Percentages', 'Transitions'], 'the weakest first');
+  // The skills of the latest sets rest, as long as other skills are weak.
+  assert.deepEqual(nextSkills(skills, { resting: first }), ['Boundaries', 'Inferences', 'Circles']);
+  // A skill answered right every time, or not yet answered, is not weak.
+  assert.ok(!nextSkills(skills).includes('Words in Context') && !nextSkills(skills).includes('Area and volume'));
+  // Nothing to practise in a skill keeps it out.
+  assert.deepEqual(nextSkills(skills, { practicable: (x) => x.skill !== 'Circles' }), ['Percentages', 'Transitions', 'Boundaries']);
+  // With no other weak skills, the same ones come back.
+  assert.deepEqual(nextSkills(skills.slice(0, 2), { resting: ['Circles', 'Percentages'] }), ['Circles', 'Percentages']);
 });
 
 check('choices that are figures keep their order, so the picture\'s labels name them', () => {

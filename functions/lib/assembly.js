@@ -42,22 +42,21 @@ const SKILL_SPREAD = 1.5;
 // The same for a math template within a skill: a skill with two templates
 // alternates them instead of serving ten of one. A template item also carries
 // a small handicap, so a question written in the SAT's style (an original or a
-// variant of one) of the wanted difficulty goes first and templates fill in.
+// variant of one) goes first and templates fill in.
 const TEMPLATE_SPREAD = 1.5;
 export const TEMPLATE_BIAS = 0.5;
-// An exam (a full practice test, or any form but a skill set) draws the
-// questions that read most like the real SAT first: each step down the realism
-// scale costs as much as a skill already drawn once, so a template, formulaic by
-// construction, comes last and serves only when nothing more exam-like is left
-// for this student. A skill set leans the same way among questions that fit
-// equally well: its whole realism range, template handicap included, costs
-// less than a step away from the wanted difficulty, so it practises at the
-// right level first and, at that level, takes the College Board's own
-// questions before imitations of them and templates last.
-const REALISM_WEIGHT = { exam: 1.5, practice: 0.1 };
+// Every draw, a test's or a skill set's, takes the questions that read most
+// like the real SAT first. Each step down the realism scale costs as much as a
+// skill already drawn once, and more than a step away from the wanted
+// difficulty: the College Board's own questions go first, at the wanted
+// difficulty first, then a step either way; imitations of them (a third
+// party's, the platform's own originals) only after; and a template,
+// formulaic by construction, last, when nothing more exam-like is left for
+// this student.
+const REALISM_WEIGHT = 1.5;
 const realismOf = (r) => (r.rationale?.template ? 1 : r.realism ?? 4);
 /** What a question's distance from the real SAT adds to its cost in a draw. */
-export const realismCost = (r, exam) => (5 - realismOf(r)) * REALISM_WEIGHT[exam ? 'exam' : 'practice'];
+export const realismCost = (r) => (5 - realismOf(r)) * REALISM_WEIGHT;
 // The SAT keeps changing, and the College Board's newest questions are not
 // like its first ones: of what it added to its bank in 2026, 43% of the math
 // and 48% of the reading and writing is hard, against about 30% of its 2023
@@ -66,29 +65,27 @@ export const realismCost = (r, exam) => (5 - realismOf(r)) * REALISM_WEIGHT[exam
 // test was made; a variant's is its source's). Each year a question is older
 // than the newest one the draw could take costs RECENCY_WEIGHT, up to
 // RECENCY_YEARS years, and an undated question (an academy's own, a template)
-// counts as that old. An exam's whole range stays below a step of difficulty,
-// so a module still gets the difficulty it asks for, and below a step of
+// counts as that old. The whole range stays below a step of difficulty, so a
+// module or a skill still gets the difficulty it asks for, and below a step of
 // realism, so the College Board's oldest question still goes before any
-// imitation; a skill set's stays below its realism step, a tiebreak.
-const RECENCY_WEIGHT = { exam: 0.3, practice: 0.02 };
+// imitation.
+const RECENCY_WEIGHT = 0.3;
 export const RECENCY_YEARS = 3;
 const YEAR_MS = 365.25 * 24 * 3600 * 1000;
 const dayOf = (r) => (r.published_on ? Date.parse(r.published_on) : NaN);
 /** The day (ms) of the newest dated question among `rows`, or null. */
 export const newestOf = (rows) => rows.reduce((m, r) => (dayOf(r) > (m ?? -Infinity) ? dayOf(r) : m), null);
 /** What a question's age adds to its cost in a draw whose newest question is from `newest` (ms). */
-export function recencyCost(r, exam, newest) {
+export function recencyCost(r, newest) {
   const age = Number.isNaN(dayOf(r)) || newest == null ? RECENCY_YEARS : (newest - dayOf(r)) / YEAR_MS;
-  return Math.min(RECENCY_YEARS, Math.max(0, age)) * RECENCY_WEIGHT[exam ? 'exam' : 'practice'];
+  return Math.min(RECENCY_YEARS, Math.max(0, age)) * RECENCY_WEIGHT;
 }
 // A variant (lib/variation) is its source question with new numbers, so a
 // question and its variants form one lineage. A form never holds two of one
-// lineage, and a lineage the student has already met costs extra, so fresh
-// questions go first. In a practice set the cost is small: once the fresh
-// questions run out, the same question with new numbers is better practice
-// than a formulaic template. An exam measures, so there familiarity costs as
-// much as two steps down the realism scale.
-const LINEAGE_SEEN = { practice: 1, exam: 3 };
+// lineage, and a lineage the student has already met costs as much as two
+// steps down the realism scale: the same question with new numbers comes after
+// any fresh question, an imitation included, and before a template.
+export const LINEAGE_SEEN = 3;
 
 const LETTERS = ['A', 'B', 'C', 'D'];
 
@@ -146,7 +143,7 @@ async function buildIntoPool(pool, built) {
   return (await importTemplateRows(built, pool)).added;
 }
 
-async function pickItems({ pool, kind, domain, skill = null, n, difficulty, strict = false, exam = false, usedInForm, seen, usedLineage = new Set(), seenLineage = new Set(), buildTemplates, notes }) {
+async function pickItems({ pool, kind, domain, skill = null, n, difficulty, strict = false, usedInForm, seen, usedLineage = new Set(), seenLineage = new Set(), buildTemplates, notes }) {
   // A difficulty the student chose (strict) admits no other; otherwise a mixed
   // module takes whatever difficulties come and the others rank them.
   const only = strict && DIFF_PREF[difficulty] && difficulty !== 'mixed' ? difficulty : null;
@@ -179,9 +176,9 @@ async function pickItems({ pool, kind, domain, skill = null, n, difficulty, stri
         const tpl = r.rationale?.template;
         const score = (perSkill.get(r.skill) || 0) * SKILL_SPREAD + rank(r.difficulty)
           + (tpl ? (perTemplate.get(tpl) || 0) * TEMPLATE_SPREAD + TEMPLATE_BIAS : 0)
-          + realismCost(r, exam)
-          + recencyCost(r, exam, newest)
-          + (seenLineage.has(lineageOf(r)) ? LINEAGE_SEEN[exam ? 'exam' : 'practice'] : 0);
+          + realismCost(r)
+          + recencyCost(r, newest)
+          + (seenLineage.has(lineageOf(r)) ? LINEAGE_SEEN : 0);
         if (score < bestScore) { best = i; bestScore = score; }
       });
       if (best < 0) break;
@@ -259,7 +256,6 @@ async function buildModuleQuestions(section, moduleSpec, difficulty, ctx) {
   const common = {
     pool: ctx.pool,
     kind: section.kind,
-    exam: ctx.exam,
     usedInForm: ctx.usedInForm,
     seen: ctx.seen,
     usedLineage: ctx.usedLineage,
@@ -350,7 +346,6 @@ export async function materializeForm(spec, { userId, institutionId, buildTempla
   const pool = await poolFor(institutionId);
   const ctx = {
     pool,
-    exam: spec.exam !== false,
     usedInForm: new Set(),
     seen,
     usedLineage: new Set(),
