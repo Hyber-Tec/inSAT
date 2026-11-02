@@ -183,6 +183,9 @@ try {
   expect(!(await ana.getByRole('button', { name: /Practice these skills/ }).isVisible()), 'student: a managed student is offered practice of their own');
   await ana.getByRole('link', { name: 'insat home' }).click();
   await ana.getByRole('heading', { name: 'Nothing waiting for you' }).waitFor();
+  // A full test is enough to predict a score: her home leads with it.
+  await ana.getByText('Predicted SAT score').waitFor();
+  expect(await ana.getByText(/^Likely \d+–\d+$/).count() === 3, 'student: the predicted score shows a total and both sections');
   expect(await asked('ana', 'POST', '/api/student/practice', { mode: 'skills', skills: ['Linear equations in one variable'] }) === 403,
     'api: a managed student could start practice of their own');
 
@@ -191,6 +194,8 @@ try {
   await admin.getByRole('button', { name: 'Ana Lopez', exact: true }).click();
   await admin.getByRole('heading', { name: 'Ana Lopez' }).waitFor();
   await admin.getByText('Tests done').waitFor();
+  await admin.getByText('Predicted SAT score').waitFor();
+  expect(await admin.getByText(/^Likely \d+–\d+$/).count() === 3, 'admin: the student page shows a predicted total and both sections');
   await capture(admin, 'admin-student-page');
   await admin.getByRole('button', { name: 'Assign practice' }).click();
   const practice = admin.getByRole('dialog', { name: 'Assign practice' });

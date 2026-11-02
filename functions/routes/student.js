@@ -21,6 +21,7 @@ import {
   skillProfile, sectionSpec, skillsSpec, practiceTitle, testSize, skillSetSize, PRACTICE_MODES, MAX_SKILLS,
 } from '../lib/practice.js';
 import { requireMode } from '../lib/modes.js';
+import { resultsChanged } from '../lib/students.js';
 import { domainForSkill } from '../lib/taxonomy.js';
 import { countFormQuestions, timedAtSatPace } from '../lib/examForm.js';
 
@@ -262,6 +263,7 @@ router.post('/sessions/:id/finish', asyncHandler(async (req, res) => {
     completed_at: new Date(), responses,
     response_count: responses.length, correct_count: responses.filter((r) => r.correct).length,
   });
+  await resultsChanged(req.user.sub);
 
   res.json({ results });
 }));

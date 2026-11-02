@@ -117,16 +117,18 @@ export default function StudentApp() {
   });
   const reviewAssignment = busyWith((a) => a.id, async (a) => openSession({ sessionId: a.sessionId, status: 'completed' }));
 
+  // The dashboard opens at its top, wherever the screen it replaces was scrolled to.
   const backToDashboard = () => {
     setView('dashboard');
     setSession(null);
     setResults(null);
+    window.scrollTo(0, 0);
     load();
   };
 
   const goHome = () => {
     if (view === 'dashboard') scrollToTop();
-    else { backToDashboard(); window.scrollTo(0, 0); }
+    else backToDashboard();
   };
 
   if (view === 'exam' && session) {

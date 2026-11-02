@@ -30,6 +30,7 @@ import { scrollToTop } from '../nav.js';
 import { UserMenu } from '../account.jsx';
 import { useAuth } from '../auth.jsx';
 import { ResultBanner } from '../admin/shared.jsx';
+import { PredictedFigure } from '../prediction.jsx';
 
 // A student's progress, read-only: the page an academy admin has for each of theirs.
 const StudentPage = lazy(() => import('../admin/StudentPage.jsx'));
@@ -238,7 +239,7 @@ const CountStat = ({ n, label }) => (
 );
 
 /** A person in a list, with icon actions on the right. */
-function PersonRow({ person, actions }) {
+function PersonRow({ person, actions, predicted }) {
   return (
     <div className={cn('flex items-center gap-3 px-4 py-3', !person.active && 'opacity-60')}>
       <div className="min-w-0 flex-1">
@@ -247,6 +248,7 @@ function PersonRow({ person, actions }) {
         </div>
         <div className="truncate text-xs text-muted-foreground">{person.email}</div>
       </div>
+      {predicted !== undefined && <PredictedFigure predicted={predicted} className="shrink-0" />}
       <div className="flex shrink-0 gap-1">{actions}</div>
     </div>
   );
@@ -330,7 +332,7 @@ function ManageStudentsModal({ institution, onClose, onChanged, onOpen }) {
       ) : (
         <div className="scrollbar-thin max-h-96 divide-y overflow-y-auto rounded-lg border">
           {students.map((s) => (
-            <PersonRow key={s.id} person={s} actions={(
+            <PersonRow key={s.id} person={s} predicted={s.predicted ?? null} actions={(
               <>
                 <IconAction title="View progress" onClick={() => onOpen(s)}><LuChartColumn /></IconAction>
                 <IconAction title={s.active ? 'Deactivate' : 'Reactivate'} onClick={() => toggleActive(s)} disabled={busyId === s.id}

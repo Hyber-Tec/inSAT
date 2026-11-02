@@ -23,6 +23,7 @@
     "check:similarity": "node scripts/check-similarity.js",
     "check:scoring": "node scripts/check-scoring.js",
     "check:practice": "node scripts/check-practice.js",
+    "check:prediction": "node --test tests/prediction.test.js",
     "check:generation": "firebase emulators:exec --only firestore,storage --project demo-insat 'node --test tests/generation.test.js'",
     "check:verification": "node --test tests/template-verification.test.js",
     "check:official": "node --test tests/official.test.js",

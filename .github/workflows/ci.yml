@@ -56,6 +56,7 @@ jobs:
       - run: npm run check:similarity
       - run: npm run check:scoring
       - run: npm run check:practice
+      - run: npm run check:prediction
       - run: npm run check:verification
       - run: npm run check:official
       - run: npm run check:variation

@@ -1,7 +1,8 @@
-// A managed academy's student home: what their academy assigned them (tests
-// and practice topics, filtered by group when they are in several), what to
-// do next, and their skill map (read-only: practice is assigned, not chosen).
-// Driven by GET /api/student/assignments and GET /api/student/profile.
+// A managed academy's student home: the score their work so far predicts,
+// what their academy assigned them (tests and practice topics, filtered by
+// group when they are in several), what to do next, and their skill map
+// (read-only: practice is assigned, not chosen). Driven by
+// GET /api/student/assignments and GET /api/student/profile.
 
 import React, { useState } from 'react';
 import {
@@ -13,6 +14,7 @@ import { Card } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Action, EmptyState, SectionHeading, StatusBadge } from '../ui.jsx';
 import { SkillMap } from '../skills.jsx';
+import { PredictedScore } from '../prediction.jsx';
 import { EXAM_APP_DOWNLOADS, detectOS, needsExamApp } from '../desktop.js';
 
 const when = (iso, time = false) => new Date(iso).toLocaleString(undefined, time
@@ -177,7 +179,10 @@ export default function AssignedHome({ assignments, groups, profile, busyId, onS
 
   return (
     <div className="space-y-12">
-      <NextUp items={assignments} busyId={busyId} onStart={onStart} />
+      <div className="space-y-4">
+        {profile && <PredictedScore prediction={profile.prediction} />}
+        <NextUp items={assignments} busyId={busyId} onStart={onStart} />
+      </div>
       {needsExamApp && assignments.some((a) => a.kind !== 'practice' && a.status !== 'completed') && <ExamAppNotice />}
 
       {assignments.length > 0 && (

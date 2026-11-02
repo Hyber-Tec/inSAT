@@ -34,7 +34,7 @@ import { createInvite, inviteLink } from '../lib/invite.js';
 import { sendInvite } from '../lib/mail.js';
 import { multipart } from '../lib/upload.js';
 import {
-  assignmentTitle, attemptsByAssignment, byName, newestFirst, owned, sessionReview, studentOf, studentOverview,
+  assignmentTitle, newestFirst, owned, resultsChanged, rosterPredictions, sessionReview, studentOf, studentOverview,
 } from '../lib/students.js';
 import bankRouter from './bank.js';
 import settingsRouter from './settings.js';
@@ -88,9 +88,14 @@ async function deleteAssignments(ids) {
 
 // An institution admin only ever sees and manages STUDENTS in their own
 // institution - never other admins (admin accounts are superadmin-managed).
+// `?predicted=1` (the roster) adds each one's predicted score.
 router.get('/users', asyncHandler(async (req, res) => {
   const rows = await queryRows(col(COL.users).where('institution_id', '==', inst(req)).where('role', '==', 'student'));
-  res.json({ users: rows.sort(newestFirst('created_at')).map(publicUser) });
+  const predicted = req.query.predicted === '1' ? await rosterPredictions(rows) : null;
+  res.json({
+    users: rows.sort(newestFirst('created_at'))
+      .map((u) => ({ ...publicUser(u), ...(predicted ? { predicted: predicted.get(u.id) } : {}) })),
+  });
 }));
 
 const createUserSchema = z.object({
@@ -1048,9 +1053,10 @@ router.get('/results.csv', asyncHandler(async (req, res) => {
 // Delete a single result/session - whether in-progress or completed (its
 // responses go with it).
 router.delete('/results/:sessionId', asyncHandler(async (req, res) => {
-  const s = await sessionFields(req.params.sessionId, ['institution_id']);
+  const s = await sessionFields(req.params.sessionId, ['institution_id', 'user_id', 'status']);
   if (!s || s.institution_id !== inst(req)) throw notFound('session');
   await col(COL.sessions).doc(s.id).delete();
+  if (s.status === 'completed') await resultsChanged(s.user_id);
   res.json({ ok: true });
 }));
 

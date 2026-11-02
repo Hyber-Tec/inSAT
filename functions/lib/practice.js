@@ -3,43 +3,67 @@
 //
 // The profile is accuracy per College Board skill across every completed
 // session (assigned exams and practice alike), smoothed so one lucky answer is
-// not mastery. Practice is a full SAT, one section, or a set built from chosen
-// skills at a difficulty matched to how the student is doing in each.
+// not mastery, and the score all of it predicts (lib/prediction.js). Practice
+// is a full SAT, one section, or a set built from chosen skills at a
+// difficulty matched to how the student is doing in each.
 
 import { COL, col, getMany } from './store.js';
 import { FULL_SAT_SPEC } from './blueprints.js';
 import { loadSeenItemIds } from './assembly.js';
 import { bankRows, poolFor, servable } from './pool.js';
+import { predictScore } from './prediction.js';
 import { hasTemplates } from './templateItems.js';
 import { DOMAINS, DOMAIN_LABEL, SKILLS, domainForSkill, sectionForDomain } from './taxonomy.js';
 
+/** Whether a response holds an answer (a question left blank holds none). */
+const hasAnswer = (r) => r.selected_idx != null || String(r.selected_text ?? '').trim() !== '';
+
 /**
- * The questions a student answered in their completed sessions, counted per
- * domain and skill of each question as the bank files it now (a question
- * relabelled later counts where it is now filed).
+ * Every question a student was served in their completed sessions, each with
+ * the question as the bank files it now (a question relabelled later counts
+ * where it is now filed): its section, domain, skill and difficulty, whether
+ * it was answered and answered right, and when its session was finished.
  */
-async function answeredBySkill(userId, pool) {
+async function answersOf(userId, pool) {
   const snap = await col(COL.sessions).where('user_id', '==', userId).select('status', 'completed_at', 'responses').get();
   const done = snap.docs.map((d) => d.data()).filter((s) => s.status === 'completed');
   const ids = new Set(done.flatMap((s) => (s.responses || []).map((r) => r.item_id).filter(Boolean)));
   const known = await bankRows(pool);
   const items = new Map([...ids].filter((id) => known.has(id)).map((id) => [id, known.get(id)]));
-  for (const [id, r] of await getMany(COL.items, [...ids].filter((id) => !items.has(id)), ['domain', 'skill'])) items.set(id, r);
-  const out = new Map();
+  const rest = [...ids].filter((id) => !items.has(id));
+  for (const [id, r] of await getMany(COL.items, rest, ['section', 'domain', 'skill', 'difficulty'])) items.set(id, r);
+  const out = [];
   for (const s of done) {
     const at = s.completed_at?.toDate?.() ?? s.completed_at ?? null;
     for (const r of s.responses || []) {
       const item = r.item_id && items.get(r.item_id);
       if (!item) continue;
-      const key = `${item.domain}|${item.skill}`;
-      if (!out.has(key)) out.set(key, { domain: item.domain, skill: item.skill, answered: 0, correct: 0, last_practised: null });
-      const g = out.get(key);
-      g.answered += 1;
-      if (r.correct) g.correct += 1;
-      if (at && (!g.last_practised || at > g.last_practised)) g.last_practised = at;
+      out.push({
+        section: item.section || sectionForDomain(item.domain), domain: item.domain, skill: item.skill,
+        difficulty: item.difficulty, correct: Boolean(r.correct), answered: hasAnswer(r), at,
+      });
     }
   }
+  return out;
+}
+
+/** The questions answered per domain and skill. */
+function bySkill(answers) {
+  const out = new Map();
+  for (const a of answers) {
+    const key = `${a.domain}|${a.skill}`;
+    if (!out.has(key)) out.set(key, { domain: a.domain, skill: a.skill, answered: 0, correct: 0, last_practised: null });
+    const g = out.get(key);
+    g.answered += 1;
+    if (a.correct) g.correct += 1;
+    if (a.at && (!g.last_practised || a.at > g.last_practised)) g.last_practised = a.at;
+  }
   return [...out.values()];
+}
+
+/** A student's predicted score (lib/prediction.js), from everything they have finished. */
+export async function predictionOf(userId, { institutionId = null } = {}) {
+  return predictScore(await answersOf(userId, await poolFor(institutionId)));
 }
 
 // Laplace-smoothed accuracy: (correct + 1) / (answered + 2). Untested reads
@@ -99,12 +123,13 @@ async function supply(userId, institutionId) {
 
 /**
  * Per-skill results for one student, every College Board skill included (a
- * skill never seen is "untested"), in taxonomy order; given the student's
- * `institutionId`, with what its pool has to practise in each.
+ * skill never seen is "untested"), in taxonomy order, and the score they
+ * predict; given the student's `institutionId`, with what its pool has to
+ * practise in each.
  */
 export async function skillProfile(userId, { institutionId = null } = {}) {
-  const rows = await answeredBySkill(userId, await poolFor(institutionId));
-  const seen = new Map(rows.map((r) => [`${r.domain}|${r.skill}`, r]));
+  const answers = await answersOf(userId, await poolFor(institutionId));
+  const seen = new Map(bySkill(answers).map((r) => [`${r.domain}|${r.skill}`, r]));
   const available = institutionId ? await supply(userId, institutionId) : null;
   const skills = [];
   for (const section of ['rw', 'math']) {
@@ -140,7 +165,7 @@ export async function skillProfile(userId, { institutionId = null } = {}) {
   const sections = available
     ? Object.fromEntries(['rw', 'math'].map((kind) => [kind, available.section(kind)]))
     : undefined;
-  return { answered, skills, recommended, sections };
+  return { answered, skills, recommended, sections, prediction: predictScore(answers) };
 }
 
 // ---------------------------------------------------------------------------

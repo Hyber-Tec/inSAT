@@ -41,7 +41,8 @@ functions/   the API: Node + Express (ESM) as the `api` Cloud Function (index.js
             accounts, invite, assets (Storage), upload (multipart), crypto, taxonomy,
             scoring, blueprints, assembly (unique forms), items (import/normalize),
             session + sessions (scoring, the session documents),
-            practice (skill profile + practice specs), modes (self-guided / managed),
+            practice (skill profile + practice specs), prediction (the predicted score),
+            modes (self-guided / managed),
             pool (insat's shared question pool, cached per instance), examForm (custom tests)
             templates/  deterministic math item generators (no model, no cost)
             templateItems.js  template rows for the bank, built on demand or offline
@@ -153,6 +154,7 @@ npm run check:templates     # all 34 templates x 300 seeds, answers re-derived i
 npm run check:similarity    # measures the near-duplicate thresholds
 npm run check:scoring       # grid-in scoring against the accepted-answer lists
 npm run check:practice      # mastery levels and practice specs
+npm run check:prediction    # the predicted score, on simulated students of known ability
 npm run check:generation    # generation API, verification gate, classification into practice
 npm run check:variation     # the variation engine: reading, solving, varying, independent checks
 npm run check:text-repair   # repair of text damaged on import (lib/textRepair.js)
@@ -483,6 +485,7 @@ link) and that is the admin's whole job. The student dashboard then leads with
 a **diagnostic**, and offers:
 
 - a full practice SAT or a single section, timed like the real test or untimed;
+- a **predicted score** (below), once there is enough to go on;
 - a **skill profile**: accuracy and a smoothed mastery estimate for each of the
   29 College Board skills, from everything the student has finished;
 - **practice sets** built from chosen skills, or in one click from the weakest
@@ -497,8 +500,61 @@ assembled; Reading and Writing draws on the original questions in the bank
 
 A student can discard any set from their list. An unfinished one is deleted
 and its questions go back into their pool; a finished one only leaves the list
-(`hidden_at`): it still counts toward the skill profile, admins still see it in
-Progress, and its questions are never served again.
+(`hidden_at`): it still counts toward the skill profile and the predicted
+score, admins still see it in Progress, and its questions are never served
+again.
+
+### The predicted score
+
+Every student has a predicted SAT score: what everything they have answered,
+in tests and practice sets alike, says they would most likely score on a full
+practice test today, for each section and in all, with the range it likely
+falls in (`functions/lib/prediction.js`, in `GET /api/student/profile`). The
+student's dashboard leads with it, a managed academy's page per student shows
+it, and the Students roster (`GET /api/admin/users?predicted=1`) and the
+platform console's list of an academy's students show each student's.
+
+- **Harder questions count for more.** It is a Rasch model: a student answers
+  a question right with probability σ(θ − b), easy, medium and hard a logit
+  apart, so a run of easy questions answered right does not read as a high
+  score.
+- **Practising weak skills does not drag it down.** Each skill has an ability
+  of its own around the section's (a heavy-tailed offset), and a test spreads
+  its questions over every skill: a student who keeps practising their weakest
+  skills is predicted from all of them, not from those alone.
+- **On a practice test's scale.** It is the score those abilities would earn on
+  average on a full practice test as the app builds and scores one: the
+  blueprint's questions per domain, the difficulty each module serves (Module 1
+  takes the newest release's mix, measured into `MIX`), Module 1 routing
+  Module 2, and `lib/scoring.js`. Near the routing bar it can sit below a test
+  that routed the student to the harder Module 2, since another sitting could
+  route them either way.
+- **Recent work counts most.** An answer weighs half as much as one given 30
+  days after it, counted back from the student's newest answer, so a prediction
+  holds still while nothing new comes in. A question left blank does not count.
+- **Only with enough to go on.** A section is predicted once at least 30 of its
+  questions are answered, in skills making up at least half of a test, and the
+  student's level is known well enough (or the score is, at either end of the
+  scale): a full test or section is enough, one or two skill sets are not.
+  The total needs both sections.
+
+Its score and range are the mean and the middle 80% of 400 draws from the
+model's posterior, from a fixed seed, so the same answers always give the same
+prediction. A roster reads each student's from their account
+(`users.prediction`), worked out on the first roster request that finds it out
+of date: finishing a session, or an admin removing a finished one, bumps the
+account's `results_version`, and a change to the model bumps
+`PREDICTION_MODEL`. A question the bank relabels (a new difficulty) moves a
+roster's prediction with that student's next finished session.
+
+`npm run check:prediction` (from `functions/`) tests it on simulated students
+of known ability, who answer as the model says students like them would,
+through full tests assembled and scored as the app's are and through skill sets
+on the skills their record shows as weakest: after a full test the prediction
+is nearer the student's true score than the test's own score is, its range
+holds the true score about four times in five, practising weak skills does not
+bias it, newer answers count more, and one or two skill sets are not enough to
+predict from.
 
 ## Institution modes
 
@@ -528,7 +584,8 @@ one was cloned from) did, on this question pool and interface:
 - **Assignments**: a test, or practice topics, given to any number of students
   and groups at once, with an optional due date (`assignments.kind` is
   `exam` or `practice`); a test already given to someone is skipped.
-- **A page per student**: their skill map, test history and assigned work.
+- **A page per student**: their predicted score, skill map, test history and
+  assigned work.
   Practice topics are assigned from the skill map, starting from the
   student's weakest skills, and built for each student from their own record
   when they start, exactly as self-guided skill practice is.

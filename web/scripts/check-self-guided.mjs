@@ -122,6 +122,15 @@ try {
   await page.getByRole('button', { name: 'Back to dashboard', exact: true }).click();
   await page.getByRole('heading', { name: /Practice your weakest/ }).waitFor();
   const profile = await api('profile'); assert.equal(profile.answered, 98); assert.ok(profile.recommended.length);
+  // A full test is enough to predict a score: the dashboard leads with it, as the profile has it.
+  const predicted = profile.prediction;
+  assert.ok(predicted.total && predicted.rw.ready && predicted.math.ready, 'a full test predicts a score');
+  assert.equal(predicted.total.score, predicted.rw.score + predicted.math.score);
+  const card = await page.getByText('Predicted SAT score').locator('xpath=ancestor::*[@data-slot="card"][1]').innerText();
+  for (const shown of [predicted.total.score, predicted.rw.score, predicted.math.score, `${predicted.total.low}–${predicted.total.high}`]) {
+    assert.ok(card.includes(String(shown)), `the dashboard shows ${shown}: ${card}`);
+  }
+  assert.equal(await page.evaluate(() => window.scrollY), 0, 'the dashboard opens at its top');
   await page.screenshot({ path: path.join(output, 'recommendations.png'), fullPage: true, animations: 'disabled' });
   const followup = await startPractice(page.getByRole('button', { name: /^Practice (these \d+ skills|this skill)$/ }));
   assert.deepEqual(followup.practice.skills, profile.recommended);
@@ -131,7 +140,7 @@ try {
   assert.ok(next.every((q) => profile.recommended.includes(q.skill)));
   await completeSkillSet(followup);
   assert.equal((await api('profile')).answered, 98 + next.length);
-  evidence.diagnostic = { questions: 98, routing: result.routing, recommended: profile.recommended, followupQuestions: next.length, repeatedQuestions: 0, followupCompleted: true };
+  evidence.diagnostic = { questions: 98, routing: result.routing, recommended: profile.recommended, predicted: predicted.total, followupQuestions: next.length, repeatedQuestions: 0, followupCompleted: true };
 
   // A second learner with only the new batch proves those exact questions can
   // be served, answered correctly after shuffling, scored, and reviewed.
